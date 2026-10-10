@@ -15,3 +15,17 @@
 @source inline("shadow-{glass,glass-sm,brand,brand-hover,field,toast}");
 /* Cỡ chữ */
 @source inline("text-{xs,sm,base,lg,xl,2xl,3xl,label,body,title}");
+/* Bố cục: khoảng cách theo thang 4px, flex/grid, cỡ khung, font — để mã bố cục viết thêm bên ngoài (Claude Design) không bị thiếu class */
+@source inline("{p,px,py,pt,pb,pl,pr,m,mx,my,mt,mb,ml,mr,gap,gap-x,gap-y,space-x,space-y}-{0,0.5,1,1.5,2,2.5,3,4,5,6,7,8,10,12,14,16,20,24}");
+@source inline("{sm:,md:,lg:,}grid-cols-{1,2,3,4,5,6,12}");
+@source inline("{sm:,md:,lg:,}{flex-col,flex-row,hidden,block,flex,grid,inline-flex}");
+@source inline("{flex,grid,inline-flex,block,hidden,flex-wrap,flex-1,shrink-0,grow,relative,absolute,sticky,overflow-hidden,overflow-auto,truncate,tabular-nums,sr-only,w-full,h-full,min-w-0,mx-auto}");
+@source inline("{items,justify,self,content}-{start,center,end,between,stretch,baseline}");
+@source inline("{w,h,size}-{4,5,6,8,10,12,16,20,24,32,40,48,56,64,72,80,96}");
+@source inline("max-w-{xs,sm,md,lg,xl,2xl,3xl,4xl,5xl,6xl,7xl}");
+@source inline("font-{normal,medium,semibold,bold,extrabold}");
+@source inline("text-{left,center,right}");
+@source inline("border{,-t,-b,-l,-r}");
+@source inline("leading-{tight,snug,normal,relaxed}");
+@source inline("tracking-{tight,normal,wide}");
+@source inline("opacity-{50,60,70,80}");

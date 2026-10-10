@@ -1,0 +1,45 @@
+{
+  "projectId": "2138b908-3875-4cc6-84cb-e02abd9fc393",
+  "shape": "package",
+  "pkg": "frontend",
+  "globalName": "KpiDS",
+  "buildCmd": "npm run build:lib",
+  "tsconfig": "tsconfig.app.json",
+  "cssEntry": "dist-lib/design-system.css",
+  "componentSrcMap": {
+    "CardHeader": null,
+    "CardTitle": null,
+    "CardDescription": null,
+    "CardAction": null,
+    "CardContent": null,
+    "CardFooter": null
+  },
+  "guidelinesGlob": [
+    "../docs/*.md"
+  ],
+  "overrides": {
+    "Toaster": {
+      "cardMode": "single",
+      "viewport": "420x260"
+    },
+    "Card": {
+      "cardMode": "column"
+    },
+    "StatCard": {
+      "cardMode": "column"
+    },
+    "FormAlert": {
+      "cardMode": "column"
+    },
+    "GlassCard": {
+      "cardMode": "column"
+    },
+    "Input": {
+      "cardMode": "column"
+    },
+    "ProgressBar": {
+      "cardMode": "column"
+    }
+  },
+  "readmeHeader": ".design-sync/conventions.md"
+}
