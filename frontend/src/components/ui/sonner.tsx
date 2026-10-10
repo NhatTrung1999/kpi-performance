@@ -65,24 +65,24 @@ export function Toaster(props: ToasterProps) {
         closeButtonAriaLabel: "Đóng thông báo",
         classNames: {
           toast: cn(
-            "group pointer-events-auto relative flex w-[var(--width)] items-start gap-3 rounded-[14px] border p-4 pr-14 font-login",
-            "border-gray-200 bg-white text-gray-900 shadow-[0_18px_44px_-18px_rgba(15,23,42,.28),0_2px_6px_-2px_rgba(15,23,42,.06)]",
-            "dark:border-white/10 dark:bg-[#15151C]/75 dark:text-gray-100 dark:shadow-[0_24px_60px_-20px_rgba(0,0,0,.75)] dark:backdrop-blur-xl dark:backdrop-saturate-150"
+            "group pointer-events-auto relative flex w-[var(--width)] items-start gap-3 rounded-control border p-4 pr-14 font-login",
+            "border-border bg-card text-foreground shadow-toast",
+            "dark:bg-card/75 dark:backdrop-blur-xl dark:backdrop-saturate-150"
           ),
           icon: "!m-0 !h-8 !w-8 shrink-0",
           content: "flex min-w-0 flex-1 flex-col gap-0.5 pt-[5px]",
           title: "text-sm font-semibold leading-snug tracking-[-0.005em]",
-          description: "text-[13px] leading-snug text-gray-500 dark:text-gray-400",
+          description: "text-label leading-snug text-muted-foreground",
           actionButton: cn(
-            "!ml-1 !mt-[2px] !h-8 shrink-0 self-start !rounded-[10px] !border-0 !px-3.5 !text-[13px] !font-semibold !text-white",
-            "!bg-gradient-to-br !from-indigo-600 !to-blue-600 shadow-[0_8px_18px_-8px_rgba(79,70,229,.6)]",
-            "transition-all duration-200 hover:-translate-y-px hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#15151C]"
+            "!ml-1 !mt-[2px] !h-8 shrink-0 self-start !rounded-[10px] !border-0 !px-3.5 !text-label !font-semibold !text-white",
+            "!bg-brand-gradient shadow-[0_8px_18px_-8px_rgba(79,70,229,.6)]",
+            "transition-all duration-200 hover:-translate-y-px hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 dark:focus-visible:ring-offset-card"
           ),
-          cancelButton: "!rounded-[10px] !bg-gray-100 !text-gray-700 dark:!bg-white/10 dark:!text-gray-200",
+          cancelButton: "!rounded-[10px] !bg-muted !text-text-secondary dark:!bg-white/10 dark:!text-gray-200",
           closeButton: cn(
             "!absolute !left-auto !right-4 !top-4 !flex !h-8 !w-8 !items-center !justify-center !p-0 !translate-x-0 !translate-y-0 !rounded-[10px] !border-0 !bg-transparent !shadow-none !outline-none",
-            "!text-gray-400 transition-colors hover:!border-0 hover:!bg-gray-100 hover:!text-gray-700 focus-visible:!ring-2 focus-visible:!ring-indigo-500",
-            "dark:!text-gray-500 dark:hover:!bg-white/10 dark:hover:!text-gray-200"
+            "!text-placeholder transition-colors hover:!border-0 hover:!bg-muted hover:!text-text-secondary focus-visible:!ring-2 focus-visible:!ring-brand",
+            "dark:hover:!bg-white/10 dark:hover:!text-gray-200"
           ),
         },
       }}

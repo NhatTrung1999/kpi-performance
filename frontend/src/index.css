@@ -1,14 +1,56 @@
 @import 'tailwindcss';
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import "./fonts.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
     --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
-    --font-login: 'Be Vietnam Pro', system-ui, sans-serif;
+    --font-sans: 'Be Vietnam Pro', system-ui, sans-serif;
+    --font-login: var(--font-sans);
+
+    /* Thang cỡ chữ bổ sung (ngoài text-xs/sm/base/lg… mặc định của Tailwind) */
+    --text-label: 0.8125rem; /* 13px — nhãn phụ, thông báo lỗi */
+    --text-body: 0.9375rem; /* 15px — nội dung form, nút lớn */
+    --text-title: 1.875rem; /* 30px — tiêu đề form */
+
+    /* Màu thương hiệu & trạng thái */
+    --color-brand: var(--brand);
+    --color-brand-from: var(--brand-from);
+    --color-brand-to: var(--brand-to);
+    --color-brand-text: var(--brand-text);
+    --color-brand-text-hover: var(--brand-text-hover);
+    --color-info: var(--info);
+    --color-page: var(--page);
+    --color-text-secondary: var(--text-secondary);
+    --color-success: var(--success);
+    --color-success-soft: var(--success-soft);
+    --color-success-text: var(--success-text);
+    --color-warning: var(--warning);
+    --color-warning-soft: var(--warning-soft);
+    --color-warning-text: var(--warning-text);
+    --color-danger: var(--destructive);
+    --color-danger-soft: var(--danger-soft);
+    --color-danger-border: var(--danger-border);
+    --color-danger-text: var(--danger-text);
+    --color-danger-strong: var(--danger-strong);
+    --color-glass: var(--glass);
+    --color-glass-border: var(--glass-border);
+    --color-surface-dark: var(--surface-dark);
+    --color-placeholder: var(--placeholder);
+    --color-border-strong: var(--border-strong);
+
+    /* Đổ bóng */
+    --shadow-glass: var(--shadow-glass-value);
+    --shadow-glass-sm: var(--shadow-glass-sm-value);
+    --shadow-brand: var(--shadow-brand-value);
+    --shadow-brand-hover: var(--shadow-brand-hover-value);
+    --shadow-field: var(--shadow-field-value);
+    --shadow-toast: var(--shadow-toast-value);
+
+    /* Gradient chính */
+    --background-image-brand-gradient: linear-gradient(to bottom right, var(--brand-from), var(--brand-to));
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -40,82 +82,155 @@
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+    /* Bo góc chuẩn 8 / 12 / 16 / 20px */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 20px;
+    --radius-3xl: 28px;
+    --radius-4xl: 32px;
+    /* Bo góc riêng của trang đăng nhập (giữ nguyên hình dạng cũ) */
+    --radius-control: 14px; /* ô nhập, nút lớn, khung cảnh báo, toast */
+    --radius-hero: 28px; /* thẻ kính của form */
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    /* Nền & bề mặt */
+    --page: #F8FAFF;
+    --background: var(--page);
+    --foreground: #111827;
+    --card: #FFFFFF;
+    --card-foreground: var(--foreground);
+    --popover: #FFFFFF;
+    --popover-foreground: var(--foreground);
+    --surface-dark: #101018;
+    --text-secondary: #374151;
+    --muted: #F3F4F6;
+    --muted-foreground: #6B7280;
+    --border: #E5E7EB;
+    --input: #E5E7EB;
+    --border-strong: #D1D5DB;
+    --placeholder: #9CA3AF;
+
+    /* Thương hiệu */
+    --brand: #6366F1; /* ring, điểm nhấn */
+    --brand-from: #4F46E5; /* gradient chính */
+    --brand-to: #2563EB;
+    --brand-text: #4F46E5; /* liên kết */
+    --brand-text-hover: #4338CA; /* liên kết khi hover */
+    --info: #3B82F6; /* màu phụ xanh dương */
+    --primary: #4F46E5;
+    --primary-foreground: #FFFFFF;
+    --secondary: #F3F4F6;
+    --secondary-foreground: #1F2937;
+    --accent: #EEF2FF;
+    --accent-foreground: #3730A3;
+    --ring: var(--brand);
+
+    /* Trạng thái */
+    --success: #10B981;
+    --success-soft: #ECFDF5;
+    --success-text: #047857;
+    --warning: #F59E0B;
+    --warning-soft: #FFFBEB;
+    --warning-text: #B45309;
+    --destructive: #EF4444;
+    --danger-soft: #FEF2F2;
+    --danger-border: #FEE2E2;
+    --danger-text: #DC2626;
+    --danger-strong: #B91C1C;
+
+    /* Kính mờ & đổ bóng */
+    --glass: rgb(255 255 255 / 0.75);
+    --glass-border: rgb(255 255 255 / 0.8);
+    --shadow-glass-value: 0 40px 100px -30px rgb(49 46 129 / 0.45), 0 2px 6px rgb(49 46 129 / 0.06);
+    --shadow-glass-sm-value: 0 24px 60px -24px rgb(49 46 129 / 0.35);
+    --shadow-brand-value: 0 10px 24px -10px rgb(79 70 229 / 0.55), 0 2px 6px -2px rgb(37 99 235 / 0.25);
+    --shadow-brand-hover-value: 0 16px 32px -12px rgb(79 70 229 / 0.6), 0 4px 10px -4px rgb(37 99 235 / 0.3);
+    --shadow-field-value: 0 1px 2px rgb(16 24 40 / 0.04);
+    --shadow-toast-value: 0 18px 44px -18px rgb(15 23 42 / 0.28), 0 2px 6px -2px rgb(15 23 42 / 0.06);
+
+    --chart-1: #6366F1;
+    --chart-2: #3B82F6;
+    --chart-3: #10B981;
+    --chart-4: #F59E0B;
+    --chart-5: #EF4444;
+    --sidebar: #FFFFFF;
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --page: #0B0B0F;
+    --background: var(--page);
+    --foreground: #F3F4F6;
+    --card: #15151C;
+    --card-foreground: var(--foreground);
+    --popover: #15151C;
+    --popover-foreground: var(--foreground);
+    --surface-dark: #101018;
+    --text-secondary: #D1D5DB;
+    --muted: rgb(255 255 255 / 0.06);
+    --muted-foreground: #9CA3AF;
+    --border: rgb(255 255 255 / 0.1);
+    --input: rgb(255 255 255 / 0.1);
+    --border-strong: rgb(255 255 255 / 0.2);
+    --placeholder: #6B7280;
+
+    --brand: #818CF8;
+    --brand-from: #4F46E5;
+    --brand-to: #2563EB;
+    --brand-text: #A5B4FC;
+    --brand-text-hover: #C7D2FE;
+    --info: #60A5FA;
+    --primary: #4F46E5;
+    --primary-foreground: #FFFFFF;
+    --secondary: rgb(255 255 255 / 0.08);
+    --secondary-foreground: #F3F4F6;
+    --accent: rgb(129 140 248 / 0.15);
+    --accent-foreground: #C7D2FE;
+    --ring: var(--brand);
+
+    --success: #10B981;
+    --success-soft: rgb(16 185 129 / 0.1);
+    --success-text: #6EE7B7;
+    --warning: #F59E0B;
+    --warning-soft: rgb(251 191 36 / 0.12);
+    --warning-text: #FCD34D;
+    --destructive: #EF4444;
+    --danger-soft: rgb(248 113 113 / 0.07);
+    --danger-border: rgb(248 113 113 / 0.2);
+    --danger-text: #F87171;
+    --danger-strong: #FCA5A5;
+
+    --glass: rgb(16 16 24 / 0.7);
+    --glass-border: rgb(255 255 255 / 0.1);
+    --shadow-glass-value: 0 40px 100px -30px rgb(0 0 0 / 0.75), 0 0 80px -20px rgb(99 102 241 / 0.35);
+    --shadow-glass-sm-value: 0 24px 60px -20px rgb(0 0 0 / 0.6);
+    --shadow-brand-value: inset 0 0 0 1px rgb(255 255 255 / 0.08), 0 10px 30px -8px rgb(99 102 241 / 0.65);
+    --shadow-brand-hover-value: 0 16px 32px -12px rgb(79 70 229 / 0.6), 0 4px 10px -4px rgb(37 99 235 / 0.3);
+    --shadow-field-value: none;
+    --shadow-toast-value: 0 24px 60px -20px rgb(0 0 0 / 0.75);
+
+    --chart-1: #818CF8;
+    --chart-2: #60A5FA;
+    --chart-3: #34D399;
+    --chart-4: #FBBF24;
+    --chart-5: #F87171;
+    --sidebar: #15151C;
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
 }
 
 @layer base {

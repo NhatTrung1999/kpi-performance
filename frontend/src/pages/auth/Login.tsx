@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { TrendingUp } from "lucide-react";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { GlassCard } from "@/components/ui/glass-card";
 import { GrowthLine } from "@/components/auth/growth-line";
 import { LINE_POINTS } from "@/components/auth/line-points";
 import { KpiPill } from "@/components/auth/kpi-pill";
@@ -15,7 +15,7 @@ const Login = () => {
   const growth = useCountUp(18);
 
   return (
-    <div className="relative isolate min-h-dvh overflow-hidden bg-[#F8FAFF] font-login text-gray-900 dark:bg-[#0B0B0F] dark:text-gray-100">
+    <div className="relative isolate min-h-dvh overflow-hidden bg-page font-login text-foreground">
       {/* Nền mesh + khối sáng trôi chậm */}
       <div
         aria-hidden="true"
@@ -33,15 +33,15 @@ const Login = () => {
           <span className="block text-[clamp(200px,23vw,330px)]">KPI</span>
           <span className="-ml-1.5 block text-[clamp(110px,12.2vw,176px)]">Performance</span>
         </h1>
-        <p className="absolute left-14 top-[66.6vh] z-30 max-w-[440px] animate-fade-up text-xl font-medium leading-normal text-gray-600 [animation-delay:150ms] [text-wrap:pretty] dark:text-gray-400">
+        <p className="absolute left-14 top-[66.6vh] z-30 max-w-[440px] animate-fade-up text-xl font-medium leading-normal text-gray-600 [animation-delay:150ms] [text-wrap:pretty] dark:text-muted-foreground">
           Theo dõi mục tiêu – Đo lường kết quả – Cùng nhau phát triển
         </p>
         <KpiPill {...LINE_POINTS.growth}>
-          <span className="grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-indigo-600 to-blue-600 text-white">
+          <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-gradient text-white">
             <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
           </span>
           <span className="text-sm font-bold tabular-nums">+{growth}%</span>
-          <span className="text-xs text-gray-600 dark:text-gray-400">so với quý trước</span>
+          <span className="text-xs text-gray-600 dark:text-muted-foreground">so với quý trước</span>
         </KpiPill>
         <KpiPill {...LINE_POINTS.done} className="animate-bob-slow">
           <span className="ml-1.5 h-2 w-2 rounded-full bg-emerald-600 dark:bg-emerald-300" />
@@ -55,7 +55,7 @@ const Login = () => {
       <header className="absolute inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-5 lg:px-14 lg:py-12">
         <div className="hidden items-center gap-2.5 lg:flex">
           {/* Thay bằng logo công ty */}
-          <div className="grid h-9 w-9 place-items-center rounded-[11px] bg-gradient-to-br from-indigo-600 to-blue-600 text-[8px] font-semibold tracking-wider text-white">LOGO</div>
+          <div className="grid h-9 w-9 place-items-center rounded-[11px] bg-brand-gradient text-[8px] font-semibold tracking-wider text-white">LOGO</div>
           <span className="text-sm font-semibold">Tên công ty</span>
         </div>
         <div className="ml-auto">
@@ -65,11 +65,11 @@ const Login = () => {
 
       {/* Form — card kính mờ lệch phải trên desktop, full màn hình trên mobile */}
       <main className="relative z-30 flex min-h-dvh items-start justify-center px-6 pb-10 pt-20 sm:items-center sm:pt-10 lg:justify-end lg:px-[7.2vw]">
-        <Card className="w-full gap-0 overflow-visible py-0 ring-0 max-w-[468px] animate-fade-up border-0 bg-transparent shadow-none [animation-delay:250ms] sm:rounded-[28px] sm:border sm:border-white/80 sm:bg-white/75 sm:shadow-[0_40px_100px_-30px_rgba(49,46,129,.45),0_2px_6px_rgba(49,46,129,.06)] sm:backdrop-blur-2xl sm:backdrop-saturate-150 dark:sm:border-white/10 dark:sm:bg-[#101018]/70 dark:sm:shadow-[0_40px_100px_-30px_rgba(0,0,0,.75),0_0_80px_-20px_rgba(99,102,241,.35)]">
-          <CardContent className="p-0 sm:px-9 sm:pb-8 sm:pt-10">
+        <GlassCard glass="sm" className="w-full max-w-[468px] animate-fade-up [animation-delay:250ms]">
+          <div className="p-0 sm:px-9 sm:pb-8 sm:pt-10">
             <LoginForm onSuccess={() => navigate("/dashboard", { replace: true })} />
-          </CardContent>
-        </Card>
+          </div>
+        </GlassCard>
       </main>
     </div>
   );

@@ -1,0 +1,17 @@
+/*
+ * CSS của bản thư viện (build:lib). Tailwind chỉ sinh class đang được dùng trong mã nguồn,
+ * nên liệt kê sẵn mọi class của token để nơi dùng thư viện (vd. Claude Design) dùng được tất cả.
+ * App chính (src/main.tsx) nạp index.css trực tiếp nên không bị phình thêm.
+ */
+@import './index.css';
+
+/* Màu: thương hiệu, trạng thái, nền, chữ, viền (cả token shadcn) */
+@source inline("{bg,text,border,ring}-{brand,brand-from,brand-to,brand-text,brand-text-hover,info,page,text-secondary,placeholder,border-strong,surface-dark,glass,glass-border,success,success-soft,success-text,warning,warning-soft,warning-text,danger,danger-soft,danger-border,danger-text,danger-strong,background,foreground,card,card-foreground,popover,popover-foreground,primary,primary-foreground,secondary,secondary-foreground,muted,muted-foreground,accent,accent-foreground,destructive,border,input,ring}");
+/* Gradient chính */
+@source inline("bg-brand-gradient");
+/* Bo góc */
+@source inline("rounded-{sm,md,lg,xl,2xl,3xl,4xl,control,hero,full}");
+/* Đổ bóng */
+@source inline("shadow-{glass,glass-sm,brand,brand-hover,field,toast}");
+/* Cỡ chữ */
+@source inline("text-{xs,sm,base,lg,xl,2xl,3xl,label,body,title}");
