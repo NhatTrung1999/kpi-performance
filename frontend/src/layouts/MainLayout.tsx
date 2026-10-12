@@ -15,7 +15,7 @@ const MainLayout = () => {
   }, [menuOpen]);
 
   return (
-    <div className="flex min-h-screen bg-page text-foreground">
+    <div className="flex min-h-screen bg-page text-foreground lg:h-screen lg:overflow-hidden">
       <Sidebar className="hidden lg:flex" />
       {menuOpen && (
         <>
@@ -26,7 +26,8 @@ const MainLayout = () => {
           />
         </>
       )}
-      <div className="flex min-w-0 flex-1 flex-col">
+      {/* Từ lg: cột nội dung là vùng cuộn của trang thường; trang bảng (PageShell) vừa khít nên không cuộn. */}
+      <div className="flex min-w-0 flex-1 flex-col lg:min-h-0 lg:overflow-y-auto">
         <Outlet context={{ openMenu: () => setMenuOpen(true) } satisfies MainLayoutContext} />
       </div>
     </div>

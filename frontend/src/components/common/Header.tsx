@@ -50,7 +50,7 @@ const Header = ({ title }: { title?: string }) => {
   const toolbar = meta?.toolbar;
   const user = getCurrentUser();
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center gap-1 border-b border-border bg-card pr-2 pl-1 lg:h-16 lg:gap-4 lg:px-8">
+    <header className="sticky top-0 z-20 flex h-14 flex-none items-center gap-1 border-b border-border bg-card pr-2 pl-1 lg:h-16 lg:gap-4 lg:px-8">
       <Button variant="ghost" size="icon-lg" aria-label="Mở menu" onClick={ctx?.openMenu} className="size-11 lg:hidden">
         <Menu />
       </Button>

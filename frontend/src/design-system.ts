@@ -18,6 +18,7 @@ export { Label } from '@/components/ui/label';
 export { PageBanner } from '@/components/ui/page-banner';
 export type { PageBannerBadge, PageBannerProps } from '@/components/ui/page-banner';
 export { Popover,PopoverClose, PopoverContent, PopoverTrigger, onListKeyDown } from '@/components/ui/popover';
+export { PageShell, TableCard, TableCardBar, TableCardBody } from '@/components/ui/table-page';
 export { ProgressBar, KPI_THRESHOLDS, getKpiTone } from '@/components/ui/progress-bar';
 export type { KpiTone } from '@/components/ui/progress-bar';
 export { StatCard } from '@/components/ui/stat-card';
