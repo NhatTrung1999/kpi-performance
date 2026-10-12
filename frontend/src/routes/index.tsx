@@ -4,8 +4,10 @@ import Login from '@/pages/auth/Login';
 import { createBrowserRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import ProtectedRoute from './ProtectedRoute';
+import RequireRole from './RequireRole';
 import Dashboard from '@/pages/dashboard';
 import NotFound from '@/pages/NotFound';
+import Roles from '@/pages/roles';
 
 const router = createBrowserRouter([
   {
@@ -23,6 +25,10 @@ const router = createBrowserRouter([
             element: <Navigate to="dashboard" replace />,
           },
           { path: 'dashboard', element: <Dashboard /> },
+          {
+            element: <RequireRole />,
+            children: [{ path: 'roles', element: <Roles /> }],
+          },
         ],
       },
     ],
