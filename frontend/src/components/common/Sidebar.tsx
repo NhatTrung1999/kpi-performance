@@ -18,7 +18,7 @@ const Sidebar = ({ className, onClose }: { className?: string; onClose?: () => v
         </div>
         <div className="flex min-w-0 flex-1 flex-col leading-tight">
           <span className="text-[15px] font-bold">KPI Performance</span>
-          <span className="text-xs text-muted-foreground">{ROLE_PORTAL[user.role]}</span>
+          <span className="text-xs text-muted-foreground">{user.roleKnown ? ROLE_PORTAL[user.role] : "Chưa xác định vai trò"}</span>
         </div>
         {onClose && (
           <Button variant="ghost" size="icon-lg" aria-label="Đóng menu" onClick={onClose}>

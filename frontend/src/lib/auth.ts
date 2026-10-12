@@ -1,4 +1,5 @@
 import { ApiError, http, setToken } from './axios';
+import { saveCurrentUser } from './session';
 import { toLoginFailure, type LoginFailure } from './auth-errors';
 import type { LoginValues } from './validations/login';
 
@@ -6,6 +7,8 @@ export type LoginResult = { ok: true } | { ok: false; failure: LoginFailure };
 
 interface LoginResponse {
   token: string;
+  /** Tuỳ chọn: { name, title, role }. Thiếu thì gọi GET /auth/me. */
+  user?: unknown;
 }
 
 /**
@@ -19,8 +22,10 @@ interface LoginResponse {
  */
 export async function login(values: LoginValues): Promise<LoginResult> {
   try {
-    const { token } = await http.post<LoginResponse>('/auth/login', values);
+    const { token, user } = await http.post<LoginResponse>('/auth/login', values);
     setToken(token, values.remember);
+    // Lấy họ tên/chức danh/vai trò từ server; lỗi ở đây không làm hỏng đăng nhập (dự phòng: claim trong token).
+    saveCurrentUser(user ?? (await http.get('/auth/me').catch(() => null)));
     return { ok: true };
   } catch (error) {
     if (error instanceof ApiError) {

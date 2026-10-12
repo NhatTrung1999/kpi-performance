@@ -1,6 +1,7 @@
 import axios, { AxiosError, type AxiosRequestConfig } from 'axios';
 
 export const TOKEN_KEY = 'token';
+export const USER_KEY = 'user';
 
 export const getToken = () =>
   localStorage.getItem(TOKEN_KEY) ?? sessionStorage.getItem(TOKEN_KEY);
@@ -14,6 +15,8 @@ export function setToken(token: string, remember: boolean) {
 export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
   sessionStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+  sessionStorage.removeItem(USER_KEY);
 }
 
 export const api = axios.create({
@@ -23,6 +26,11 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Chỉ tồn tại ở dev: nhánh này bị loại hoàn toàn khỏi bản build production.
+if (import.meta.env.DEV && import.meta.env.VITE_MOCK_AUTH === 'true') {
+  void import('./mock-auth').then((m) => m.installMockAuth(api));
+}
 
 api.interceptors.request.use((config) => {
   const token = getToken();
