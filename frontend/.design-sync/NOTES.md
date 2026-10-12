@@ -10,6 +10,10 @@
 - Overrides: Toaster `cardMode: single` (viewport 420x260; toasts are portaled), Card/StatCard/FormAlert/GlassCard/Input/ProgressBar `cardMode: column`.
 - Toaster previews fire `toast.*` in an effect with `duration: Infinity`.
 
+- `vite.lib.config.ts` externalizes `use-sync-external-store` (pulled in by Base UI Popover). Bundled inline, Rolldown emits a CJS `require("react")` that throws "Dynamic require" in every preview; external lets the converter bundle it through its React shim. If every preview goes `root empty` after a dep change, grep `dist-lib/design-system.js` for `("react")`.
+- Popover: `componentSrcMap` nulls PopoverTrigger/Content/Close (documented under `Popover`); Popover is `cardMode: single`, primaryStory ChonDonVi (portaled, so GRID_OVERFLOW otherwise).
+- Remote project also holds `templates/` and `screenshots/` (not from this sync, outside the plan) - never delete them.
+
 ## Known render warns
 - `[RENDER_THIN]` Toaster: rendered height 0 because the toast is portaled/fixed; screenshot shows the toasts correctly — benign.
 

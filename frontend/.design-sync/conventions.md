@@ -23,6 +23,7 @@ Use token classes only — never raw hex or `indigo-600`. Spacing is a 4px scale
 - Status is never colour-alone: use `Badge status=…` (`dat` Đạt, `canh-bao` Cảnh báo, `chua-dat` Chưa đạt, `nhap` Nháp, `cho-duyet` Chờ duyệt, `da-duyet` Đã duyệt — each has icon + label) and `StatCard` trend arrows.
 - KPI colour thresholds (`ProgressBar`, `getKpiTone`): ≥90 success, 60–89 warning, <60 danger. Pass `StatCard trend.inverse` when a decrease is good (e.g. error rate).
 - Form field = `Label` + `Input` (`aria-invalid` shows the error ring; `size="lg"` + `startIcon` is the login style).
+- Dropdown/select-style menus: `Popover` + `PopoverTrigger` (`render={<Button variant="outline" />}`) + `PopoverContent` (portal to body, as wide as the trigger; add `style={{minWidth}}` for more) + `PopoverClose`. All exported from `KpiDS`; docs in `Popover.prompt.md`.
 - Compose cards from `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardAction`, `CardContent`, `CardFooter` (all exported from `KpiDS`; docs live in `Card.prompt.md`).
 
 ## Where the truth lives
