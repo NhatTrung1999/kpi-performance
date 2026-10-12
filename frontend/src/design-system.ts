@@ -15,6 +15,7 @@ export { GlassCard, glassCardVariants } from '@/components/ui/glass-card';
 export { Input } from '@/components/ui/input';
 export type { InputProps } from '@/components/ui/input';
 export { Label } from '@/components/ui/label';
+export { Popover, PopoverClose, PopoverContent, PopoverTrigger, onListKeyDown } from '@/components/ui/popover';
 export { ProgressBar, KPI_THRESHOLDS, getKpiTone } from '@/components/ui/progress-bar';
 export type { KpiTone } from '@/components/ui/progress-bar';
 export { StatCard } from '@/components/ui/stat-card';

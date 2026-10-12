@@ -1,10 +1,10 @@
-import { Popover } from '@base-ui/react/popover';
 import { Dialog } from '@base-ui/react/dialog';
 import { Briefcase, Check, ChevronDown, History, MoreHorizontal, Search, ShieldCheck, TriangleAlert, UserRoundCheck, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import Header from '@/components/common/Header';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Popover, PopoverClose, PopoverContent, PopoverTrigger, onListKeyDown } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import {
@@ -14,7 +14,6 @@ import {
 import { flattenTree } from './tree';
 import { TreeRowView, ZhText } from './unit-tree';
 
-const popupClass = 'z-50 rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-[0_18px_40px_-16px_rgba(15,23,42,.4)]';
 const fieldClass =
   'relative flex h-10 w-full items-center gap-2 rounded-[10px] border border-border-strong bg-card px-3 text-left data-popup-open:border-brand data-popup-open:ring-3 data-popup-open:ring-brand/20';
 
@@ -53,6 +52,7 @@ const Roles = () => {
   const [unit, setUnit] = useState<string | null>(null);
   const [searched, setSearched] = useState(false);
   const [unitMenu, setUnitMenu] = useState(false);
+  const [roleMenu, setRoleMenu] = useState(false);
   const [mq, setMq] = useState('');
   const [open, setOpen] = useState<string[]>(['kt']);
   const [filter, setFilter] = useState<'all' | Role>('all');
@@ -149,8 +149,8 @@ const Roles = () => {
         <section className="relative z-10 flex flex-wrap items-end gap-4 rounded-[14px] border border-border bg-card px-5 py-4">
           <div className="flex min-w-70 flex-[0_1_460px] flex-col gap-1.5">
             <Label vi="Đơn vị" zh="單位" />
-            <Popover.Root open={unitMenu} onOpenChange={setUnitMenu}>
-              <Popover.Trigger className={fieldClass}>
+            <Popover open={unitMenu} onOpenChange={setUnitMenu}>
+              <PopoverTrigger className={fieldClass}>
                 <Briefcase className="size-4 text-brand-text" />
                 {fu ? (
                   <span className="flex min-w-0 flex-1 items-baseline gap-2 overflow-hidden whitespace-nowrap">
@@ -161,64 +161,81 @@ const Roles = () => {
                   <span className="flex-1 text-placeholder">-- Chọn đơn vị · 請選擇單位 --</span>
                 )}
                 <ChevronDown className="size-4 text-muted-foreground" />
-              </Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Positioner sideOffset={6} align="start">
-                  <Popover.Popup className={cn(popupClass, 'flex w-[min(460px,90vw)] flex-col gap-2 rounded-[14px] p-2')}>
-                    <Input value={mq} onChange={(e) => setMq(e.target.value)} placeholder="Tìm đơn vị · 搜尋單位 (VD: pattern, 樣品)" aria-label="Tìm đơn vị" startIcon={<Search />} className="h-9 pl-9" />
-                    <div role="listbox" className="flex max-h-80 flex-col gap-0.5 overflow-y-auto">
-                      {menuRows.map((r) => {
-                        const sel = unit === r.unit.id;
-                        return (
-                          <div
-                            key={r.unit.id}
-                            role="option"
-                            aria-selected={sel}
-                            tabIndex={0}
-                            onClick={() => pickUnit(r.unit.id)}
-                            onKeyDown={(e) => e.key === 'Enter' && pickUnit(r.unit.id)}
-                            className={cn('flex min-h-10 cursor-pointer items-center gap-2.5 rounded-lg py-1.5 pr-2.5 pl-1.5 hover:bg-muted', sel && 'bg-accent/40 ring-1 ring-brand/40 ring-inset')}
-                          >
-                            <TreeRowView row={r} query={mq} onToggle={() => setOpen((o) => toggleIn(o, r.unit.id))} />
-                            {sel && <Check className="size-4 text-brand-text" />}
-                          </div>
-                        );
-                      })}
-                      {menuRows.length === 0 && <div className="p-6 text-center text-muted-foreground">Không tìm thấy đơn vị khớp “{mq}”</div>}
-                    </div>
-                    <div className="border-t border-border px-1.5 pt-2 pb-0.5 text-xs text-muted-foreground">Chọn bộ phận cha để xem nhân viên của tất cả bộ phận con</div>
-                  </Popover.Popup>
-                </Popover.Positioner>
-              </Popover.Portal>
-            </Popover.Root>
+              </PopoverTrigger>
+              <PopoverContent className="min-w-90" onKeyDown={onListKeyDown}>
+                <div className="flex-none p-2">
+                  <Input value={mq} onChange={(e) => setMq(e.target.value)} placeholder="Tìm đơn vị · 搜尋單位 (VD: pattern, 樣品)" aria-label="Tìm đơn vị" startIcon={<Search />} className="h-9 pl-9" />
+                </div>
+                <div role="listbox" aria-label="Đơn vị" className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 pb-2">
+                  {menuRows.map((r) => {
+                    const sel = unit === r.unit.id;
+                    return (
+                      <div
+                        key={r.unit.id}
+                        role="option"
+                        aria-selected={sel}
+                        tabIndex={-1}
+                        onClick={() => pickUnit(r.unit.id)}
+                        onKeyDown={(e) => {
+                          if (e.target !== e.currentTarget) return;
+                          if (e.key === 'Enter') pickUnit(r.unit.id);
+                          else if (e.key === 'ArrowRight' && r.hasKids && !r.open) setOpen((o) => toggleIn(o, r.unit.id));
+                          else if (e.key === 'ArrowLeft' && r.hasKids && r.open) setOpen((o) => toggleIn(o, r.unit.id));
+                        }}
+                        className={cn('flex min-h-10 cursor-pointer items-center gap-2.5 rounded-lg py-1.5 pr-2.5 pl-1.5 outline-none hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-brand/50', sel && 'bg-accent')}
+                      >
+                        <TreeRowView row={r} query={mq} onToggle={() => setOpen((o) => toggleIn(o, r.unit.id))} />
+                        {sel && <Check className="size-4 text-brand-text" />}
+                      </div>
+                    );
+                  })}
+                  {menuRows.length === 0 && <div className="p-6 text-center text-muted-foreground">Không tìm thấy đơn vị khớp “{mq}”</div>}
+                </div>
+                <div className="flex-none border-t border-border px-4 py-2.5 text-xs text-muted-foreground">Chọn bộ phận cha để xem nhân viên của tất cả bộ phận con</div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="flex min-w-45 flex-[0_1_220px] flex-col gap-1.5">
             <Label vi="Vai trò" zh="角色" />
-            <Popover.Root>
-              <Popover.Trigger className={fieldClass}>
+            <Popover open={roleMenu} onOpenChange={setRoleMenu}>
+              <PopoverTrigger className={fieldClass}>
                 <span className="flex flex-1 items-baseline gap-1.5">
                   {filterLabel.vi}
                   <ZhText>{filterLabel.zh}</ZhText>
                 </span>
                 <ChevronDown className="size-4 text-muted-foreground" />
-              </Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Positioner sideOffset={6} align="start">
-                  <Popover.Popup className={cn(popupClass, 'flex w-55 flex-col gap-0.5')}>
-                    {ROLE_FILTERS.map((f) => (
-                      <Popover.Close key={f.key} onClick={() => setFilter(f.key)} className={cn('flex h-9 items-center gap-2 rounded-lg px-2.5 text-left hover:bg-muted', filter === f.key && 'bg-accent/40')}>
+              </PopoverTrigger>
+              <PopoverContent onKeyDown={onListKeyDown}>
+                <div role="listbox" aria-label="Vai trò" className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-2">
+                  {ROLE_FILTERS.map((f) => {
+                    const sel = filter === f.key;
+                    const pick = () => {
+                      setFilter(f.key);
+                      setRoleMenu(false);
+                    };
+                    return (
+                      <div
+                        key={f.key}
+                        role="option"
+                        aria-selected={sel}
+                        tabIndex={-1}
+                        onClick={pick}
+                        onKeyDown={(e) => e.key === 'Enter' && pick()}
+                        className={cn('flex h-9 cursor-pointer items-center gap-2 rounded-lg px-2.5 outline-none hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-brand/50', sel && 'bg-accent')}
+                      >
                         <span className="flex flex-1 items-baseline gap-1.5">
                           {f.vi}
                           <ZhText>{f.zh}</ZhText>
                         </span>
-                        <span className="text-xs text-muted-foreground">{hasData ? (f.key === 'all' ? people.length : count(f.key)) : ''}</span>
-                      </Popover.Close>
-                    ))}
-                  </Popover.Popup>
-                </Popover.Positioner>
-              </Popover.Portal>
-            </Popover.Root>
+                        <span className="text-xs text-muted-foreground tabular-nums">{hasData ? (f.key === 'all' ? people.length : count(f.key)) : ''}</span>
+                        {sel && <Check className="size-4 text-brand-text" />}
+                      </div>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <Button size="lg" onClick={() => setSearched(true)} className="h-10 min-w-30 rounded-[10px] px-[18px] font-semibold">
@@ -284,31 +301,29 @@ const Roles = () => {
                           <td className={cn(cell, 'text-text-secondary tabular-nums')}>{p.join}</td>
                           <td className={cell}>
                             <div className="flex items-center gap-2">
-                              <Popover.Root>
-                                <Popover.Trigger aria-label={`Vai trò: ${ROLE_LABEL[role]}`} className={cn('inline-flex h-7 items-center gap-1.5 rounded-full border pr-2 pl-2.5 text-[13px] font-semibold whitespace-nowrap', ROLE_STYLE[role])}>
+                              <Popover>
+                                <PopoverTrigger aria-label={`Vai trò: ${ROLE_LABEL[role]}`} className={cn('inline-flex h-7 items-center gap-1.5 rounded-full border pr-2 pl-2.5 text-[13px] font-semibold whitespace-nowrap', ROLE_STYLE[role])}>
                                   <span className="size-1.5 rounded-full bg-current" />
                                   {ROLE_LABEL[role]}
                                   <ChevronDown className="size-3.5" />
-                                </Popover.Trigger>
-                                <Popover.Portal>
-                                  <Popover.Positioner sideOffset={6} align="start">
-                                    <Popover.Popup className={cn(popupClass, 'flex w-72.5 flex-col gap-0.5')}>
-                                      {ROLE_OPTIONS.map((o) => (
-                                        <Popover.Close key={o.key} onClick={() => setRoles((r) => ({ ...r, [p.i]: o.key }))} className={cn('flex items-start gap-2.5 rounded-lg px-2.5 py-2 text-left hover:bg-muted', role === o.key && 'bg-accent/40')}>
-                                          <span className="flex flex-1 flex-col gap-0.5">
-                                            <span className="flex items-baseline gap-1.5 font-semibold">
-                                              {o.vi}
-                                              <ZhText>{o.zh}</ZhText>
-                                            </span>
-                                            <span className="text-xs leading-snug text-muted-foreground">{o.desc}</span>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-72.5 min-w-72.5" onKeyDown={onListKeyDown}>
+                                  <div role="listbox" aria-label="Vai trò" className="flex flex-col gap-0.5 overflow-y-auto p-2">
+                                    {ROLE_OPTIONS.map((o) => (
+                                      <PopoverClose key={o.key} role="option" aria-selected={role === o.key} tabIndex={-1} onClick={() => setRoles((r) => ({ ...r, [p.i]: o.key }))} className={cn('flex items-start gap-2.5 rounded-lg px-2.5 py-2 text-left outline-none hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-brand/50', role === o.key && 'bg-accent')}>
+                                        <span className="flex flex-1 flex-col gap-0.5">
+                                          <span className="flex items-baseline gap-1.5 font-semibold">
+                                            {o.vi}
+                                            <ZhText>{o.zh}</ZhText>
                                           </span>
-                                          {role === o.key && <Check className="mt-0.5 size-4 text-brand-text" />}
-                                        </Popover.Close>
-                                      ))}
-                                    </Popover.Popup>
-                                  </Popover.Positioner>
-                                </Popover.Portal>
-                              </Popover.Root>
+                                          <span className="text-xs leading-snug text-muted-foreground">{o.desc}</span>
+                                        </span>
+                                        {role === o.key && <Check className="mt-0.5 size-4 text-brand-text" />}
+                                      </PopoverClose>
+                                    ))}
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
                               {role !== baseOf(p.i) && (
                                 <span className="flex items-center gap-1 text-xs font-semibold whitespace-nowrap text-warning-text">
                                   <span className="size-1.5 rounded-full bg-warning-text" />
