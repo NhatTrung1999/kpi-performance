@@ -7,6 +7,9 @@
 
 /* Màu: thương hiệu, trạng thái, nền, chữ, viền (cả token shadcn) */
 @source inline("{bg,text,border,ring}-{brand,brand-from,brand-to,brand-text,brand-text-hover,info,page,text-secondary,placeholder,border-strong,surface-dark,glass,glass-border,success,success-soft,success-text,warning,warning-soft,warning-text,danger,danger-soft,danger-border,danger-text,danger-strong,background,foreground,card,card-foreground,popover,popover-foreground,primary,primary-foreground,secondary,secondary-foreground,muted,muted-foreground,accent,accent-foreground,destructive,border,input,ring}");
+/* Độ trong suốt của trắng trên nền gradient (PageBanner) */
+@source inline("{bg,border}-white/{15,20,30,35}");
+@source inline("text-white/80");
 /* Gradient chính */
 @source inline("bg-brand-gradient");
 /* Bo góc */

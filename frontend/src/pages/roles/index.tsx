@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger, onListKeyDown } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
+import { PageBanner } from '@/components/ui/page-banner';
 import { cn } from '@/lib/utils';
 import {
   INITIAL_ROLES, INITIAL_SCOPES, LEAF_BY_ID, PEOPLE, ROLE_FILTERS, ROLE_LABEL, ROLE_OPTIONS, UNITS,
@@ -110,41 +111,30 @@ const Roles = () => {
   return (
     <>
       <Header />
-      <main className="flex min-w-0 flex-col gap-4 px-4 pt-6 pb-28 lg:px-8">
-        <section className="relative flex min-h-28 flex-wrap items-center gap-4 overflow-hidden rounded-[18px] bg-brand-gradient px-7 py-5.5 text-white shadow-brand">
-          <svg viewBox="0 0 1200 140" preserveAspectRatio="none" aria-hidden="true" className="pointer-events-none absolute inset-0 size-full">
-            <path d="M0 92 C 200 62 380 122 600 92 S 1000 52 1200 86 L1200 140 L0 140Z" fill="rgba(255,255,255,.08)" />
-            <path d="M0 112 C 240 86 420 136 660 110 S 1020 80 1200 108 L1200 140 L0 140Z" fill="rgba(255,255,255,.08)" />
-            <path d="M0 40 C 260 70 520 10 760 36 S 1080 64 1200 30" fill="none" stroke="rgba(255,255,255,.14)" strokeWidth="1.5" />
-          </svg>
-          <div className="relative flex size-14 flex-none items-center justify-center rounded-2xl border border-white/30 bg-white/18">
-            <ShieldCheck className="size-7" />
-          </div>
-          <div className="relative flex min-w-70 flex-1 flex-col gap-1">
-            <h2 className="text-[26px] font-extrabold tracking-[.06em]">PHÂN QUYỀN</h2>
-            <span className="text-sm text-white/90">
+      <main className="flex min-w-0 flex-col gap-4 px-4 py-6 lg:px-8">
+        <PageBanner
+          icon={<ShieldCheck />}
+          title="PHÂN QUYỀN"
+          subtitle={
+            <>
               <span lang="zh-Hant" className="font-['Noto_Sans_TC',sans-serif]">權限管理</span> · Permission management
-            </span>
-          </div>
-          <div className="relative flex flex-wrap gap-2.5 self-start">
-            {(
-              [
-                ['Chủ quản', '主管', 'CQ'],
-                ['Chưa phân quyền', '未分配', 'NONE'],
-              ] as const
-            ).map(([vi, zh, role]) => (
-              <span key={vi} className="flex h-[34px] items-center gap-2 rounded-full border border-white/35 bg-white/16 px-3.5 text-[13px] font-medium whitespace-nowrap backdrop-blur-sm">
-                {vi}
-                <span lang="zh-Hant" className="font-['Noto_Sans_TC',sans-serif] text-xs font-normal text-white/85">{zh}</span>
-                {loading ? (
-                  <span role="status" aria-label="Đang tải" className="h-4 w-6 animate-pulse rounded bg-white/35" />
-                ) : (
-                  <b className="text-[15px] tabular-nums">{count(role)}</b>
-                )}
-              </span>
-            ))}
-          </div>
-        </section>
+            </>
+          }
+          badges={(
+            [
+              ['Chủ quản', '主管', 'CQ'],
+              ['Chưa phân quyền', '未分配', 'NONE'],
+            ] as const
+          ).map(([vi, zh, role]) => ({
+            label: (
+              <>
+                {vi} <span lang="zh-Hant" className="font-['Noto_Sans_TC',sans-serif]">{zh}</span>
+              </>
+            ),
+            value: count(role),
+            loading,
+          }))}
+        />
 
         <section className="relative z-10 flex flex-wrap items-end gap-4 rounded-[14px] border border-border bg-card px-5 py-4">
           <div className="flex min-w-70 flex-[0_1_460px] flex-col gap-1.5">
@@ -245,21 +235,27 @@ const Roles = () => {
         </section>
 
         <section className="flex flex-col overflow-hidden rounded-[14px] border border-border bg-card">
-          <div className="flex flex-col items-center gap-1 px-6 pt-5.5 pb-4 text-center">
-            <h2 className="text-xl font-extrabold tracking-[.04em] text-brand-text">DANH SÁCH PHÂN QUYỀN NHÂN VIÊN</h2>
-            <span lang="zh-Hant" className="font-['Noto_Sans_TC',sans-serif] text-sm font-medium tracking-[.12em] text-text-secondary">員工權限名單</span>
-            <span className={'mt-1.5 mb-1 h-[3px] w-18 rounded-sm bg-brand-gradient'} />
+          <div className="flex h-14 flex-none items-center justify-between gap-4 border-b border-border px-5">
+            <h2 className="text-[13px] font-bold tracking-[.06em]">
+              DANH SÁCH PHÂN QUYỀN NHÂN VIÊN · <span lang="zh-Hant" className="font-['Noto_Sans_TC',sans-serif]">員工權限名單</span>
+            </h2>
             <span className="text-[13px] text-muted-foreground">
-              {hasData ? `Đơn vị: ${pu.vi}${pu.zh ? ' · ' + pu.zh : ''}${fu!.k ? ` (gồm ${fu!.k.length} bộ phận con)` : ''}` : 'Chưa chọn đơn vị · 尚未選擇單位'}
+              {hasData ? (
+                <>
+                  {pu.vi} · <b className="font-semibold text-foreground tabular-nums">{people.length}</b> nhân viên
+                </>
+              ) : (
+                'Chưa chọn đơn vị · 尚未選擇單位'
+              )}
             </span>
           </div>
 
           {hasData ? (
             <>
-              <div className="flex flex-wrap items-center gap-3 px-6 pb-3.5">
-                <span className="flex h-[34px] items-center gap-2 rounded-full bg-brand-from px-4 font-semibold whitespace-nowrap text-white">
+              <div className="flex flex-wrap items-center gap-3 px-6 py-3.5">
+                <span className="flex h-[34px] items-center gap-2 rounded-full bg-accent px-4 font-semibold whitespace-nowrap text-accent-foreground">
                   Total
-                  <span lang="zh-Hant" className="font-['Noto_Sans_TC',sans-serif] text-xs font-normal text-white/85">共計</span>
+                  <span lang="zh-Hant" className="font-['Noto_Sans_TC',sans-serif] text-xs font-normal opacity-80">共計</span>
                   <span className="tabular-nums">: {rows.length}</span>
                 </span>
                 <div className="min-w-55 flex-[0_1_320px]">
@@ -274,11 +270,11 @@ const Roles = () => {
               <div className="mx-6 mb-6 h-140 overflow-auto overscroll-contain rounded-xl border border-border">
                 <table className="w-max min-w-full border-separate border-spacing-0">
                   <thead>
-                    <tr className="sticky top-0 z-3 bg-brand-from">
+                    <tr className="sticky top-0 z-3 bg-muted">
                       {COLS.map((c) => (
-                        <th key={c.vi} style={colStyle(c)} className={cn('h-13 border-r border-white/14 bg-brand-from px-3 text-white', c.align === 'center' ? 'text-center' : 'text-left', stickyClass(c) && 'sticky z-4')}>
-                          <span className="block text-[13px] font-semibold whitespace-nowrap">{c.vi}</span>
-                          <span lang="zh-Hant" className="block font-['Noto_Sans_TC',sans-serif] text-xs font-normal whitespace-nowrap text-white/85">{c.zh}</span>
+                        <th key={c.vi} style={colStyle(c)} className={cn('h-11 bg-muted px-3 text-muted-foreground', c.align === 'center' ? 'text-center' : 'text-left', stickyClass(c) && 'sticky z-4')}>
+                          <span className="block text-xs font-semibold whitespace-nowrap">{c.vi}</span>
+                          <span lang="zh-Hant" className="block font-['Noto_Sans_TC',sans-serif] text-[11px] font-normal whitespace-nowrap">{c.zh}</span>
                         </th>
                       ))}
                     </tr>
@@ -288,12 +284,16 @@ const Roles = () => {
                       const role = roleOf(p.i);
                       const sc = scopes[p.i] ?? [];
                       const cell = 'h-14 border-b border-border bg-inherit px-3';
+                      const changed = role !== baseOf(p.i);
                       return (
-                        <tr key={p.i} className={cn(k % 2 ? 'bg-accent/40' : 'bg-card', 'hover:bg-accent')}>
+                        <tr key={p.i} className={cn(changed ? 'bg-accent' : k % 2 ? 'bg-accent/40' : 'bg-card', 'hover:bg-accent')}>
                           <td style={colStyle(COLS[0])} className={cn(cell, stickyClass(COLS[0]), 'text-center text-muted-foreground tabular-nums')}>{k + 1}</td>
                           <td style={colStyle(COLS[1])} className={cn(cell, stickyClass(COLS[1]), 'font-medium tabular-nums')}>{p.id}</td>
                           <td style={colStyle(COLS[2])} className={cn(cell, stickyClass(COLS[2]), 'shadow-[6px_0_8px_-6px_rgba(15,23,42,.18)]')}>
-                            <span className="block max-w-full truncate text-[13px] font-semibold tracking-[.01em]">{p.name}</span>
+                            <span className="flex max-w-full items-center gap-2">
+                              <span className="truncate text-[13px] font-semibold tracking-[.01em]">{p.name}</span>
+                              {changed && <span className="flex-none rounded-md bg-warning-soft px-1.5 py-0.5 text-[11px] font-semibold text-warning-text">Đã sửa</span>}
+                            </span>
                             <ZhText className="block">{p.zh}</ZhText>
                           </td>
                           <td className={cn(cell, 'font-medium text-text-secondary')}>VPCT</td>
@@ -324,7 +324,7 @@ const Roles = () => {
                                   </div>
                                 </PopoverContent>
                               </Popover>
-                              {role !== baseOf(p.i) && (
+                              {changed && (
                                 <span className="flex items-center gap-1 text-xs font-semibold whitespace-nowrap text-warning-text">
                                   <span className="size-1.5 rounded-full bg-warning-text" />
                                   Chưa lưu
@@ -370,53 +370,52 @@ const Roles = () => {
               </div>
             </>
           ) : (
-            <div className="mx-6 mb-6 flex h-130 flex-col items-center justify-center gap-3.5 rounded-xl border border-dashed border-brand/40 bg-accent/40 p-6 text-center">
-              <div className="flex size-16 items-center justify-center rounded-[18px] bg-accent text-brand-text">
-                <UserRoundCheck className="size-7" />
+            <div className="mx-6 mb-6 flex h-130 flex-col items-center justify-center gap-2.5 rounded-xl border border-dashed border-brand/40 bg-accent/40 p-6 text-center">
+              <div className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                <UserRoundCheck className="size-5.5" />
               </div>
               <span className="flex flex-col gap-1">
-                <span className="text-lg font-bold">Chọn đơn vị để xem danh sách phân quyền</span>
+                <span className="text-[15px] font-semibold">Chưa chọn đơn vị</span>
                 <ZhText className="text-[13px]">請選擇單位以查看員工權限</ZhText>
               </span>
-              <span className="max-w-115 leading-relaxed text-balance text-muted-foreground">Chọn một bộ phận, hoặc chọn bộ phận cha để xem nhân viên của tất cả bộ phận con, bằng ô “Đơn vị” phía trên, rồi bấm Search.</span>
+              <span className="max-w-90 text-[13px] leading-relaxed text-balance text-muted-foreground">Chọn Đơn vị 單位 rồi bấm Search để xem danh sách nhân viên cần phân quyền.</span>
+            </div>
+          )}
+          {hasData && changes.length > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border bg-card px-5 py-3">
+              <span className="flex min-w-0 items-center gap-2.5 font-medium">
+                <span className="size-2 flex-none rounded-full bg-warning" />
+                <span className="whitespace-nowrap">
+                  <b className="tabular-nums">{changes.length}</b> thay đổi chưa lưu · 未儲存
+                </span>
+                <span className="max-w-110 min-w-0 truncate text-xs font-normal text-muted-foreground">
+                  {changes.map((p) => `${p.name}: ${ROLE_LABEL[baseOf(p.i)]} → ${ROLE_LABEL[roleOf(p.i)]}`).join(' · ')}
+                </span>
+              </span>
+              <div className="flex flex-none gap-2">
+                <Button variant="outline" size="lg" onClick={() => { setRoles(saved.roles); setScopes(saved.scopes); }}>Hủy thay đổi</Button>
+                <Button size="lg" onClick={() => setSaved({ roles, scopes })} className="px-4 font-semibold">Lưu thay đổi</Button>
+              </div>
             </div>
           )}
         </section>
-
-        {hasData && changes.length > 0 && (
-          <div className="sticky bottom-6 z-30 mx-auto flex max-w-full items-center gap-3.5 rounded-[14px] border border-border-strong bg-popover py-2.5 pr-2.5 pl-4.5 whitespace-nowrap text-popover-foreground shadow-[0_18px_40px_-16px_rgba(15,23,42,.35)]">
-            <span className="size-2 flex-none rounded-full bg-warning-text" />
-            <span className="font-medium">
-              Bạn có <b className="tabular-nums">{changes.length}</b> thay đổi chưa lưu
-            </span>
-            <span className="max-w-110 min-w-0 flex-1 truncate text-xs text-muted-foreground">
-              {changes.map((p) => `${p.name}: ${ROLE_LABEL[baseOf(p.i)]} → ${ROLE_LABEL[roleOf(p.i)]}`).join(' · ')}
-            </span>
-            <div className="ml-2 flex flex-none gap-2">
-              <Button variant="outline" size="lg" onClick={() => { setRoles(saved.roles); setScopes(saved.scopes); }}>Hủy</Button>
-              <Button size="lg" onClick={() => setSaved({ roles, scopes })} className="px-4 font-semibold">Lưu thay đổi</Button>
-            </div>
-          </div>
-        )}
       </main>
 
       <Dialog.Root open={drawer !== null} onOpenChange={(o) => !o && closeDrawer()}>
         <Dialog.Portal>
           <Dialog.Backdrop className="fixed inset-0 z-50 bg-[rgba(10,20,25,.42)]" />
-          <Dialog.Popup className="fixed inset-y-0 right-0 z-51 flex w-125 max-w-full flex-col bg-card text-foreground shadow-[-18px_0_44px_-20px_rgba(15,23,42,.45)]">
-            <div className="relative flex flex-none items-center gap-3 overflow-hidden bg-brand-gradient py-4.5 pr-4 pl-6 text-white">
-              <div className="relative flex size-10 flex-none items-center justify-center rounded-full bg-white/20 text-[13px] font-bold">
-                {dPerson?.name.split(' ').slice(-2).map((w) => w[0]).join('')}
-              </div>
-              <div className="relative flex flex-1 flex-col gap-0.5 leading-snug">
-                <Dialog.Title className="flex items-baseline gap-2 text-base font-bold">
-                  Phạm vi quản lý
-                  <span lang="zh-Hant" className="font-['Noto_Sans_TC',sans-serif] text-xs font-normal text-white/85">管理範圍</span>
+          <Dialog.Popup className="fixed inset-y-0 right-0 z-51 flex w-120max-w-full flex-col bg-card text-foreground shadow-[-18px_0_44px_-20px_rgba(15,23,42,.45)]">
+            <div className="flex flex-none items-start justify-between gap-4 border-b border-border px-6 py-5">
+              <div className="flex flex-col gap-1">
+                <Dialog.Title className="flex items-baseline gap-2 text-xs font-bold tracking-[.06em] text-brand-text">
+                  PHẠM VI QUẢN LÝ
+                  <span lang="zh-Hant" className="font-['Noto_Sans_TC',sans-serif] font-normal">管理範圍</span>
                 </Dialog.Title>
-                <span className="text-[13px] text-white/90">{dPerson?.name} · {dPerson?.id} · Chủ quản</span>
+                <span className="text-lg font-semibold">{dPerson?.name}</span>
+                <span className="text-[13px] text-muted-foreground">{dPerson?.id} · Chủ quản 主管</span>
               </div>
-              <Dialog.Close aria-label="Đóng" className="relative flex size-9 items-center justify-center rounded-[10px] bg-white/14">
-                <X className="size-[18px]" />
+              <Dialog.Close aria-label="Đóng" className="flex size-8 flex-none items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-muted">
+                <X className="size-4" />
               </Dialog.Close>
             </div>
             <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 py-5">
