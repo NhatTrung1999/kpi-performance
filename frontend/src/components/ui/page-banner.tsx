@@ -1,33 +1,34 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-type PageBannerBadge = {
-  /** Nhãn huy hiệu, vd. "Manager". */
-  label: React.ReactNode
-  /** Số liệu hiển thị bên phải nhãn. */
-  value: React.ReactNode
-  /** Đang tải: thay số bằng khung chờ. */
-  loading?: boolean
-  /** Có `onClick` thì huy hiệu thành nút bấm (vd. lọc bảng bên dưới). */
-  onClick?: () => void
-  /** Đang bật (chỉ có nghĩa với huy hiệu bấm được): nền trắng đặc, chữ thương hiệu. */
-  active?: boolean
-  /** Chấm cảnh báo trước nhãn. */
-  dot?: boolean
-  /** Tooltip / nhãn mô tả hành động của huy hiệu bấm được. */
-  title?: string
-}
-
 type PageBannerProps = {
   /** Biểu tượng trong ô kính mờ bên trái (vd. icon lucide). */
   icon: React.ReactNode
   title: React.ReactNode
   subtitle?: React.ReactNode
-  badges?: PageBannerBadge[]
+  /** Huy hiệu thống kê bên phải banner. */
+  badges?: {
+    /** Nhãn huy hiệu, vd. "Manager". */
+    label: React.ReactNode
+    /** Số liệu hiển thị bên phải nhãn. */
+    value: React.ReactNode
+    /** Đang tải: thay số bằng khung chờ. */
+    loading?: boolean
+    /** Có `onClick` thì huy hiệu thành nút bấm (vd. lọc bảng bên dưới). */
+    onClick?: () => void
+    /** Đang bật (chỉ có nghĩa với huy hiệu bấm được): nền trắng đặc, chữ thương hiệu. */
+    active?: boolean
+    /** Chấm cảnh báo trước nhãn. */
+    dot?: boolean
+    /** Tooltip / nhãn mô tả hành động của huy hiệu bấm được. */
+    title?: string
+  }[]
   /** Nhãn đọc bởi trình đọc màn hình khi `loading`; ứng dụng truyền chuỗi đã dịch. */
   loadingLabel?: string
   className?: string
 }
+
+type PageBannerBadge = NonNullable<PageBannerProps["badges"]>[number]
 
 /** Banner tiêu đề trang: nền gradient thương hiệu, gọn một dòng, kèm các huy hiệu thống kê. */
 function PageBanner({ icon, title, subtitle, badges, loadingLabel = "Loading", className }: PageBannerProps) {
