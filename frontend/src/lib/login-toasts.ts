@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import i18n from "@/i18n";
 import { describeLoginFailure, type LoginFailure } from "./auth-errors";
 
 /**
@@ -37,7 +38,7 @@ export const loginToasts = {
       duration: DURATION,
       action: retry
         ? {
-            label: "Thử lại",
+            label: i18n.t("errors:retry"),
             onClick: () => {
               toast.dismiss(ID[failure.kind]);
               onRetry();
@@ -47,9 +48,9 @@ export const loginToasts = {
     });
 
     if (failure.kind === "invalid" && failure.attemptsLeft !== undefined && failure.attemptsLeft <= 2) {
-      toast.warning(`Chỉ còn ${failure.attemptsLeft} lần thử`, {
+      toast.warning(i18n.t("errors:lastAttempts", { count: failure.attemptsLeft }), {
         id: ID.warning,
-        description: "Tài khoản sẽ bị tạm khóa nếu nhập sai thêm.",
+        description: i18n.t("errors:lastAttemptsHint"),
         duration: DURATION,
       });
     } else {
@@ -59,6 +60,6 @@ export const loginToasts = {
 
   success() {
     dismissExcept(ID.success);
-    toast.success("Đăng nhập thành công", { id: ID.success, duration: 1500 });
+    toast.success(i18n.t("auth:successToast"), { id: ID.success, duration: 1500 });
   },
 };

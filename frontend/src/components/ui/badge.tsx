@@ -3,14 +3,14 @@ import { cva } from "class-variance-authority"
 import { BadgeCheck, CircleCheck, CircleX, Clock, PencilLine, TriangleAlert } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-/** Trạng thái KPI / phiếu đánh giá. Luôn có icon + chữ, không chỉ dựa vào màu. */
+/** Trạng thái KPI / phiếu đánh giá. Luôn có icon + chữ, không chỉ dựa vào màu. Nhãn mặc định là tiếng Anh; ứng dụng truyền `children` đã dịch (i18n). */
 const BADGE_STATUS = {
-  dat: { label: "Đạt", icon: CircleCheck },
-  "canh-bao": { label: "Cảnh báo", icon: TriangleAlert },
-  "chua-dat": { label: "Chưa đạt", icon: CircleX },
-  nhap: { label: "Nháp", icon: PencilLine },
-  "cho-duyet": { label: "Chờ duyệt", icon: Clock },
-  "da-duyet": { label: "Đã duyệt", icon: BadgeCheck },
+  dat: { label: "On track", icon: CircleCheck },
+  "canh-bao": { label: "At risk", icon: TriangleAlert },
+  "chua-dat": { label: "Off track", icon: CircleX },
+  nhap: { label: "Draft", icon: PencilLine },
+  "cho-duyet": { label: "Pending review", icon: Clock },
+  "da-duyet": { label: "Approved", icon: BadgeCheck },
 } as const
 
 type BadgeStatus = keyof typeof BADGE_STATUS

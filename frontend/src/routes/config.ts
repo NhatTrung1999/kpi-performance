@@ -3,38 +3,43 @@ import type { AppRole } from '@/lib/session';
 
 export type NavGroup = 'main' | 'admin';
 
+/** Key trong namespace `nav` (src/i18n/locales/en/nav.json). */
+export type NavKey = 'dashboard' | 'kpi' | 'evaluations' | 'notifications' | 'profile' | 'roles';
+
 export type RouteMeta = {
-  title: string;
+  /** Key dịch của tiêu đề trang (namespace `nav`). */
+  title: NavKey;
   /** Thanh trên: bộ lọc kỳ Tháng/Quý/Năm và ô tìm kiếm — mặc định ẩn. */
   toolbar?: { period?: boolean; search?: boolean };
   /** Vai trò được phép truy cập; bỏ trống = mọi vai trò. */
   roles?: AppRole[];
-  nav?: { label: string; icon: LucideIcon; group: NavGroup; badge?: number };
+  nav?: { icon: LucideIcon; group: NavGroup; badge?: number };
 };
 
 /** Một nguồn cho tiêu đề, thanh trên, quyền truy cập và sidebar. Trang mới chỉ cần thêm một dòng. */
 export const ROUTE_META: Record<string, RouteMeta> = {
   '/dashboard': {
-    title: 'Tổng quan',
+    title: 'dashboard',
     toolbar: { period: true, search: true },
-    nav: { label: 'Tổng quan', icon: LayoutDashboard, group: 'main' },
+    nav: { icon: LayoutDashboard, group: 'main' },
   },
   '/kpi': {
-    title: 'KPI của tôi',
+    title: 'kpi',
     toolbar: { period: true, search: true },
-    nav: { label: 'KPI của tôi', icon: Target, group: 'main' },
+    nav: { icon: Target, group: 'main' },
   },
-  '/evaluations': { title: 'Đánh giá', nav: { label: 'Đánh giá', icon: ClipboardList, group: 'main' } },
-  '/notifications': { title: 'Thông báo', nav: { label: 'Thông báo', icon: Bell, group: 'main', badge: 3 } },
-  '/profile': { title: 'Hồ sơ và cài đặt', nav: { label: 'Hồ sơ và cài đặt', icon: UserRound, group: 'main' } },
+  '/evaluations': { title: 'evaluations', nav: { icon: ClipboardList, group: 'main' } },
+  '/notifications': { title: 'notifications', nav: { icon: Bell, group: 'main', badge: 3 } },
+  '/profile': { title: 'profile', nav: { icon: UserRound, group: 'main' } },
   '/roles': {
-    title: 'Phân quyền',
+    title: 'roles',
     roles: ['AD'],
-    nav: { label: 'Phân quyền', icon: ShieldCheck, group: 'admin' },
+    nav: { icon: ShieldCheck, group: 'admin' },
   },
 };
 
-export const NAV_GROUP_LABEL: Record<NavGroup, string | null> = { main: null, admin: 'QUẢN TRỊ' };
+/** Key dịch của nhãn nhóm (namespace `nav`, mục `groups`); `null` = không có nhãn. */
+export const NAV_GROUP_LABEL: Record<NavGroup, 'admin' | null> = { main: null, admin: 'admin' };
 
 export const canAccess = (meta: RouteMeta | undefined, role: AppRole) => !meta?.roles || meta.roles.includes(role);
 

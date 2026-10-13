@@ -1,0 +1,43 @@
+{
+  "appName": "KPI Performance",
+  "user": "User",
+  "loading": "Loading",
+  "openMenu": "Open menu",
+  "closeMenu": "Close menu",
+  "mainNav": "Main navigation",
+  "notifications": "Notifications",
+  "unknownRole": "Role not determined",
+  "portal": {
+    "AD": "Admin portal",
+    "CQ": "Manager portal",
+    "NV": "Employee portal"
+  },
+  "period": {
+    "label": "Review period",
+    "month": "Month",
+    "quarter": "Quarter",
+    "year": "Year"
+  },
+  "search": "Search",
+  "searchPlaceholder": "Search goals, reviews…",
+  "theme": {
+    "toLight": "Switch to light theme",
+    "toDark": "Switch to dark theme"
+  },
+  "toaster": {
+    "label": "Notifications",
+    "close": "Dismiss notification"
+  },
+  "forbidden": {
+    "title": "Access denied",
+    "heading": "You don't have access",
+    "description": "This page is only available to authorized roles. If you need access, please contact an administrator.",
+    "back": "Back to Overview"
+  },
+  "notFound": "Page not found",
+  "trend": {
+    "flat": "No change",
+    "up": "Up",
+    "down": "Down"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "dashboard": "Overview",
+  "kpi": "My KPI",
+  "evaluations": "Evaluations",
+  "notifications": "Notifications",
+  "profile": "Profile & settings",
+  "roles": "Permissions",
+  "groups": {
+    "admin": "ADMINISTRATION"
+  }
+}

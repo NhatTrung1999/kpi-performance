@@ -9,11 +9,15 @@ type StatTrend = {
   value: number
   /** Chỉ số mà giảm là tốt (vd. tỷ lệ lỗi): đảo màu tốt/xấu. */
   inverse?: boolean
-  /** Mô tả kỳ so sánh, vd. "so với quý trước". */
+  /** Mô tả kỳ so sánh, vd. "vs. last quarter". */
   caption?: string
+  /** Chữ ẩn cho trình đọc màn hình (mặc định tiếng Anh; ứng dụng truyền chuỗi đã dịch). */
+  labels?: { flat: string; up: string; down: string }
 }
 
-function TrendIndicator({ value, inverse, caption }: StatTrend) {
+const DEFAULT_TREND_LABELS = { flat: "No change", up: "Up", down: "Down" }
+
+function TrendIndicator({ value, inverse, caption, labels = DEFAULT_TREND_LABELS }: StatTrend) {
   const flat = value === 0
   const good = inverse ? value < 0 : value > 0
   const Icon = flat ? Minus : value > 0 ? ArrowUpRight : ArrowDownRight
@@ -26,7 +30,7 @@ function TrendIndicator({ value, inverse, caption }: StatTrend) {
         )}
       >
         <Icon aria-hidden="true" className="size-4" />
-        <span className="sr-only">{flat ? "Không đổi" : value > 0 ? "Tăng" : "Giảm"}</span>
+        <span className="sr-only">{flat ? labels.flat : value > 0 ? labels.up : labels.down}</span>
         {Math.abs(value)}%
       </span>
       {caption && <span className="text-muted-foreground">{caption}</span>}

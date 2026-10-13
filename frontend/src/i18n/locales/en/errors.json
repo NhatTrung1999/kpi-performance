@@ -1,0 +1,22 @@
+{
+  "retry": "Try again",
+  "invalidCredentials": "Incorrect email/employee ID or password.",
+  "attemptsLeft_one": "{{count}} attempt left.",
+  "attemptsLeft_other": "{{count}} attempts left.",
+  "invalidTitle": "Sign-in failed",
+  "lockedTitle": "Account temporarily locked",
+  "lockedMinutes_one": "Please try again in {{count}} minute or contact IT.",
+  "lockedMinutes_other": "Please try again in {{count}} minutes or contact IT.",
+  "lockedNoTime": "Please contact IT for assistance.",
+  "rateLimited": "You're going too fast. Please try again in a few minutes.",
+  "unavailableTitle": "Unable to reach the server",
+  "unavailableDescription": "Please check your connection and try again.",
+  "unknown": "Something went wrong. Please try again.",
+  "lastAttempts_one": "Only {{count}} attempt left",
+  "lastAttempts_other": "Only {{count}} attempts left",
+  "lastAttemptsHint": "Your account will be temporarily locked if you enter incorrect credentials again.",
+  "mock": {
+    "invalid": "Invalid credentials (mock).",
+    "token": "Invalid mock token."
+  }
+}

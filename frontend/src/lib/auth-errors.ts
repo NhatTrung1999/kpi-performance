@@ -1,3 +1,5 @@
+import i18n from "@/i18n";
+
 /** Lỗi đăng nhập đã chuẩn hoá — UI chỉ làm việc với kiểu này, không bao giờ với lỗi thô từ server. */
 export type LoginFailure =
   | { kind: "invalid"; attemptsLeft?: number }
@@ -46,10 +48,10 @@ export function toLoginFailure(raw: RawFailure): LoginFailure {
   const failure = classify(raw);
   if (import.meta.env.DEV) {
     console.groupCollapsed(`[login] ${raw.status ?? (raw.error as Error)?.name ?? "error"} → ${failure.kind}`);
-    console.error("Lỗi gốc:", raw.error ?? raw.body);
+    console.error("Original error:", raw.error ?? raw.body);
     if (raw.status === 404) {
       console.warn(
-        "404 từ /auth/login. Nếu tài khoản ĐÚNG cũng nhận 404 thì đường dẫn API sai — kiểm tra VITE_API_URL và endpoint."
+        "404 from /auth/login. If a CORRECT account also gets 404, the API path is wrong — check VITE_API_URL and the endpoint."
       );
     }
     console.groupEnd();
@@ -57,12 +59,12 @@ export function toLoginFailure(raw: RawFailure): LoginFailure {
   return failure;
 }
 
-/* ───────── Câu chữ hiển thị (tiếng Việt, thân thiện) ───────── */
+/* ───────── Câu chữ hiển thị (lấy từ i18n, namespace `errors`) ───────── */
 
 export function invalidCredentialsMessage(attemptsLeft?: number) {
   return (
-    "Email/mã nhân viên hoặc mật khẩu không đúng." +
-    (attemptsLeft !== undefined ? ` Bạn còn ${attemptsLeft} lần thử.` : "")
+    i18n.t("errors:invalidCredentials") +
+    (attemptsLeft !== undefined ? ` ${i18n.t("errors:attemptsLeft", { count: attemptsLeft })}` : "")
   );
 }
 
@@ -74,21 +76,21 @@ export function describeLoginFailure(f: LoginFailure): {
 } {
   switch (f.kind) {
     case "invalid":
-      return { title: "Đăng nhập không thành công", description: invalidCredentialsMessage(f.attemptsLeft), tone: "error", retry: false };
+      return { title: i18n.t("errors:invalidTitle"), description: invalidCredentialsMessage(f.attemptsLeft), tone: "error", retry: false };
     case "locked": {
       const min = f.retryAfter ? Math.max(1, Math.ceil(f.retryAfter / 60)) : undefined;
       return {
-        title: "Tài khoản tạm thời bị khóa",
-        description: min ? `Vui lòng thử lại sau ${min} phút hoặc liên hệ phòng IT.` : "Vui lòng liên hệ phòng IT để được hỗ trợ.",
+        title: i18n.t("errors:lockedTitle"),
+        description: min ? i18n.t("errors:lockedMinutes", { count: min }) : i18n.t("errors:lockedNoTime"),
         tone: "error",
         retry: false,
       };
     }
     case "rate-limited":
-      return { title: "Bạn thao tác quá nhanh, vui lòng thử lại sau ít phút.", tone: "warning", retry: false };
+      return { title: i18n.t("errors:rateLimited"), tone: "warning", retry: false };
     case "unavailable":
-      return { title: "Không thể kết nối đến máy chủ", description: "Vui lòng kiểm tra mạng và thử lại.", tone: "error", retry: true };
+      return { title: i18n.t("errors:unavailableTitle"), description: i18n.t("errors:unavailableDescription"), tone: "error", retry: true };
     default:
-      return { title: "Đã có lỗi xảy ra, vui lòng thử lại.", tone: "error", retry: false };
+      return { title: i18n.t("errors:unknown"), tone: "error", retry: false };
   }
 }

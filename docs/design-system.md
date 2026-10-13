@@ -89,19 +89,26 @@ Font: **Be Vietnam Pro** (400/500/600/700/800; subset vietnamese, latin-ext, lat
 | `Label` | — | |
 | `Card` | `CardHeader/Title/Description/Content/Footer/Action` | bề mặt phẳng cho trang trong |
 | `GlassCard` | `variant`: `panel`/`pill`; `glass`: `always`/`sm` | chỉ đăng nhập; `sm` = trong suốt trên mobile |
-| `Badge` | `status`: `dat`, `canh-bao`, `chua-dat`, `nhap`, `cho-duyet`, `da-duyet` | tự có icon + nhãn tiếng Việt; truyền `children` để đổi nhãn |
+| `Badge` | `status`: `dat`, `canh-bao`, `chua-dat`, `nhap`, `cho-duyet`, `da-duyet` | tự có icon + nhãn tiếng Anh mặc định; ứng dụng truyền `children` đã dịch (i18n) |
 | `ProgressBar` | `value` (%), `label`, `showValue` | ≥ 90 xanh, 60–89 vàng, < 60 đỏ (`KPI_THRESHOLDS`, `getKpiTone`); thanh vẽ tối đa 100% |
-| `StatCard` | `label`, `value`, `unit`, `trend {value, inverse, caption}`, `progress` | `inverse` cho chỉ số giảm là tốt |
+| `StatCard` | `label`, `value`, `unit`, `trend {value, inverse, caption, labels}`, `progress` | `inverse` cho chỉ số giảm là tốt |
 | `FormAlert` | `tone`: `error`/`warning`/`success`/`info`; `title`, `icon` | có `title` → dạng khung đầy đủ; không → một dòng. `role=alert` cho lỗi/cảnh báo |
 | `Toast` | `<Toaster />` đặt một lần ở `App`; `toast.success/error/warning(...)` | dùng cho kết quả thao tác tạm thời; lỗi cần ở lại trong form dùng `FormAlert` |
 
 Ví dụ:
 
 ```tsx
-<StatCard label="Hoàn thành KPI" value={92} unit="%" trend={{ value: 18, caption: "so với quý trước" }} progress={92} />
-<Badge status="cho-duyet" />
-<Button size="xl" loading={isSubmitting}>Đăng nhập</Button>
+<StatCard label={t("stats.completion")} value={formatNumber(92)} unit="%" trend={{ value: 18, caption: t("stats.vsLastQuarter") }} progress={92} />
+<Badge status="cho-duyet">{t("status.cho-duyet")}</Badge>
+<Button size="xl" loading={isSubmitting}>{t("submit")}</Button>
 ```
+
+## Ngôn ngữ giao diện (i18n)
+- Giao diện hiện **chỉ hiển thị tiếng Anh**, làm qua `react-i18next` để sau này thêm tiếng Việt, tiếng Trung. Mọi chữ hiển thị nằm trong `src/i18n/locales/en/*.json`; **không viết cứng chữ trong component**.
+- Không viết nhãn song ngữ (không kèm chữ Hán/Việt bên cạnh chữ Anh). Dữ liệu từ hệ thống (tên bộ phận, họ tên) giữ nguyên như dữ liệu gốc; dòng tên tiếng Trung bị ẩn.
+- Ngày và số định dạng qua `src/lib/format.ts` (`formatDate` → `15 Jan 2015`, `formatPercent` → `8.2%`), không tự ghép chuỗi.
+- Component trong `components/ui/` không phụ thuộc i18n: chữ là prop, có mặc định tiếng Anh trung tính; trang truyền chuỗi đã dịch.
+- Thêm ngôn ngữ: sao chép `locales/en` sang `locales/<mã>`, đăng ký trong `src/i18n/index.ts` và `lib/format.ts`.
 
 ## Quy ước khi thêm token / component
 - Thêm giá trị sáng **và** tối trong `index.css`, rồi map vào `@theme inline` để có class Tailwind.

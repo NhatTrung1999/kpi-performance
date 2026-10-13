@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 import { TrendingUp } from "lucide-react";
 
 import { GlassCard } from "@/components/ui/glass-card";
@@ -8,8 +9,10 @@ import { KpiPill } from "@/components/auth/kpi-pill";
 import { LoginForm } from "@/components/auth/login-form";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useCountUp } from "@/hooks/use-count-up";
+import { formatPercent } from "@/lib/format";
 
 const Login = () => {
+  const { t } = useTranslation("auth");
   const navigate = useNavigate();
   const done = useCountUp(92);
   const growth = useCountUp(18);
@@ -34,19 +37,19 @@ const Login = () => {
           <span className="-ml-1.5 block text-[clamp(110px,12.2vw,176px)]">Performance</span>
         </h1>
         <p className="absolute left-14 top-[66.6vh] z-30 max-w-[440px] animate-fade-up text-xl font-medium leading-normal text-gray-600 [animation-delay:150ms] [text-wrap:pretty] dark:text-muted-foreground">
-          Theo dõi mục tiêu – Đo lường kết quả – Cùng nhau phát triển
+          {t("tagline")}
         </p>
         <KpiPill {...LINE_POINTS.growth}>
           <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-gradient text-white">
             <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
           </span>
-          <span className="text-sm font-bold tabular-nums">+{growth}%</span>
-          <span className="text-xs text-gray-600 dark:text-muted-foreground">so với quý trước</span>
+          <span className="text-sm font-bold tabular-nums">+{formatPercent(growth)}</span>
+          <span className="text-xs text-gray-600 dark:text-muted-foreground">{t("growthCaption")}</span>
         </KpiPill>
         <KpiPill {...LINE_POINTS.done} className="animate-bob-slow">
           <span className="ml-1.5 h-2 w-2 rounded-full bg-emerald-600 dark:bg-emerald-300" />
           <span className="text-sm font-bold">
-            Hoàn thành <span className="tabular-nums">{done}</span>%
+            {t("completed")} <span className="tabular-nums">{formatPercent(done)}</span>
           </span>
         </KpiPill>
       </div>
@@ -56,7 +59,7 @@ const Login = () => {
         <div className="hidden items-center gap-2.5 lg:flex">
           {/* Thay bằng logo công ty */}
           <div className="grid h-9 w-9 place-items-center rounded-[11px] bg-brand-gradient text-[8px] font-semibold tracking-wider text-white">LOGO</div>
-          <span className="text-sm font-semibold">Tên công ty</span>
+          <span className="text-sm font-semibold">{t("companyName")}</span>
         </div>
         <div className="ml-auto">
           <ThemeToggle />

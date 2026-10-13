@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { norm } from './data';
 import type { TreeRow } from './tree';
@@ -17,12 +18,6 @@ export const Highlight = ({ text, query }: { text: string; query: string }) => {
   );
 };
 
-export const ZhText = ({ children, className }: { children: ReactNode; className?: string }) => (
-  <span lang="zh-Hant" className={cn("font-['Noto_Sans_TC',sans-serif] text-xs font-normal text-muted-foreground", className)}>
-    {children}
-  </span>
-);
-
 type Props = {
   row: TreeRow;
   query: string;
@@ -32,7 +27,9 @@ type Props = {
   className?: string;
 };
 
-export const TreeRowView = ({ row, query, onToggle, lead, className }: Props) => (
+export const TreeRowView = ({ row, query, onToggle, lead, className }: Props) => {
+  const { t } = useTranslation('roles');
+  return (
   <>
     {Array.from({ length: row.level }, (_, i) => (
       <span key={i} className="w-3.5 flex-none" />
@@ -40,7 +37,7 @@ export const TreeRowView = ({ row, query, onToggle, lead, className }: Props) =>
     {row.hasKids ? (
       <button
         type="button"
-        aria-label={row.open ? 'Thu gọn' : 'Mở rộng'}
+        aria-label={row.open ? t('collapse') : t('expand')}
         onClick={(e) => {
           e.stopPropagation();
           onToggle();
@@ -55,14 +52,10 @@ export const TreeRowView = ({ row, query, onToggle, lead, className }: Props) =>
     {lead}
     <span className={cn("flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 leading-snug", className)}>
       <span className={cn("[overflow-wrap:anywhere]", row.hasKids && "font-semibold")}>
-        <Highlight text={row.vi} query={query} />
+        <Highlight text={row.name} query={query} />
       </span>
-      {row.zh && (
-        <ZhText className="whitespace-nowrap">
-          <Highlight text={row.zh} query={query} />
-        </ZhText>
-      )}
     </span>
-    <span className="flex-none text-xs whitespace-nowrap text-muted-foreground tabular-nums">{row.count} người</span>
+    <span className="flex-none text-xs whitespace-nowrap text-muted-foreground tabular-nums">{t('peopleCount', { count: row.count })}</span>
   </>
-);
+  );
+};

@@ -1,0 +1,74 @@
+{
+  "periodLine": "Review period Q4 2026 · {{from}} – {{to}}",
+  "heroTitle": "Completed <1>{{value}}</1> of Q4 KPIs",
+  "heroProgress": "Q4 KPI progress",
+  "left": "Left",
+  "daysLeft_one": "{{count}} day",
+  "daysLeft_other": "{{count}} days",
+  "selfReviewBy": "Self-review due {{date}}",
+  "updateProgress": "Update progress",
+  "stats": {
+    "completion": "KPI completion",
+    "goalsMet": "Goals achieved",
+    "goalsUnit": "goals",
+    "avgScore": "Average review score",
+    "avgCaption": "vs. Q3 ({{value}})",
+    "change": "Change vs. Q3",
+    "changeUnit": "({{from}} → {{to}})"
+  },
+  "monthly": {
+    "title": "Monthly KPI progress",
+    "desc": "2026 · % of monthly target completed",
+    "actual": "Actual",
+    "target": "Target {{value}}",
+    "chartLabel": "Monthly KPI progress chart for 2026; December at {{value}} as of {{date}}, target {{target}}",
+    "tooltip": "Dec (as of {{date}})"
+  },
+  "myKpi": {
+    "title": "My KPI",
+    "desc": "{{done}}/{{total}} Q4 goals · sorted by due date",
+    "viewAll": "View all",
+    "goal": "Goal",
+    "progress": "Progress",
+    "due": "Due date",
+    "status": "Status",
+    "dueShort": "Due"
+  },
+  "status": {
+    "dat": "On track",
+    "canh-bao": "At risk",
+    "chua-dat": "Off track",
+    "nhap": "Draft",
+    "cho-duyet": "Pending review",
+    "da-duyet": "Approved"
+  },
+  "goals": {
+    "revenue": { "name": "Northern region sales revenue", "meta": "Weight {{weight}} · {{actual}}/{{target}} billion VND" },
+    "renewal": { "name": "Contract renewal rate", "meta": "Weight {{weight}} · {{actual}} / target {{target}}" },
+    "newClients": { "name": "New enterprise customers", "meta": "Weight {{weight}} · {{actual}}/{{target}} customers" },
+    "response": { "name": "Customer requests answered within 4 hours", "meta": "Weight {{weight}} · achieved {{actual}} / target {{target}}" },
+    "report": { "name": "Q4 market analysis report", "meta": "Weight {{weight}} · submitted {{date}}" }
+  },
+  "deadlines": {
+    "title": "Upcoming deadlines",
+    "desc": "{{count}} tasks in the next 30 days",
+    "evidence": "Submit evidence for the response-time goal",
+    "managerReview": "Manager reviews the market report",
+    "closeData": "Finalize response-time data",
+    "updateClients": "Update new enterprise customers",
+    "selfReview": "Submit Q4 self-review form",
+    "left_one": "{{count}} day left",
+    "left_other": "{{count}} days left"
+  },
+  "activity": {
+    "title": "Recent activity",
+    "you": "You",
+    "approved": "approved the update of “Contract renewal rate” to {{value}}",
+    "commented": "commented: “Please add evidence for the 4-hour response goal.”",
+    "updated": "updated “Northern region revenue”: {{from}} → {{to}} billion VND",
+    "submitted": "submitted “Q4 market analysis report” for review",
+    "hoursAgo_one": "{{count}} hour ago",
+    "hoursAgo_other": "{{count}} hours ago",
+    "yesterday": "Yesterday, {{time}}"
+  }
+}

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login } from "@/lib/auth";
 import { loginToasts } from "@/lib/login-toasts";
-import { loginSchema, type LoginValues } from "@/lib/validations/login";
+import { createLoginSchema, type LoginValues } from "@/lib/validations/login";
 
 function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
@@ -28,6 +29,8 @@ function formatClock(s: number) {
 }
 
 export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => void }) {
+  const { t } = useTranslation(["auth", "common"]);
+  const loginSchema = useMemo(() => createLoginSchema(t), [t]);
   const [showPassword, setShowPassword] = useState(false);
   const [lockLeft, setLockLeft] = useState(0);
   const [success, setSuccess] = useState(false);
@@ -103,38 +106,39 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
           {/* Thay bằng logo công ty */}
           <ChartLine aria-hidden="true" className="h-[18px] w-[18px]" />
         </div>
-        <span className="text-base font-bold tracking-tight">KPI Performance</span>
+        <span className="text-base font-bold tracking-tight">{t("common:appName")}</span>
       </div>
 
       {locked && (
-        <FormAlert tone="error" title="Tài khoản tạm thời bị khóa" icon={<Lock aria-hidden="true" />} className="mb-6">
-          Bạn đã nhập sai thông tin quá số lần cho phép. Vui lòng thử lại sau
-          {lockLeft > 0 && (
+        <FormAlert tone="error" title={t("lockedTitle")} icon={<Lock aria-hidden="true" />} className="mb-6">
+          {lockLeft > 0 ? (
             <>
-              {" "}
-              <strong className="tabular-nums text-foreground dark:text-white">{formatClock(lockLeft)}</strong>
+              {t("lockedBefore")}{" "}
+              <strong className="tabular-nums text-foreground dark:text-white">{formatClock(lockLeft)}</strong>{" "}
+              {t("lockedAfter")}
             </>
-          )}{" "}
-          hoặc liên hệ phòng IT để mở khóa.
+          ) : (
+            t("lockedNoTimer")
+          )}
         </FormAlert>
       )}
 
       {success && (
         <FormAlert tone="success" className="mb-6">
-          Đăng nhập thành công. Đang chuyển đến bảng điều khiển…
+          {t("successBanner")}
         </FormAlert>
       )}
 
       <h2 className="mb-2 text-title font-bold leading-tight tracking-[-0.025em] text-foreground">
-        Chào mừng quay lại <span aria-hidden="true">👋</span>
+        {t("welcome")} <span aria-hidden="true">👋</span>
       </h2>
-      <p className="mb-8 text-body text-muted-foreground">Đăng nhập để xem hiệu suất của bạn</p>
+      <p className="mb-8 text-body text-muted-foreground">{t("subtitle")}</p>
 
-      <form noValidate onSubmit={submit} aria-label="Đăng nhập" className="flex flex-col gap-5">
+      <form noValidate onSubmit={submit} aria-label={t("formLabel")} className="flex flex-col gap-5">
         <fieldset disabled={locked} className="contents">
           <div className="flex flex-col gap-2">
             <Label htmlFor="identifier" className="text-sm font-medium text-foreground">
-              Email công ty hoặc mã nhân viên
+              {t("identifier")}
             </Label>
             <Input
               id="identifier"
@@ -142,7 +146,7 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
               size="lg"
               startIcon={<Mail />}
               autoComplete="username"
-              placeholder="ten.ho@congty.vn hoặc NV00123"
+              placeholder={t("identifierPlaceholder")}
               aria-invalid={!!errors.identifier}
               aria-describedby={errors.identifier ? "identifier-error" : undefined}
               {...register("identifier")}
@@ -152,7 +156,7 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="password" className="text-sm font-medium text-foreground">
-              Mật khẩu
+              {t("password")}
             </Label>
             <Input
               id="password"
@@ -165,7 +169,7 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
                   variant="ghost"
                   size="icon"
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  aria-label={showPassword ? t("hidePassword") : t("showPassword")}
                   aria-pressed={showPassword}
                   aria-controls="password"
                   className="absolute right-[5px] top-1/2 h-[38px] w-[38px] -translate-y-1/2 rounded-[9px] text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-0 dark:hover:bg-white/[.06] dark:hover:text-white"
@@ -174,7 +178,7 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
                 </Button>
               }
               autoComplete="current-password"
-              placeholder="Tối thiểu 8 ký tự"
+              placeholder={t("passwordPlaceholder")}
               aria-invalid={!!errors.password}
               aria-describedby={errors.password ? "password-error" : undefined}
               className="pr-12"
@@ -198,27 +202,27 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
                 )}
               />
               <Label htmlFor="remember" className="cursor-pointer text-sm font-normal text-text-secondary">
-                Ghi nhớ đăng nhập
+                {t("remember")}
               </Label>
             </div>
             <Link
               to="/quen-mat-khau"
               className="rounded-md text-sm font-medium text-brand-text underline-offset-4 hover:text-brand-text-hover hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             >
-              Quên mật khẩu?
+              {t("forgot")}
             </Link>
           </div>
 
           <Button type="submit" size="xl" loading={isSubmitting} disabled={locked} className="mt-1 w-full">
-            {isSubmitting ? "Đang đăng nhập…" : "Đăng nhập"}
+            {isSubmitting ? t("submitting") : t("submit")}
           </Button>
         </fieldset>
       </form>
 
       <p className="mt-8 text-center text-label text-muted-foreground">
-        Gặp sự cố?{" "}
+        {t("trouble")}{" "}
         <a href="mailto:it@congty.vn" className="rounded font-medium text-brand-text underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
-          Liên hệ phòng IT
+          {t("contactIt")}
         </a>
       </p>
     </div>

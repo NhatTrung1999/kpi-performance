@@ -48,7 +48,7 @@ const icons: ToasterProps["icons"] = {
   close: <X aria-hidden="true" className="h-4 w-4" />,
 };
 
-export function Toaster(props: ToasterProps) {
+export function Toaster({ label = "Notifications", closeLabel = "Dismiss notification", ...props }: ToasterProps & { label?: string; closeLabel?: string }) {
   const { theme } = useTheme();
   return (
     <Sonner
@@ -58,11 +58,11 @@ export function Toaster(props: ToasterProps) {
       visibleToasts={3}
       gap={10}
       offset={20}
-      containerAriaLabel="Thông báo"
+      containerAriaLabel={label}
       icons={icons}
       toastOptions={{
         unstyled: true,
-        closeButtonAriaLabel: "Đóng thông báo",
+        closeButtonAriaLabel: closeLabel,
         classNames: {
           toast: cn(
             "group pointer-events-auto relative flex w-[var(--width)] items-start gap-3 rounded-control border p-4 pr-14 font-login",

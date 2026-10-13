@@ -1,13 +1,11 @@
+import i18n from '@/i18n';
 import { getToken, TOKEN_KEY, USER_KEY } from './axios';
 
 /** AD = Admin, CQ = Chủ quản, NV = Nhân viên. */
 export type AppRole = 'AD' | 'CQ' | 'NV';
 
-export const ROLE_PORTAL: Record<AppRole, string> = {
-  AD: 'Cổng quản trị',
-  CQ: 'Cổng chủ quản',
-  NV: 'Cổng nhân viên',
-};
+/** Tên cổng theo vai trò, theo ngôn ngữ hiện tại. */
+export const portalOf = (role: AppRole) => i18n.t(`portal.${role}`);
 
 export type CurrentUser = { name: string; title: string; role: AppRole; roleKnown: boolean };
 
@@ -52,7 +50,7 @@ export const getCurrentUser = (): CurrentUser => {
   const stored = readStored();
   const role = roleOf(stored.role) ?? roleOf(claims.role);
   return {
-    name: str(stored.name) || str(claims.name) || 'Người dùng',
+    name: str(stored.name) || str(claims.name) || i18n.t('user'),
     title: str(stored.title) || str(claims.title),
     role: role ?? 'NV',
     roleKnown: !!role,

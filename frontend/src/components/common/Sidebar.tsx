@@ -2,12 +2,14 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NavLink } from "react-router";
 import { cn } from "@/lib/utils";
-import { getCurrentUser, initialsOf, ROLE_PORTAL } from "@/lib/session";
+import { useTranslation } from "react-i18next";
+import { getCurrentUser, initialsOf, portalOf } from "@/lib/session";
 import { canAccess, NAV_GROUP_LABEL, ROUTE_META, type NavGroup } from "@/routes/config";
 
 const GROUPS: NavGroup[] = ["main", "admin"];
 
 const Sidebar = ({ className, onClose }: { className?: string; onClose?: () => void }) => {
+  const { t } = useTranslation(["common", "nav"]);
   const user = getCurrentUser();
   const items = Object.entries(ROUTE_META).filter(([, m]) => m.nav && canAccess(m, user.role));
   return (
@@ -17,25 +19,28 @@ const Sidebar = ({ className, onClose }: { className?: string; onClose?: () => v
           K
         </div>
         <div className="flex min-w-0 flex-1 flex-col leading-tight">
-          <span className="text-[15px] font-bold">KPI Performance</span>
-          <span className="text-xs text-muted-foreground">{user.roleKnown ? ROLE_PORTAL[user.role] : "Chưa xác định vai trò"}</span>
+          <span className="text-[15px] font-bold">{t("appName")}</span>
+          <span className="text-xs text-muted-foreground">{user.roleKnown ? portalOf(user.role) : t("unknownRole")}</span>
         </div>
         {onClose && (
-          <Button variant="ghost" size="icon-lg" aria-label="Đóng menu" onClick={onClose}>
+          <Button variant="ghost" size="icon-lg" aria-label={t("closeMenu")} onClick={onClose}>
             <X />
           </Button>
         )}
       </div>
-      <nav aria-label="Điều hướng chính" className="flex flex-1 flex-col gap-1 px-3 py-4">
+      <nav aria-label={t("mainNav")} className="flex flex-1 flex-col gap-1 px-3 py-4">
         {GROUPS.map((group) => {
           const groupItems = items.filter(([, m]) => m.nav!.group === group);
           if (groupItems.length === 0) return null;
-          const label = NAV_GROUP_LABEL[group];
+          const groupKey = NAV_GROUP_LABEL[group];
+          const label = groupKey && t(`nav:groups.${groupKey}`);
           return (
             <div key={group} role="group" aria-label={label ?? undefined} className="flex flex-col gap-1">
               {label && <span className="mt-3 mb-1 px-3 text-xs font-semibold tracking-wider text-muted-foreground">{label}</span>}
-              {groupItems.map(([to, { nav }]) => {
-                const { label: text, icon: Icon, badge } = nav!;
+              {groupItems.map(([to, meta]) => {
+                const { nav } = meta;
+                const { icon: Icon, badge } = nav!;
+                const text = t(`nav:${meta.title}`);
                 return (
                   <NavLink
                     key={to}
@@ -68,7 +73,7 @@ const Sidebar = ({ className, onClose }: { className?: string; onClose?: () => v
         </div>
         <div className="flex min-w-0 flex-col leading-snug">
           <span className="truncate font-semibold">{user.name}</span>
-          <span className="truncate text-xs text-muted-foreground">{user.title || ROLE_PORTAL[user.role]}</span>
+          <span className="truncate text-xs text-muted-foreground">{user.title || portalOf(user.role)}</span>
         </div>
       </div>
     </aside>

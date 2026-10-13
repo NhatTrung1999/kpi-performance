@@ -1,4 +1,5 @@
 import axios, { AxiosError, type AxiosAdapter, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
+import i18n from '@/i18n';
 import type { AppRole } from './session';
 
 /**
@@ -7,9 +8,9 @@ import type { AppRole } from './session';
  * Chỉ giả lập /auth/login và /auth/me; mọi URL khác vẫn đi tới backend thật.
  */
 const ACCOUNTS: Record<string, { name: string; title: string; role: AppRole }> = {
-  'admin.dev': { name: 'Lê Quản Trị', title: 'Quản trị hệ thống', role: 'AD' },
-  'chuquan.dev': { name: 'Phạm Chủ Quản', title: 'Trưởng bộ phận', role: 'CQ' },
-  'nhanvien.dev': { name: 'Trần Minh Anh', title: 'Chuyên viên', role: 'NV' },
+  'admin.dev': { name: 'Lê Quản Trị', title: 'System administrator', role: 'AD' },
+  'chuquan.dev': { name: 'Phạm Chủ Quản', title: 'Department head', role: 'CQ' },
+  'nhanvien.dev': { name: 'Trần Minh Anh', title: 'Specialist', role: 'NV' },
 };
 const PASSWORD = 'dev12345';
 
@@ -33,14 +34,14 @@ export function installMockAuth(api: AxiosInstance) {
       const { identifier, password } = JSON.parse(config.data ?? '{}');
       return identifier in ACCOUNTS && password === PASSWORD
         ? reply(config, 200, { token: `mock.${identifier}`, user: ACCOUNTS[identifier] })
-        : reply(config, 401, { message: 'Sai thông tin đăng nhập (mock).' });
+        : reply(config, 401, { message: i18n.t('errors:mock.invalid') });
     }
     if (url.includes('/auth/me')) {
       const user = userOfToken(config);
-      return user ? reply(config, 200, user) : reply(config, 401, { message: 'Token mock không hợp lệ.' });
+      return user ? reply(config, 200, user) : reply(config, 401, { message: i18n.t('errors:mock.token') });
     }
     return realAdapter(config);
   };
   api.defaults.adapter = mock;
-  console.info('[mock-auth] Đang dùng backend giả cho /auth — tài khoản: admin.dev, chuquan.dev, nhanvien.dev / dev12345');
+  console.info('[mock-auth] Using the fake backend for /auth — accounts: admin.dev, chuquan.dev, nhanvien.dev / dev12345');
 }

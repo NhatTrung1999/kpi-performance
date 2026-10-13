@@ -2,7 +2,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 type PageBannerBadge = {
-  /** Nhãn huy hiệu, vd. "Chủ quản 主管". */
+  /** Nhãn huy hiệu, vd. "Manager". */
   label: React.ReactNode
   /** Số liệu hiển thị bên phải nhãn. */
   value: React.ReactNode
@@ -16,11 +16,13 @@ type PageBannerProps = {
   title: React.ReactNode
   subtitle?: React.ReactNode
   badges?: PageBannerBadge[]
+  /** Nhãn đọc bởi trình đọc màn hình khi `loading`; ứng dụng truyền chuỗi đã dịch. */
+  loadingLabel?: string
   className?: string
 }
 
 /** Banner tiêu đề trang: nền gradient thương hiệu, gọn một dòng, kèm các huy hiệu thống kê. */
-function PageBanner({ icon, title, subtitle, badges, className }: PageBannerProps) {
+function PageBanner({ icon, title, subtitle, badges, loadingLabel = "Loading", className }: PageBannerProps) {
   return (
     <section
       className={cn(
@@ -58,7 +60,7 @@ function PageBanner({ icon, title, subtitle, badges, className }: PageBannerProp
             >
               {b.label}
               {b.loading ? (
-                <span role="status" aria-label="Đang tải" className="h-3.5 w-5 animate-pulse rounded bg-white/35" />
+                <span role="status" aria-label={loadingLabel} className="h-3.5 w-5 animate-pulse rounded bg-white/35" />
               ) : (
                 <b className="font-bold tabular-nums">{b.value}</b>
               )}
