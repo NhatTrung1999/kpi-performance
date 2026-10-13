@@ -3,6 +3,7 @@ import { Briefcase, Check, ChevronDown, ChevronLeft, ChevronRight, History, More
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Header from '@/components/common/Header';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger, onListKeyDown } from '@/components/ui/popover';
@@ -19,9 +20,10 @@ import { flattenTree } from './tree';
 import { TreeRowView } from './unit-tree';
 
 const fieldClass =
-  'relative flex h-10 w-full items-center gap-2 rounded-[10px] border border-border-strong bg-card px-3 text-left data-popup-open:border-brand data-popup-open:ring-3 data-popup-open:ring-brand/20';
+  'relative flex h-10 w-full items-center gap-2 rounded-xl border border-input bg-card px-3 text-left transition-colors hover:border-border-strong data-popup-open:border-brand data-popup-open:ring-3 data-popup-open:ring-brand/20';
 
-const Label = ({ children }: { children: string }) => <span className="text-[13px] font-semibold">{children}</span>;
+/** Bộ lọc phụ do huy hiệu trên banner bật: chưa gán vai trò / quản lý chưa có phạm vi. */
+type Special = 'none' | 'noScope' | null;
 
 const ROLE_STYLE: Record<Role, string> = {
   NV: 'border-border bg-muted text-text-secondary',
@@ -54,13 +56,13 @@ const Roles = () => {
   const { t } = useTranslation(['roles', 'common']);
   const roleLabel = (role: Role) => t(`role.${role}`);
   const [unit, setUnit] = useState<string | null>(null);
-  const [searched, setSearched] = useState(false);
   const [unitMenu, setUnitMenu] = useState(false);
-  const [roleMenu, setRoleMenu] = useState(false);
   const [mq, setMq] = useState('');
   const [open, setOpen] = useState<string[]>(['kt']);
   const [filter, setFilter] = useState<'all' | Role>('all');
+  const [special, setSpecial] = useState<Special>(null);
   const [q, setQ] = useState('');
+  const dq0 = useDebouncedValue(q, 300);
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(20);
   const [page, setPage] = useState(1);
   const [saved, setSaved] = useState({ roles: INITIAL_ROLES, scopes: INITIAL_SCOPES });
@@ -75,8 +77,6 @@ const Roles = () => {
   const baseOf = (i: number): Role => saved.roles[i] ?? 'NV';
   const fu = unit ? findUnit(unit) : undefined;
   const unitName = fu ? unitLabel(fu.n) : '';
-  const hasData = searched && !!fu;
-
   /** Phạm vi thống kê: toàn hệ thống khi chưa chọn đơn vị, ngược lại là đơn vị đã chọn. */
   const people = useMemo(() => {
     const all = PEOPLE.map((p, i) => ({ ...p, i }));
@@ -87,9 +87,21 @@ const Roles = () => {
   // Dữ liệu hiện là mock cục bộ nên không có trạng thái tải; khi nối API thì lấy từ query.
   const loading = false;
   const count = (r: Role) => people.filter((p) => roleOf(p.i) === r).length;
-  const rows = people.filter((p) => {
-    const k = norm(q.trim());
-    return (filter === 'all' || roleOf(p.i) === filter) && (!k || norm(p.name).includes(k) || p.id.includes(k));
+  const noScopeCount = people.filter((p) => roleOf(p.i) === 'CQ' && (scopes[p.i] ?? []).length === 0).length;
+  const assignedCount = people.length - count('NONE');
+  // Huy hiệu "without scope" biến mất khi hết quản lý thiếu phạm vi thì bộ lọc cũng tự tắt.
+  const activeSpecial: Special = special === 'noScope' && noScopeCount === 0 ? null : special;
+  // Chưa chọn đơn vị: bảng chỉ hiện khi bật bộ lọc từ banner (khi đó xem toàn hệ thống).
+  const hasData = !!fu || activeSpecial !== null;
+
+  const k = norm(dq0.trim());
+  const searched = people.filter((p) => !k || norm(p.name).includes(k) || p.id.includes(k));
+  const tabCount = (key: 'all' | Role) => (key === 'all' ? searched.length : searched.filter((p) => roleOf(p.i) === key).length);
+  const rows = searched.filter((p) => {
+    if (filter !== 'all' && roleOf(p.i) !== filter) return false;
+    if (activeSpecial === 'none') return roleOf(p.i) === 'NONE';
+    if (activeSpecial === 'noScope') return roleOf(p.i) === 'CQ' && (scopes[p.i] ?? []).length === 0;
+    return true;
   });
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
   const curPage = Math.min(page, pageCount);
@@ -104,12 +116,23 @@ const Roles = () => {
   const dAllOpen = dParents.every((id) => dOpen.includes(id));
   const dSet = new Set(dSel);
   const dPerson = drawer !== null ? PEOPLE[drawer] : null;
-  const filterLabel = filter === 'all' ? t('filterAll') : roleLabel(filter);
+  const tabLabel = (key: 'all' | Role) => t(`tabs.${key as 'all' | 'NV' | 'CQ' | 'AD'}`);
 
   const pickUnit = (id: string) => {
     setUnit(id);
     setPage(1);
     setUnitMenu(false);
+  };
+  const pickTab = (key: 'all' | Role) => {
+    setFilter(key);
+    setSpecial(null);
+    setPage(1);
+  };
+  const toggleSpecial = (s: Exclude<Special, null>) => {
+    const on = activeSpecial === s;
+    setSpecial(on ? null : s);
+    setFilter(on || s === 'none' ? 'all' : 'CQ');
+    setPage(1);
   };
   const openScope = (i: number) => {
     setDrawer(i);
@@ -127,16 +150,33 @@ const Roles = () => {
           title={t('title')}
           subtitle={t('subtitle')}
           loadingLabel={t('common:loading')}
-          badges={(['CQ', 'NONE'] as const).map((role) => ({
-            label: roleLabel(role),
-            value: formatNumber(count(role)),
-            loading,
-          }))}
+          badges={[
+            { label: t('badgeAssigned'), value: `${formatNumber(assignedCount)}/${formatNumber(people.length)}`, loading },
+            { label: t('badgeManagers'), value: formatNumber(count('CQ')), loading },
+            {
+              label: roleLabel('NONE'),
+              value: formatNumber(count('NONE')),
+              loading,
+              onClick: () => toggleSpecial('none'),
+              active: activeSpecial === 'none',
+              title: t('filterUnassigned'),
+            },
+            ...(noScopeCount > 0
+              ? [{
+                  label: t('badgeNoScope', { count: noScopeCount }),
+                  value: '',
+                  loading,
+                  dot: true,
+                  onClick: () => toggleSpecial('noScope'),
+                  active: activeSpecial === 'noScope',
+                  title: t('filterNoScope'),
+                }]
+              : []),
+          ]}
         />
 
-        <section className="relative z-10 flex flex-none flex-wrap items-end gap-4 rounded-[14px] border border-border bg-card px-5 py-4">
-          <div className="flex min-w-70 flex-[0_1_460px] flex-col gap-1.5">
-            <Label>{t('unit')}</Label>
+        <section className="relative z-10 flex flex-none flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-3">
+          <div className="flex min-w-70 flex-1 flex-col">
             <Popover open={unitMenu} onOpenChange={setUnitMenu}>
               <PopoverTrigger className={fieldClass}>
                 <Briefcase className="size-4 text-brand-text" />
@@ -183,47 +223,23 @@ const Roles = () => {
             </Popover>
           </div>
 
-          <div className="flex min-w-45 flex-[0_1_220px] flex-col gap-1.5">
-            <Label>{t('roleField')}</Label>
-            <Popover open={roleMenu} onOpenChange={setRoleMenu}>
-              <PopoverTrigger className={fieldClass}>
-                <span className="flex-1">{filterLabel}</span>
-                <ChevronDown className="size-4 text-muted-foreground" />
-              </PopoverTrigger>
-              <PopoverContent onKeyDown={onListKeyDown}>
-                <div role="listbox" aria-label={t('roleField')} className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-2">
-                  {ROLE_FILTER_KEYS.map((key) => {
-                    const sel = filter === key;
-                    const pick = () => {
-                      setFilter(key);
-                      setPage(1);
-                      setRoleMenu(false);
-                    };
-                    return (
-                      <div
-                        key={key}
-                        role="option"
-                        aria-selected={sel}
-                        tabIndex={-1}
-                        onClick={pick}
-                        onKeyDown={(e) => e.key === 'Enter' && pick()}
-                        className={cn('flex h-9 cursor-pointer items-center gap-2 rounded-lg px-2.5 outline-none hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-brand/50', sel && 'bg-accent')}
-                      >
-                        <span className="flex-1">{key === 'all' ? t('filterAll') : roleLabel(key)}</span>
-                        <span className="text-xs text-muted-foreground tabular-nums">{hasData ? formatNumber(key === 'all' ? people.length : count(key)) : ''}</span>
-                        {sel && <Check className="size-4 text-brand-text" />}
-                      </div>
-                    );
-                  })}
-                </div>
-              </PopoverContent>
-            </Popover>
+          <div className="relative w-85 max-w-full flex-none max-md:w-full">
+            <Input
+              value={q}
+              onChange={(e) => { setQ(e.target.value); setPage(1); }}
+              placeholder={t('searchEmployeePlaceholder')}
+              aria-label={t('searchEmployee')}
+              startIcon={<Search />}
+              className="h-10 rounded-xl bg-card pr-9 pl-9"
+              endAdornment={
+                q && (
+                  <button type="button" aria-label={t('clearSearch')} onClick={() => { setQ(''); setPage(1); }} className="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground">
+                    <X className="size-3.5" />
+                  </button>
+                )
+              }
+            />
           </div>
-
-          <Button size="lg" onClick={() => setSearched(true)} className="h-10 min-w-30 rounded-[10px] px-[18px] font-semibold">
-            <Search className="size-4" />
-            {t('search')}
-          </Button>
         </section>
 
         <TableCard>
@@ -231,25 +247,35 @@ const Roles = () => {
             <h2 className="text-[13px] font-bold tracking-[.06em]">
               {t('listTitle')}
             </h2>
-            <span className="text-[13px] text-muted-foreground">
-              {hasData ? (
-                <>
-                  {unitName} · <b className="font-semibold text-foreground tabular-nums">{t('employeeCount', { count: people.length })}</b>
-                </>
-              ) : (
-                t('noUnitSelected')
-              )}
-            </span>
+            {hasData && (
+              <span className="flex items-center gap-2 text-[13px] text-muted-foreground">
+                {t('unit')}
+                <span className="inline-flex h-5.5 items-center rounded-full bg-muted px-2.25 text-[11px] font-semibold whitespace-nowrap text-foreground">{fu ? unitName : t('allUnits')}</span>
+              </span>
+            )}
           </TableCardBar>
 
           {hasData ? (
             <>
-              <TableCardBar className="flex-wrap px-5 py-3">
-                <span className="flex h-[34px] items-center gap-2 rounded-full bg-accent px-4 font-semibold whitespace-nowrap text-accent-foreground">
-                  <span className="tabular-nums">{t('total', { count: rows.length })}</span>
-                </span>
-                <div className="min-w-55 flex-[0_1_320px]">
-                  <Input value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} placeholder={t('searchEmployeePlaceholder')} aria-label={t('searchEmployee')} startIcon={<Search />} className="h-9 pl-9" />
+              <TableCardBar className="flex-wrap gap-x-6 gap-y-0 px-5 py-0">
+                <div role="tablist" aria-label={t('roleField')} className="flex items-center gap-6">
+                  {ROLE_FILTER_KEYS.map((key) => {
+                    const on = filter === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        role="tab"
+                        aria-selected={on}
+                        onClick={() => pickTab(key)}
+                        className={cn('relative flex h-12 items-center gap-1.5 px-0.5 text-sm outline-none transition-colors duration-150 hover:text-foreground focus-visible:text-foreground', on ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground')}
+                      >
+                        {tabLabel(key)}
+                        <span className={cn('inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-semibold tabular-nums', on ? 'bg-accent text-accent-foreground' : 'bg-muted text-muted-foreground')}>{formatNumber(tabCount(key))}</span>
+                        {on && <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-sm bg-brand" />}
+                      </button>
+                    );
+                  })}
                 </div>
                 <span className="flex-1" />
                 {changes.length > 0 && (
@@ -388,14 +414,11 @@ const Roles = () => {
               </TableCardBar>
             </>
           ) : (
-            <div className="flex min-h-80 flex-1 flex-col items-center justify-center gap-2.5 border-t border-dashed border-brand/40 bg-accent/40 p-6 text-center">
+            <div className="flex min-h-80 flex-1 flex-col items-center justify-center gap-2.5 border-t border-border p-6 text-center">
               <div className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                 <UserRoundCheck className="size-5.5" />
               </div>
-              <span className="flex flex-col gap-1">
-                <span className="text-[15px] font-semibold">{t('noUnitSelected')}</span>
-              </span>
-              <span className="max-w-90 text-[13px] leading-relaxed text-balance text-muted-foreground">{t('emptyHint')}</span>
+              <span className="text-sm text-muted-foreground">{t('emptyTitle')}</span>
             </div>
           )}
         </TableCard>

@@ -8,6 +8,14 @@ type PageBannerBadge = {
   value: React.ReactNode
   /** Đang tải: thay số bằng khung chờ. */
   loading?: boolean
+  /** Có `onClick` thì huy hiệu thành nút bấm (vd. lọc bảng bên dưới). */
+  onClick?: () => void
+  /** Đang bật (chỉ có nghĩa với huy hiệu bấm được): nền trắng đặc, chữ thương hiệu. */
+  active?: boolean
+  /** Chấm cảnh báo trước nhãn. */
+  dot?: boolean
+  /** Tooltip / nhãn mô tả hành động của huy hiệu bấm được. */
+  title?: string
 }
 
 type PageBannerProps = {
@@ -53,19 +61,43 @@ function PageBanner({ icon, title, subtitle, badges, loadingLabel = "Loading", c
       </div>
       {badges && badges.length > 0 && (
         <div className="relative flex flex-wrap items-center gap-2">
-          {badges.map((b, i) => (
-            <span
-              key={i}
-              className="flex h-7 items-center gap-1.5 rounded-full border border-white/30 bg-white/15 px-3 text-xs whitespace-nowrap"
-            >
-              {b.label}
-              {b.loading ? (
-                <span role="status" aria-label={loadingLabel} className="h-3.5 w-5 animate-pulse rounded bg-white/35" />
-              ) : (
-                <b className="font-bold tabular-nums">{b.value}</b>
-              )}
-            </span>
-          ))}
+          {badges.map((b, i) => {
+            const body = (
+              <>
+                {b.dot && <span aria-hidden="true" className="size-[7px] flex-none rounded-full bg-warning ring-3 ring-warning/25" />}
+                {b.label}
+                {b.loading ? (
+                  <span role="status" aria-label={loadingLabel} className="h-3.5 w-5 animate-pulse rounded bg-white/35" />
+                ) : (
+                  b.value !== "" && b.value != null && <b className="font-bold tabular-nums">{b.value}</b>
+                )}
+              </>
+            )
+            const base = "flex h-7 items-center gap-1.5 rounded-full border px-3 text-xs whitespace-nowrap"
+            if (!b.onClick) {
+              return (
+                <span key={i} className={cn(base, "border-white/30 bg-white/15")}>
+                  {body}
+                </span>
+              )
+            }
+            return (
+              <button
+                key={i}
+                type="button"
+                title={b.title}
+                aria-pressed={!!b.active}
+                onClick={b.onClick}
+                className={cn(
+                  base,
+                  "cursor-pointer transition-colors duration-150 ease-out outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                  b.active ? "border-white bg-white font-semibold text-brand-text" : "border-white/30 bg-white/15 hover:border-white/50 hover:bg-white/20"
+                )}
+              >
+                {body}
+              </button>
+            )
+          })}
         </div>
       )}
     </section>

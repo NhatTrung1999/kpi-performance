@@ -1,6 +1,6 @@
 {
   "title": "Permissions",
-  "subtitle": "Permission management",
+  "subtitle": "Manage roles and management scope",
   "role": {
     "NV": "Employee",
     "CQ": "Manager",
@@ -12,20 +12,16 @@
     "CQ": "Manage employees within assigned departments",
     "AD": "Full system access, including permissions"
   },
-  "filterAll": "All",
   "unit": "Unit",
   "roleField": "Role",
-  "selectUnit": "-- Select unit --",
+  "selectUnit": "Select unit…",
   "searchUnitPlaceholder": "Search units (e.g. pattern)",
   "searchUnit": "Search units",
   "noUnitMatch": "No unit matches “{{query}}”",
   "unitHint": "Select a parent department to see employees of all its sub-departments",
-  "search": "Search",
   "listTitle": "EMPLOYEE PERMISSION LIST",
-  "noUnitSelected": "No unit selected",
   "employeeCount_one": "{{count}} employee",
   "employeeCount_other": "{{count}} employees",
-  "total": "Total: {{count}}",
   "searchEmployeePlaceholder": "Search name / employee ID",
   "searchEmployee": "Search employees",
   "unsavedChanges_one": "{{count}} unsaved change",
@@ -64,7 +60,6 @@
   "nextPage": "Next page",
   "rowsPerPage": "Rows per page",
   "rows": "Rows",
-  "emptyHint": "Choose a unit, then press Search to see the employees to assign permissions to.",
   "drawerTitle": "MANAGEMENT SCOPE",
   "drawerDesc": "Managers can only see employees in the selected departments. Tick a parent department to select all its sub-departments.",
   "searchDept": "Search departments",
@@ -77,5 +72,20 @@
   "cancel": "Cancel",
   "apply": "Apply",
   "collapse": "Collapse",
-  "expand": "Expand"
+  "expand": "Expand",
+  "tabs": {
+    "all": "All",
+    "NV": "Employees",
+    "CQ": "Managers",
+    "AD": "Admins"
+  },
+  "badgeAssigned": "Assigned",
+  "badgeManagers": "Managers",
+  "badgeNoScope_one": "{{count}} manager without scope",
+  "badgeNoScope_other": "{{count}} managers without scope",
+  "filterUnassigned": "Filter table: Unassigned",
+  "filterNoScope": "Filter table: managers without scope",
+  "allUnits": "All units",
+  "clearSearch": "Clear search",
+  "emptyTitle": "Select a unit to view employees"
 }
