@@ -24,6 +24,7 @@ Use token classes only — never raw hex or `indigo-600`. Spacing is a 4px scale
 - KPI colour thresholds (`ProgressBar`, `getKpiTone`): ≥90 success, 60–89 warning, <60 danger. Pass `StatCard trend.inverse` when a decrease is good (e.g. error rate).
 - Form field = `Label` + `Input` (`aria-invalid` shows the error ring; `size="lg"` + `startIcon` is the login style).
 - Dropdown/select-style menus: `Popover` + `PopoverTrigger` (`render={<Button variant="outline" />}`) + `PopoverContent` (portal to body, as wide as the trigger; add `style={{minWidth}}` for more) + `PopoverClose`. All exported from `KpiDS`; docs in `Popover.prompt.md`.
+- Public / pre-login screens use the info cards `InfoCard`, `ClockCard`, `CountdownCard`, `QuarterProgress`, `AnnouncementCard`, `UpdatesList` (all exported from `KpiDS`; they animate in and respect `prefers-reduced-motion`). They take already-formatted text props — pass English copy — and must show public information only, never names or internal KPI data.
 - Compose cards from `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardAction`, `CardContent`, `CardFooter` (all exported from `KpiDS`; docs live in `Card.prompt.md`).
 
 ## Where the truth lives

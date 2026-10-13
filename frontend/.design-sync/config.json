@@ -47,6 +47,21 @@
       "cardMode": "single",
       "primaryStory": "ChonDonVi",
       "viewport": "340x260"
+    },
+    "AnnouncementCard": {
+      "cardMode": "column"
+    },
+    "ClockCard": {
+      "cardMode": "column"
+    },
+    "CountdownCard": {
+      "cardMode": "column"
+    },
+    "QuarterProgress": {
+      "cardMode": "column"
+    },
+    "UpdatesList": {
+      "cardMode": "column"
     }
   },
   "readmeHeader": ".design-sync/conventions.md"

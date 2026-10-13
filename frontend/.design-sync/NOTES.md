@@ -26,3 +26,8 @@
 - 2026-10-12: original project 2138b908 was deleted remotely (404); re-created as "KPI Performance" (92836757...) and pinned in config. Remote `templates/`/`screenshots/` note above applied to the old project only.
 
 - 2026-10-13: re-sync after the i18n change. Run the driver with `--entry ./dist-lib/design-system.js --node-modules ./node_modules` (bare `--node-modules` alone fails: no `node_modules/frontend`). Shipped 17 components; new on the floor card (no authored preview yet): PageBanner, PageShell, TableCard, TableCardBar, TableCardBody (authorable on any re-sync). `conventions.md` language lines updated to English UI copy. `.design-sync/previews/*.tsx` still use Vietnamese sample text (not translated yet). Remote project also holds `templates/phan-quyen/` - outside the plan, never delete.
+
+- 2026-10-13: re-sync after the "Today hub" login. Added authored previews (English copy) for InfoCard, ClockCard, CountdownCard, QuarterProgress, AnnouncementCard, UpdatesList (all `cardMode: column` except InfoCard); 23 components shipped, 0 bad. Playwright for the render check: `npm i playwright@1.63.0` inside `.ds-sync/` (pins chromium 1243, matching the cached browser; latest pins 1248 and fails to launch).
+- CountdownCard previews are captured mid count-up (shows e.g. 72 instead of 79) — benign; the live card ends on the `days` prop. Still floor card: PageBanner, PageShell, TableCard, TableCardBar, TableCardBody.
+- Known render warns: `[RENDER_THIN]` PageBanner (floor card), Toaster (portaled).
+- Re-sync risk: the uploaded `ds-bundle` was built with no `--remote` (post-header rebuild rule); next re-sync fetches `_ds_sync.json` as usual.
