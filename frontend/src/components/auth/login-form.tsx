@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CircleAlert, Eye, EyeOff, Lock, Mail, ChartLine } from "lucide-react";
+import { ArrowBigUp, CircleAlert, Eye, EyeOff, Lock, Mail } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login } from "@/lib/auth";
 import { loginToasts } from "@/lib/login-toasts";
+import { cn } from "@/lib/utils";
 import { createLoginSchema, type LoginValues } from "@/lib/validations/login";
 
 function FieldError({ id, message }: { id: string; message?: string }) {
@@ -34,6 +35,7 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
   const [showPassword, setShowPassword] = useState(false);
   const [lockLeft, setLockLeft] = useState(0);
   const [success, setSuccess] = useState(false);
+  const [capsOn, setCapsOn] = useState(false);
   const [locked, setLocked] = useState(false);
   const inFlight = useRef(false);
 
@@ -61,6 +63,10 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
     }, 1000);
     return () => clearInterval(id);
   }, [locked, lockLeft]);
+
+  const passwordField = register("password");
+  // Cảnh báo Caps Lock khi gõ mật khẩu.
+  const updateCaps = (e: KeyboardEvent<HTMLInputElement>) => setCapsOn(e.getModifierState("CapsLock"));
 
   const onSubmit = async (values: LoginValues) => {
     setSuccess(false);
@@ -101,16 +107,8 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
 
   return (
     <div className="flex w-full flex-col">
-      <div className="mb-9 flex items-center gap-2.5">
-        <div className="grid h-9 w-9 place-items-center rounded-[11px] bg-brand-gradient text-white shadow-[0_6px_16px_-6px_rgba(79,70,229,.6)]">
-          {/* Thay bằng logo công ty */}
-          <ChartLine aria-hidden="true" className="h-[18px] w-[18px]" />
-        </div>
-        <span className="text-base font-bold tracking-tight">{t("common:appName")}</span>
-      </div>
-
       {locked && (
-        <FormAlert tone="error" title={t("lockedTitle")} icon={<Lock aria-hidden="true" />} className="mb-6">
+        <FormAlert tone="error" title={t("lockedTitle")} icon={<Lock aria-hidden="true" />} className="mb-6 animate-slide-down">
           {lockLeft > 0 ? (
             <>
               {t("lockedBefore")}{" "}
@@ -124,12 +122,12 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
       )}
 
       {success && (
-        <FormAlert tone="success" className="mb-6">
+        <FormAlert tone="success" className="mb-6 animate-slide-down">
           {t("successBanner")}
         </FormAlert>
       )}
 
-      <h2 className="mb-2 text-title font-bold leading-tight tracking-[-0.025em] text-foreground">
+      <h2 className="mb-2 animate-blur-in text-title font-bold leading-tight tracking-[-0.025em] text-foreground">
         {t("welcome")} <span aria-hidden="true">👋</span>
       </h2>
       <p className="mb-8 text-body text-muted-foreground">{t("subtitle")}</p>
@@ -155,9 +153,17 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="password" className="text-sm font-medium text-foreground">
-              {t("password")}
-            </Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                {t("password")}
+              </Label>
+              {capsOn && (
+                <span role="status" className="flex animate-slide-down items-center gap-1 rounded-full bg-warning-soft px-2 py-0.5 text-xs font-medium text-warning-text [animation-duration:220ms]">
+                  <ArrowBigUp aria-hidden="true" className="size-3.5" />
+                  {t("capsLock")}
+                </span>
+              )}
+            </div>
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
@@ -174,7 +180,10 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
                   aria-controls="password"
                   className="absolute right-[5px] top-1/2 h-[38px] w-[38px] -translate-y-1/2 rounded-[9px] text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-0 dark:hover:bg-white/[.06] dark:hover:text-white"
                 >
-                  {showPassword ? <EyeOff aria-hidden="true" className="h-[18px] w-[18px]" /> : <Eye aria-hidden="true" className="h-[18px] w-[18px]" />}
+                  <span aria-hidden="true" className="grid size-[18px] place-items-center">
+                    <Eye className={cn("col-start-1 row-start-1 size-[18px] transition duration-200", showPassword && "scale-50 opacity-0")} />
+                    <EyeOff className={cn("col-start-1 row-start-1 size-[18px] transition duration-200", !showPassword && "scale-50 opacity-0")} />
+                  </span>
                 </Button>
               }
               autoComplete="current-password"
@@ -182,7 +191,13 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
               aria-invalid={!!errors.password}
               aria-describedby={errors.password ? "password-error" : undefined}
               className="pr-12"
-              {...register("password")}
+              {...passwordField}
+              onKeyDown={updateCaps}
+              onKeyUp={updateCaps}
+              onBlur={(e) => {
+                setCapsOn(false);
+                void passwordField.onBlur(e);
+              }}
             />
             <FieldError id="password-error" message={errors.password?.message} />
           </div>
@@ -213,7 +228,7 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
             </Link>
           </div>
 
-          <Button type="submit" size="xl" loading={isSubmitting} disabled={locked} className="mt-1 w-full">
+          <Button type="submit" size="xl" loading={isSubmitting} disabled={locked} className="mt-1 w-full bg-[length:200%_200%] animate-gradient-drift">
             {isSubmitting ? t("submitting") : t("submit")}
           </Button>
         </fieldset>

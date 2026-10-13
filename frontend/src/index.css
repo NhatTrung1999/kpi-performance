@@ -253,6 +253,18 @@
     --animate-drift-slow: drift 24s ease-in-out -8s infinite alternate;
     --animate-draw: draw 1.8s cubic-bezier(0.33, 1, 0.68, 1) forwards;
     --animate-fade-up: fade-up 0.7s cubic-bezier(0.33, 1, 0.68, 1) both;
+    /* Trang đăng nhập "Today hub": chuyển động nhẹ, tắt khi prefers-reduced-motion */
+    --animate-card-in: card-in 360ms ease-out both;
+    --animate-form-in: card-in 400ms ease-out both;
+    --animate-digit-in: digit-in 300ms ease-out both;
+    --animate-colon: colon-blink 2s ease-in-out infinite;
+    --animate-pulse-soft: pulse-soft 2s ease-out infinite;
+    --animate-fill-in: fill-in 600ms ease-out both;
+    --animate-tick-in: fill-in 280ms ease-out both;
+    --animate-sweep: sweep 6s ease-in-out infinite;
+    --animate-blur-in: blur-in 400ms ease-out both;
+    --animate-slide-down: slide-down 260ms ease-out both;
+    --animate-gradient-drift: gradient-drift 9s ease-in-out infinite alternate;
 
     @keyframes bob {
         from { transform: translate3d(0, 0, 0); }
@@ -271,6 +283,42 @@
         from { opacity: 0; transform: translateY(12px); }
         to { opacity: 1; transform: none; }
     }
+    @keyframes card-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: none; }
+    }
+    @keyframes digit-in {
+        from { opacity: 0; transform: translateY(40%); }
+        to { opacity: 1; transform: none; }
+    }
+    @keyframes colon-blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.25; }
+    }
+    @keyframes pulse-soft {
+        0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--success) 55%, transparent); }
+        70%, 100% { box-shadow: 0 0 0 7px transparent; }
+    }
+    @keyframes fill-in {
+        from { transform: scaleX(0); }
+        to { transform: scaleX(1); }
+    }
+    @keyframes sweep {
+        0% { transform: translateX(-100%); }
+        20%, 100% { transform: translateX(400%); }
+    }
+    @keyframes blur-in {
+        from { opacity: 0; filter: blur(6px); }
+        to { opacity: 1; filter: blur(0); }
+    }
+    @keyframes slide-down {
+        from { opacity: 0; transform: translateY(-6px); }
+        to { opacity: 1; transform: none; }
+    }
+    @keyframes gradient-drift {
+        from { background-position: 0% 50%; }
+        to { background-position: 100% 50%; }
+    }
 }
 
 @layer base {
@@ -281,6 +329,7 @@
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
     transition-duration: 0.01ms !important;
   }
 }

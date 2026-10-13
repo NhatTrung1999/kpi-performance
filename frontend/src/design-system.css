@@ -32,6 +32,8 @@
 @source inline("leading-{tight,snug,normal,relaxed}");
 @source inline("tracking-{tight,normal,wide}");
 @source inline("opacity-{50,60,70,80}");
+/* Hiệu ứng chuyển động của các thẻ trang công khai (InfoCard, ClockCard, CountdownCard…) */
+@source inline("animate-{card-in,form-in,digit-in,colon,pulse-soft,fill-in,tick-in,sweep,blur-in,slide-down,gradient-drift}");
 /* Bố cục trang dạng bảng (PageShell/TableCard): full màn hình từ lg, cuộn trong thân bảng */
 @source inline("lg:{min-h-0,min-h-80,flex-1,max-h-none,h-screen,overflow-hidden,overflow-y-auto}");
 @source inline("{min-h-0,flex-none,overscroll-contain,max-h-[70vh],border-separate,border-spacing-0,w-max,min-w-full,top-0,left-0,z-2,z-3,z-4}");

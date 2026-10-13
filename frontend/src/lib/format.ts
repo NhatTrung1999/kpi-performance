@@ -33,3 +33,14 @@ export const formatNumber = (value: number, options?: Intl.NumberFormatOptions) 
 /** `value` tính theo đơn vị phần trăm (8.2 → "8.2%"). */
 export const formatPercent = (value: number, fractionDigits = 0) =>
   `${formatNumber(value, { minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits })}%`;
+
+/** Giờ theo múi giờ `timeZone`, tách thành phần: { hours: "08", minutes: "42", period: "AM" }. */
+export const formatClockParts = (value: Date, timeZone: string) => {
+  const parts = new Intl.DateTimeFormat(intlLocale(), { timeZone, hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(value);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '';
+  return { hours: get('hour'), minutes: get('minute'), period: get('dayPeriod') };
+};
+
+/** Ngày đầy đủ theo múi giờ `timeZone`, vd. "Tuesday, October 13, 2026". */
+export const formatLongDate = (value: Date, timeZone: string) =>
+  new Intl.DateTimeFormat(intlLocale(), { timeZone, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(value);

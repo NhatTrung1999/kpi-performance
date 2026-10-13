@@ -1,79 +1,152 @@
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
-import { TrendingUp } from "lucide-react";
+import { ChartLine, Download, Mail, Megaphone, Smartphone, Wrench } from "lucide-react";
 
-import { GlassCard } from "@/components/ui/glass-card";
-import { GrowthLine } from "@/components/auth/growth-line";
-import { LINE_POINTS } from "@/components/auth/line-points";
-import { KpiPill } from "@/components/auth/kpi-pill";
+import { AnnouncementCard } from "@/components/ui/announcement-card";
+import { ClockCard } from "@/components/ui/clock-card";
+import { CountdownCard } from "@/components/ui/countdown-card";
+import { QuarterProgress } from "@/components/ui/quarter-progress";
+import { UpdatesList, type UpdateTone, type UpdatesListItem } from "@/components/ui/updates-list";
 import { LoginForm } from "@/components/auth/login-form";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { useCountUp } from "@/hooks/use-count-up";
-import { formatPercent } from "@/lib/format";
+import { HR_ANNOUNCEMENTS, RELEASE_NOTES_URL, UPDATES, type UpdateIcon, type UpdateKind } from "@/config/announcements";
+import { useNow } from "@/hooks/use-now";
+import { formatClockParts, formatDate, formatLongDate, formatMonthShort } from "@/lib/format";
+import { WEEKS_IN_QUARTER, getQuarterInfo } from "@/lib/quarter";
 
+const TIME_ZONE = "Asia/Ho_Chi_Minh";
+
+const UPDATE_ICON: Record<UpdateIcon, React.ReactNode> = {
+  wrench: <Wrench />,
+  download: <Download />,
+  smartphone: <Smartphone />,
+  mail: <Mail />,
+};
+// Màn hình thấp: bớt dòng cuối để khối không bị cắt.
+const SHORT_SCREEN_HIDE = ["", "", "[@media(max-height:620px)]:hidden", "[@media(max-height:700px)]:hidden"];
+const UPDATE_TONE: Record<UpdateKind, UpdateTone> = { planned: "warning", new: "brand", improved: "info" };
+
+// Trang công khai (trước đăng nhập): chỉ hiện giờ, quý và nội dung công khai từ config — không có dữ liệu cá nhân/KPI.
 const Login = () => {
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(["auth", "common"]);
   const navigate = useNavigate();
-  const done = useCountUp(92);
-  const growth = useCountUp(18);
+  const now = useNow();
+
+  const clock = formatClockParts(now, TIME_ZONE);
+  const quarter = getQuarterInfo(now, TIME_ZONE);
+  const announcement = HR_ANNOUNCEMENTS.find((a) => a.pinned) ?? HR_ANNOUNCEMENTS[0];
+  const daysLabel = t("daysLeft", { count: quarter.daysLeft, quarter: quarter.quarter });
+
+  const updates: UpdatesListItem[] = UPDATES.map((u, i) => ({
+    id: u.id,
+    icon: UPDATE_ICON[u.icon],
+    tone: UPDATE_TONE[u.kind],
+    tag: t(`updateKind.${u.kind}`),
+    title: u.title,
+    detail: u.detail,
+    date: formatDate(u.date, false),
+    href: u.href,
+    className: i >= 2 ? SHORT_SCREEN_HIDE[Math.min(i, 3)] : undefined,
+  }));
 
   return (
-    <div className="relative isolate min-h-dvh overflow-hidden bg-page font-login text-foreground">
-      {/* Nền mesh + khối sáng trôi chậm */}
+    <div className="relative isolate min-h-dvh overflow-x-hidden bg-page font-login text-foreground lg:h-dvh lg:overflow-hidden">
+      {/* Nền: lưới mờ + quầng sáng thương hiệu */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-[radial-gradient(60%_60%_at_0%_0%,#E0E7FF_0%,transparent_65%),radial-gradient(50%_60%_at_100%_30%,#DBEAFE_0%,transparent_65%),radial-gradient(60%_60%_at_70%_100%,#EDE9FE_0%,transparent_65%)] dark:bg-[radial-gradient(60%_60%_at_0%_0%,rgba(49,46,129,.55)_0%,transparent_65%),radial-gradient(50%_60%_at_100%_30%,rgba(30,58,138,.45)_0%,transparent_65%),radial-gradient(60%_60%_at_70%_100%,rgba(76,29,149,.4)_0%,transparent_65%)]"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(var(--border)_1px,transparent_1px),linear-gradient(90deg,var(--border)_1px,transparent_1px)] bg-[length:48px_48px] opacity-60 [mask-image:radial-gradient(80%_80%_at_30%_30%,#000,transparent)]"
       />
-      <div aria-hidden="true" className="absolute -top-32 left-[8%] -z-10 h-[520px] w-[520px] animate-drift rounded-full bg-indigo-400/40 blur-[80px] dark:bg-indigo-600/30" />
-      <div aria-hidden="true" className="absolute -bottom-40 right-[14%] -z-10 h-[480px] w-[480px] animate-drift-slow rounded-full bg-violet-400/30 blur-[80px] dark:bg-violet-600/25" />
+      <div aria-hidden="true" className="absolute -top-40 -left-32 -z-10 h-[520px] w-[760px] rounded-full bg-brand/20 blur-[60px]" />
+      <div aria-hidden="true" className="absolute right-[6%] bottom-[8%] -z-10 hidden h-[560px] w-[560px] rounded-full bg-brand/15 blur-[80px] lg:block" />
 
-      {/* Lớp minh hoạ — chỉ desktop */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden lg:block">
-        <div className="absolute inset-0 z-10">
-          <GrowthLine />
-        </div>
-        <h1 className="absolute -left-7 top-[16.5vh] z-20 m-0 animate-fade-up whitespace-nowrap bg-gradient-to-r from-indigo-800 via-indigo-600 to-blue-600 bg-clip-text font-extrabold leading-[.86] tracking-[-0.065em] text-transparent dark:from-indigo-200 dark:via-indigo-300 dark:to-blue-300">
-          <span className="block text-[clamp(200px,23vw,330px)]">KPI</span>
-          <span className="-ml-1.5 block text-[clamp(110px,12.2vw,176px)]">Performance</span>
-        </h1>
-        <p className="absolute left-14 top-[66.6vh] z-30 max-w-[440px] animate-fade-up text-xl font-medium leading-normal text-gray-600 [animation-delay:150ms] [text-wrap:pretty] dark:text-muted-foreground">
-          {t("tagline")}
-        </p>
-        <KpiPill {...LINE_POINTS.growth}>
-          <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-gradient text-white">
-            <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
-          </span>
-          <span className="text-sm font-bold tabular-nums">+{formatPercent(growth)}</span>
-          <span className="text-xs text-gray-600 dark:text-muted-foreground">{t("growthCaption")}</span>
-        </KpiPill>
-        <KpiPill {...LINE_POINTS.done} className="animate-bob-slow">
-          <span className="ml-1.5 h-2 w-2 rounded-full bg-emerald-600 dark:bg-emerald-300" />
-          <span className="text-sm font-bold">
-            {t("completed")} <span className="tabular-nums">{formatPercent(done)}</span>
-          </span>
-        </KpiPill>
-      </div>
+      <div className="mx-auto flex min-h-dvh max-w-[1680px] flex-col gap-4 p-4 sm:p-6 lg:grid lg:h-dvh lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_clamp(380px,32vw,448px)] lg:gap-6 xl:gap-8 xl:p-12 [@media(max-height:820px)]:lg:p-6">
+        {/* Cột thông tin: trên mobile chỉ còn header + thẻ đếm ngược nhỏ */}
+        <section className="flex min-w-0 flex-col gap-4 lg:min-h-0">
+          <header className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              {/* Thay bằng logo công ty */}
+              <div className="grid size-[30px] place-items-center rounded-[9px] bg-brand-gradient text-white">
+                <ChartLine aria-hidden="true" className="size-4" />
+              </div>
+              <span className="text-[15px] font-bold">{t("common:appName")}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="hidden h-7 items-center gap-2 rounded-full border border-border px-3 text-xs text-muted-foreground lg:flex">
+                <span aria-hidden="true" className="size-1.5 animate-pulse-soft rounded-full bg-success" />
+                {t("today")}
+              </span>
+              <ThemeToggle />
+            </div>
+          </header>
 
-      {/* Header: tên công ty + chuyển giao diện */}
-      <header className="absolute inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-5 lg:px-14 lg:py-12">
-        <div className="hidden items-center gap-2.5 lg:flex">
-          {/* Thay bằng logo công ty */}
-          <div className="grid h-9 w-9 place-items-center rounded-[11px] bg-brand-gradient text-[8px] font-semibold tracking-wider text-white">LOGO</div>
-          <span className="text-sm font-semibold">{t("companyName")}</span>
-        </div>
-        <div className="ml-auto">
-          <ThemeToggle />
-        </div>
-      </header>
+          <CountdownCard
+            compact
+            className="lg:hidden"
+            days={quarter.daysLeft}
+            daysLabel={daysLabel}
+            trailing={`${clock.hours}:${clock.minutes} ${clock.period}`}
+          />
 
-      {/* Form — card kính mờ lệch phải trên desktop, full màn hình trên mobile */}
-      <main className="relative z-30 flex min-h-dvh items-start justify-center px-6 pb-10 pt-20 sm:items-center sm:pt-10 lg:justify-end lg:px-[7.2vw]">
-        <GlassCard glass="sm" className="w-full max-w-[468px] animate-fade-up [animation-delay:250ms]">
-          <div className="p-0 sm:px-9 sm:pb-8 sm:pt-10">
+          <div className="hidden min-h-0 flex-1 flex-col gap-4 lg:flex">
+            <div className="grid shrink-0 grid-cols-2 gap-4 lg:h-[clamp(132px,19vh,168px)]">
+              <ClockCard
+                delay={60}
+                label={t("clockLabel")}
+                hours={clock.hours}
+                minutes={clock.minutes}
+                period={clock.period}
+                date={formatLongDate(now, TIME_ZONE)}
+              />
+              <CountdownCard
+                delay={120}
+                label={t("countdownLabel")}
+                days={quarter.daysLeft}
+                daysLabel={daysLabel}
+                weeks={WEEKS_IN_QUARTER}
+                filledWeeks={quarter.week}
+              />
+            </div>
+
+            {announcement && (
+              <AnnouncementCard
+                delay={180}
+                icon={<Megaphone />}
+                badge={t("announcementBadge")}
+                title={announcement.title}
+                description={announcement.description}
+                aside={announcement.pinned ? t("announcementPinned") : undefined}
+              />
+            )}
+
+            <QuarterProgress
+              delay={240}
+              title={t("quarterInProgress", { quarter: quarter.quarter })}
+              caption={t("quarterWeek", { week: quarter.week, total: WEEKS_IN_QUARTER })}
+              progress={quarter.progress}
+              marks={[
+                formatDate(quarter.startDate, false),
+                ...quarter.months.slice(1).map(formatMonthShort),
+                formatDate(quarter.endDate, false),
+              ]}
+            />
+
+            <UpdatesList
+              delay={300}
+              className="min-h-0 flex-1"
+              title={t("updatesTitle")}
+              action={RELEASE_NOTES_URL ? { label: t("releaseNotes"), href: RELEASE_NOTES_URL } : undefined}
+              items={updates}
+            />
+          </div>
+        </section>
+
+        {/* Form: thẻ vào sau cùng */}
+        <main className="flex min-h-0 flex-1 items-start justify-center lg:items-center">
+          <div className="max-h-full w-full max-w-[468px] animate-form-in overflow-y-auto rounded-xl border border-border bg-card/80 p-6 shadow-glass-sm backdrop-blur-sm [animation-delay:360ms] sm:p-8 lg:max-w-none lg:p-10 [@media(max-height:820px)]:lg:p-8">
             <LoginForm onSuccess={() => navigate("/dashboard", { replace: true })} />
           </div>
-        </GlassCard>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };
