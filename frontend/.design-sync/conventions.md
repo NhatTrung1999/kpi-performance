@@ -1,6 +1,6 @@
 # KPI Performance design system — conventions
 
-Vietnamese-language KPI / performance-review product. UI copy is Vietnamese; keep it so. Font is **Be Vietnam Pro** (already loaded by `styles.css`; `font-sans` = `font-login` = Be Vietnam Pro).
+KPI / performance-review product. UI copy is **English** (the app serves text through i18n; new copy goes in English, never mix in Chinese/Vietnamese captions). Dates read `15 Jan 2015`, percentages `8.2%`. Font is **Be Vietnam Pro** (already loaded by `styles.css`; `font-sans` = `font-login` = Be Vietnam Pro).
 
 ## Setup
 - No provider/wrapper component. Components are plain React; load `_ds_bundle.js` (global `window.KpiDS`) and `styles.css` (it imports `_ds_bundle.css`, which holds ALL tokens + Tailwind utilities).
@@ -20,7 +20,7 @@ Use token classes only — never raw hex or `indigo-600`. Spacing is a 4px scale
 
 ## Design rules
 - Inner pages (dashboards, forms): flat `Card`, no blur, no decorative gradient/animation. Brand colour only for the primary action. `GlassCard` + gradient mesh backgrounds are for login / welcome screens only.
-- Status is never colour-alone: use `Badge status=…` (`dat` Đạt, `canh-bao` Cảnh báo, `chua-dat` Chưa đạt, `nhap` Nháp, `cho-duyet` Chờ duyệt, `da-duyet` Đã duyệt — each has icon + label) and `StatCard` trend arrows.
+- Status is never colour-alone: use `Badge status=…` (`dat` On track, `canh-bao` At risk, `chua-dat` Off track, `nhap` Draft, `cho-duyet` Pending review, `da-duyet` Approved — each has icon + English default label; pass `children` to override) and `StatCard` trend arrows.
 - KPI colour thresholds (`ProgressBar`, `getKpiTone`): ≥90 success, 60–89 warning, <60 danger. Pass `StatCard trend.inverse` when a decrease is good (e.g. error rate).
 - Form field = `Label` + `Input` (`aria-invalid` shows the error ring; `size="lg"` + `startIcon` is the login style).
 - Dropdown/select-style menus: `Popover` + `PopoverTrigger` (`render={<Button variant="outline" />}`) + `PopoverContent` (portal to body, as wide as the trigger; add `style={{minWidth}}` for more) + `PopoverClose`. All exported from `KpiDS`; docs in `Popover.prompt.md`.
@@ -35,14 +35,14 @@ const { Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, S
 
 <Card>
   <CardHeader>
-    <CardTitle>KPI Quý 3/2026</CardTitle>
-    <CardDescription>Phòng Kinh doanh</CardDescription>
+    <CardTitle>KPI Q3 2026</CardTitle>
+    <CardDescription>Sales Department</CardDescription>
     <CardAction><Badge status="canh-bao" /></CardAction>
   </CardHeader>
   <CardContent className="grid grid-cols-2 gap-4">
-    <StatCard label="Doanh thu" value="12,4" unit="tỷ đồng" trend={{ value: 8.2, caption: "so với quý trước" }} progress={92} />
-    <StatCard label="Tỷ lệ lỗi" value="1,8" unit="%" trend={{ value: -0.6, inverse: true }} progress={55} />
+    <StatCard label="Revenue" value="12.4" unit="billion VND" trend={{ value: 8.2, caption: "vs. last quarter" }} progress={92} />
+    <StatCard label="Error rate" value="1.8" unit="%" trend={{ value: -0.6, inverse: true }} progress={55} />
   </CardContent>
-  <div className="flex justify-end gap-2 px-4 pb-4"><Button variant="outline">Xem chi tiết</Button><Button>Cập nhật</Button></div>
+  <div className="flex justify-end gap-2 px-4 pb-4"><Button variant="outline">View details</Button><Button>Update</Button></div>
 </Card>
 ```
