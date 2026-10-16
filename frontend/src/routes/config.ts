@@ -39,7 +39,7 @@ export const ROUTE_META: Record<string, RouteMeta> = {
 };
 
 /** Key dịch của nhãn nhóm (namespace `nav`, mục `groups`); `null` = không có nhãn. */
-export const NAV_GROUP_LABEL: Record<NavGroup, 'admin' | null> = { main: null, admin: 'admin' };
+export const NAV_GROUP_LABEL: Record<NavGroup, 'general' | 'admin' | null> = { main: 'general', admin: 'admin' };
 
 export const canAccess = (meta: RouteMeta | undefined, role: AppRole) => !meta?.roles || meta.roles.includes(role);
 

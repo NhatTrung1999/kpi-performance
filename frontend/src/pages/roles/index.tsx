@@ -2,7 +2,6 @@ import { Dialog } from '@base-ui/react/dialog';
 import { Briefcase, Check, ChevronDown, ChevronLeft, ChevronRight, History, MoreHorizontal, Search, ShieldCheck, TriangleAlert, UserRoundCheck, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Header from '@/components/common/Header';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -143,7 +142,6 @@ const Roles = () => {
 
   return (
     <>
-      <Header />
       <PageShell>
         <PageBanner
           icon={<ShieldCheck />}

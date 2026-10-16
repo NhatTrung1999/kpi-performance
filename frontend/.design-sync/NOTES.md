@@ -33,3 +33,5 @@
 - Re-sync risk: the uploaded `ds-bundle` was built with no `--remote` (post-header rebuild rule); next re-sync fetches `_ds_sync.json` as usual.
 
 - 2026-10-13: re-sync after the Permissions v2 page. `PageBanner` badges gained `onClick/active/dot/title` (clickable filter badges). The badge type is inlined in `PageBannerProps` (not a separate alias) because the converter's `.d.ts` emitter drops referenced local type aliases (it left a dangling `PageBannerBadge`). Still a floor card (no authored preview) so verification reported it `unchanged`; the bundle/`.d.ts` upload still shipped. 23 components, 0 bad. Atomic upload, 118 content files, nothing deleted; remote `templates/` untouched.
+
+- 2026-10-16: added shell components (AppShell, AppSidebar, SidebarNavGroup/Item, SidebarToggle, AccountMenu/Avatar, Tooltip, Kbd, Dialog/ConfirmDialog, MetricCard/Eyebrow/Pill, TrendChart/Sparkline), tokens `shell`/`panel`, shadows `card`/`panel`/`nav`, animations `rise-in`/`bar-in`/`line-in` (all in the `@source inline` list). Not synced yet; no authored previews. Tooltip/AccountMenu/Dialog are portaled (likely `cardMode: single`).

@@ -44,3 +44,15 @@ export const formatClockParts = (value: Date, timeZone: string) => {
 /** Ngày đầy đủ theo múi giờ `timeZone`, vd. "Tuesday, October 13, 2026". */
 export const formatLongDate = (value: Date, timeZone: string) =>
   new Intl.DateTimeFormat(intlLocale(), { timeZone, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(value);
+
+/** Tháng + năm, vd. "Oct 2026". */
+export const formatMonthYear = (value: DateInput) =>
+  new Intl.DateTimeFormat(intlLocale(), { month: 'short', year: 'numeric' }).format(toDate(value));
+
+/** Thứ viết tắt, vd. "Thu". */
+export const formatWeekdayShort = (value: DateInput) =>
+  new Intl.DateTimeFormat(intlLocale(), { weekday: 'short' }).format(toDate(value));
+
+/** Giờ theo giờ địa phương, vd. "10:00 AM". */
+export const formatTime = (value: DateInput) =>
+  new Intl.DateTimeFormat(intlLocale(), { hour: 'numeric', minute: '2-digit' }).format(toDate(value));

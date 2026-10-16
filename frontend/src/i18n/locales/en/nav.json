@@ -6,6 +6,7 @@
   "profile": "Profile & settings",
   "roles": "Permissions",
   "groups": {
-    "admin": "ADMINISTRATION"
+    "admin": "ADMINISTRATION",
+    "general": "General"
   }
 }

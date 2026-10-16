@@ -7,7 +7,7 @@ export type AppRole = 'AD' | 'CQ' | 'NV';
 /** Tên cổng theo vai trò, theo ngôn ngữ hiện tại. */
 export const portalOf = (role: AppRole) => i18n.t(`portal.${role}`);
 
-export type CurrentUser = { name: string; title: string; role: AppRole; roleKnown: boolean };
+export type CurrentUser = { name: string; title: string; email: string; role: AppRole; roleKnown: boolean };
 
 const ROLE_ALIASES: Record<string, AppRole> = {
   AD: 'AD', ADMIN: 'AD',
@@ -52,6 +52,7 @@ export const getCurrentUser = (): CurrentUser => {
   return {
     name: str(stored.name) || str(claims.name) || i18n.t('user'),
     title: str(stored.title) || str(claims.title),
+    email: str(stored.email) || str(claims.email),
     role: role ?? 'NV',
     roleKnown: !!role,
   };
@@ -66,6 +67,12 @@ export const saveCurrentUser = (user: unknown) => {
   } catch {
     /* storage đầy/bị chặn: dùng claim trong token */
   }
+};
+
+/** Tên gọi trong lời chào: bỏ họ khi tên có từ ba chữ trở lên ("Nguyễn Minh Anh" → "Minh Anh"). */
+export const shortNameOf = (name: string) => {
+  const words = name.split(/\s+/).filter(Boolean);
+  return words.length >= 3 ? words.slice(1).join(' ') : name;
 };
 
 export const initialsOf = (name: string) =>

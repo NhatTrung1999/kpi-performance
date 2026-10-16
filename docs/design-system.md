@@ -44,6 +44,8 @@ Quy tắc chung:
 | Token | Class | Sáng | Tối |
 |---|---|---|---|
 | `--page` / `--background` | `bg-page`, `bg-background` | `#F8FAFF` | `#0B0B0F` |
+| `--shell` | `bg-shell` | `#F3F4F8` | `#0B0B0F` |
+| `--panel` | `bg-panel` | `#F8FAFF` | `#111118` |
 | `--card` | `bg-card` | `#FFFFFF` | `#15151C` |
 | `--foreground` | `text-foreground` | `#111827` | `#F3F4F6` |
 | `--text-secondary` | `text-text-secondary` | `#374151` | `#D1D5DB` |
@@ -77,7 +79,7 @@ Font: **Be Vietnam Pro** (400/500/600/700/800; subset vietnamese, latin-ext, lat
 | `rounded-hero` | 28 | **riêng trang đăng nhập**: thẻ kính |
 
 ### Đổ bóng
-`shadow-glass`, `shadow-glass-sm` (kính mờ), `shadow-brand`, `shadow-brand-hover` (nút gradient), `shadow-field` (ô nhập), `shadow-toast`. Giá trị đổi theo sáng/tối trong `index.css`. Trang bên trong: ưu tiên không đổ bóng, dùng viền `border-border`.
+`shadow-glass`, `shadow-glass-sm` (kính mờ), `shadow-brand`, `shadow-brand-hover` (nút gradient), `shadow-field` (ô nhập), `shadow-toast`, `shadow-card` (thẻ `Card variant="raised"`), `shadow-panel` (tấm nội dung của `AppShell`), `shadow-nav` (mục sidebar đang chọn). Giá trị đổi theo sáng/tối trong `index.css`. Trang bên trong: ưu tiên không đổ bóng, dùng viền `border-border`.
 
 ## Component (`components/ui`)
 
@@ -90,9 +92,17 @@ Font: **Be Vietnam Pro** (400/500/600/700/800; subset vietnamese, latin-ext, lat
 | `Card` | `CardHeader/Title/Description/Content/Footer/Action` | bề mặt phẳng cho trang trong |
 | `GlassCard` | `variant`: `panel`/`pill`; `glass`: `always`/`sm` | chỉ đăng nhập; `sm` = trong suốt trên mobile |
 | `Badge` | `status`: `dat`, `canh-bao`, `chua-dat`, `nhap`, `cho-duyet`, `da-duyet` | tự có icon + nhãn tiếng Anh mặc định; ứng dụng truyền `children` đã dịch (i18n) |
-| `ProgressBar` | `value` (%), `label`, `showValue` | ≥ 90 xanh, 60–89 vàng, < 60 đỏ (`KPI_THRESHOLDS`, `getKpiTone`); thanh vẽ tối đa 100% |
+| `ProgressBar` | `value` (%), `label`, `showValue`, `size="sm"`, `animated` | ≥ 90 xanh, 60–89 vàng, < 60 đỏ (`KPI_THRESHOLDS`, `getKpiTone` — cấu hình trong `src/config/kpi.ts`); thanh vẽ tối đa 100% |
 | `StatCard` | `label`, `value`, `unit`, `trend {value, inverse, caption, labels}`, `progress` | `inverse` cho chỉ số giảm là tốt |
 | `FormAlert` | `tone`: `error`/`warning`/`success`/`info`; `title`, `icon` | có `title` → dạng khung đầy đủ; không → một dòng. `role=alert` cho lỗi/cảnh báo |
+| `AppShell` | `sidebar`, `mobileSidebar`, `mobileSidebarOpen`, `header` | khung trang trong: sidebar + thanh trên chung nền `shell`, không đường kẻ; nội dung là tấm `panel` bo góc trên trái, chỉ tấm này cuộn. Dưới lg: menu trượt |
+| `AppSidebar` / `SidebarNavGroup` / `SidebarNavItem` | `collapsed` (248 ↔ 72px), `toggle`, `onClose`; item: `icon`, `label`, `active`, `badge`, `render` (link router) | thu gọn → nhãn hiện bằng tooltip, nhóm thành đường kẻ |
+| `SidebarToggle` | `collapsed`, `onToggle`, `labels`, `shortcut` | mờ khi chuột không ở trên sidebar; tooltip kèm phím tắt |
+| `AccountMenu` / `Avatar` | `name`, `title`, `email`, `initials`, `items [{label, icon, shortcut, tone, separatorBefore, onSelect}]` | menu tài khoản duy nhất, ở avatar góc trên phải |
+| `Tooltip` / `Kbd` | `content`, `shortcut`, `side`, `disabled` | Kbd = chip phím tắt |
+| `Dialog` / `ConfirmDialog` | `open`, `onOpenChange`, `title`, `description`; confirm: `onConfirm`, `tone` | ConfirmDialog = alert dialog (vd. thay đổi chưa lưu) |
+| `MetricCard` / `Eyebrow` / `Pill` | `label`, `tag`, `value`, `unit`, `caption`, `footer` | thẻ số liệu trang Overview (`Card variant="raised"`) |
+| `TrendChart` / `Sparkline` | `points`, `min`, `max`, `ticks`, `target`, `callout`, `labelEvery` | đường cong mượt có vùng gradient, tooltip từng điểm, đường vẽ dần (tắt khi giảm chuyển động) |
 | `Toast` | `<Toaster />` đặt một lần ở `App`; `toast.success/error/warning(...)` | dùng cho kết quả thao tác tạm thời; lỗi cần ở lại trong form dùng `FormAlert` |
 
 Ví dụ:

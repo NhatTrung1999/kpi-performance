@@ -20,7 +20,7 @@ Use token classes only — never raw hex or `indigo-600`. Spacing is a 4px scale
 
 ## Design rules
 - Inner pages (dashboards, forms): flat `Card`, no blur, no decorative gradient/animation. Brand colour only for the primary action. `GlassCard` + gradient mesh backgrounds are for login / welcome screens only.
-- Status is never colour-alone: use `Badge status=…` (`dat` On track, `canh-bao` At risk, `chua-dat` Off track, `nhap` Draft, `cho-duyet` Pending review, `da-duyet` Approved — each has icon + English default label; pass `children` to override) and `StatCard` trend arrows.
+- Status is never colour-alone: use `Badge status=…` (`dat` On track, `canh-bao` At risk, `chua-dat` Behind, `nhap` Draft, `cho-duyet` Pending review, `da-duyet` Approved — each has icon + English default label; pass `children` to override) and `StatCard` trend arrows.
 - KPI colour thresholds (`ProgressBar`, `getKpiTone`): ≥90 success, 60–89 warning, <60 danger. Pass `StatCard trend.inverse` when a decrease is good (e.g. error rate).
 - Form field = `Label` + `Input` (`aria-invalid` shows the error ring; `size="lg"` + `startIcon` is the login style).
 - Dropdown/select-style menus: `Popover` + `PopoverTrigger` (`render={<Button variant="outline" />}`) + `PopoverContent` (portal to body, as wide as the trigger; add `style={{minWidth}}` for more) + `PopoverClose`. All exported from `KpiDS`; docs in `Popover.prompt.md`.

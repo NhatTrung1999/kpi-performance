@@ -1,4 +1,4 @@
-import { ApiError, http, setToken } from './axios';
+import { ApiError, clearToken, http, setToken } from './axios';
 import { saveCurrentUser } from './session';
 import { toLoginFailure, type LoginFailure } from './auth-errors';
 import type { LoginValues } from './validations/login';
@@ -41,4 +41,13 @@ export async function login(values: LoginValues): Promise<LoginResult> {
     }
     return { ok: false, failure: toLoginFailure({ error }) };
   }
+}
+
+/**
+ * Đăng xuất: xoá phiên trên trình duyệt (token + user ở localStorage/sessionStorage).
+ * Backend hiện CHƯA có API đăng xuất (chỉ có POST /auth/login và GET /auth/me) nên chưa gọi server.
+ * Khi có API (vd. POST /auth/logout), gọi tại đây trước clearToken và bỏ qua lỗi để luôn xoá được phiên.
+ */
+export async function logout(): Promise<void> {
+  clearToken();
 }

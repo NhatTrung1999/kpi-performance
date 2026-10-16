@@ -7,10 +7,10 @@ import type { AppRole } from './session';
  * Bật bằng VITE_MOCK_AUTH=true trong .env.local. Mật khẩu chung: dev12345.
  * Chỉ giả lập /auth/login và /auth/me; mọi URL khác vẫn đi tới backend thật.
  */
-const ACCOUNTS: Record<string, { name: string; title: string; role: AppRole }> = {
-  'admin.dev': { name: 'Lê Quản Trị', title: 'System administrator', role: 'AD' },
-  'chuquan.dev': { name: 'Phạm Chủ Quản', title: 'Department head', role: 'CQ' },
-  'nhanvien.dev': { name: 'Trần Minh Anh', title: 'Specialist', role: 'NV' },
+const ACCOUNTS: Record<string, { name: string; title: string; email: string; role: AppRole }> = {
+  'admin.dev': { name: 'Lê Quản Trị', title: 'System administrator', email: 'admin.dev@example.com', role: 'AD' },
+  'chuquan.dev': { name: 'Phạm Chủ Quản', title: 'Department head', email: 'chuquan.dev@example.com', role: 'CQ' },
+  'nhanvien.dev': { name: 'Trần Minh Anh', title: 'Specialist', email: 'nhanvien.dev@example.com', role: 'NV' },
 };
 const PASSWORD = 'dev12345';
 
