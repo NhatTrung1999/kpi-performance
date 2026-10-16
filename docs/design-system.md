@@ -46,6 +46,7 @@ Quy tắc chung:
 | `--page` / `--background` | `bg-page`, `bg-background` | `#F8FAFF` | `#0B0B0F` |
 | `--shell` | `bg-shell` | `#F3F4F8` | `#0B0B0F` |
 | `--panel` | `bg-panel` | `#F8FAFF` | `#111118` |
+| `--scrollbar-thumb` / `--scrollbar-thumb-hover` | (CSS chung, không có class) | `#D1D5DB` / `#6B7280` | `rgb(255 255 255 / .2)` / `rgb(255 255 255 / .35)` |
 | `--card` | `bg-card` | `#FFFFFF` | `#15151C` |
 | `--foreground` | `text-foreground` | `#111827` | `#F3F4F6` |
 | `--text-secondary` | `text-text-secondary` | `#374151` | `#D1D5DB` |
@@ -54,6 +55,8 @@ Quy tắc chung:
 | `--border` | `border-border` | `#E5E7EB` | `rgb(255 255 255 / .1)` |
 | `--border-strong` | `border-border-strong` | `#D1D5DB` | `rgb(255 255 255 / .2)` |
 | `--glass`, `--glass-border` | `bg-glass`, `border-glass-border` | `rgb(255 255 255 / .75)`, `/ .8` | `rgb(16 16 24 / .7)`, `rgb(255 255 255 / .1)` |
+
+Thanh cuộn: toàn hệ thống dùng thanh mảnh (Firefox `scrollbar-width: thin`, Chrome/Edge `::-webkit-scrollbar` 8px, con trượt bo tròn ~4px) khai báo một lần trong `index.css`; không tự đặt kiểu thanh cuộn trong component.
 
 ### Font & cỡ chữ
 Font: **Be Vietnam Pro** (400/500/600/700/800; subset vietnamese, latin-ext, latin; tự host qua `@fontsource`, khai báo trong `src/fonts.css`). `font-sans` và `font-login` đều là Be Vietnam Pro.

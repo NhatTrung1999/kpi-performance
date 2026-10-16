@@ -119,6 +119,8 @@
     --input: #E5E7EB;
     --border-strong: #D1D5DB;
     --placeholder: #9CA3AF;
+    --scrollbar-thumb: var(--border-strong); /* thanh cuộn mảnh dùng chung */
+    --scrollbar-thumb-hover: var(--muted-foreground);
 
     /* Thương hiệu */
     --brand: #6366F1; /* ring, điểm nhấn */
@@ -194,6 +196,8 @@
     --input: rgb(255 255 255 / 0.1);
     --border-strong: rgb(255 255 255 / 0.2);
     --placeholder: #6B7280;
+    --scrollbar-thumb: var(--border-strong);
+    --scrollbar-thumb-hover: rgb(255 255 255 / 0.35);
 
     --brand: #818CF8;
     --brand-from: #4F46E5;
@@ -346,6 +350,25 @@
 
 @layer base {
   html { -webkit-font-smoothing: antialiased; }
+
+  /* Thanh cuộn mảnh cho toàn hệ thống — màu theo token nên tự đổi sáng/tối. */
+  * {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+  /* Chrome/Edge/Safari: khi có ::-webkit-scrollbar thì bỏ scrollbar-color để kiểu dưới đây được dùng. */
+  @supports selector(::-webkit-scrollbar) {
+    * { scrollbar-color: auto; scrollbar-width: auto; }
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background: var(--scrollbar-thumb) padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { background-color: var(--scrollbar-thumb-hover); }
+  ::-webkit-scrollbar-button { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
