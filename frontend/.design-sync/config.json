@@ -1,11 +1,13 @@
 {
-  "projectId": "92836757-cc21-4556-8da5-60db96fc6b55",
+  "projectId": "1e3f61d3-e159-49a8-8651-dd36f7b51407",
   "shape": "package",
   "pkg": "frontend",
   "globalName": "KpiDS",
   "buildCmd": "npm run build:lib",
   "tsconfig": "tsconfig.app.json",
   "cssEntry": "dist-lib/design-system.css",
+  "tokensPkg": "..",
+  "tokensGlob": "dist-lib/tokens/*.css",
   "componentSrcMap": {
     "CardHeader": null,
     "CardTitle": null,
@@ -61,6 +63,42 @@
       "cardMode": "column"
     },
     "UpdatesList": {
+      "cardMode": "column"
+    },
+    "AppShell": {
+      "cardMode": "single",
+      "primaryStory": "OverviewPage",
+      "viewport": "1120x600"
+    },
+    "AppSidebar": {
+      "cardMode": "single",
+      "primaryStory": "ExpandedAndCollapsed",
+      "viewport": "420x460"
+    },
+    "AccountMenu": {
+      "cardMode": "single",
+      "primaryStory": "Open",
+      "viewport": "360x320"
+    },
+    "Dialog": {
+      "cardMode": "single",
+      "primaryStory": "KeyboardShortcuts",
+      "viewport": "520x400"
+    },
+    "ConfirmDialog": {
+      "cardMode": "single",
+      "primaryStory": "UnsavedChanges",
+      "viewport": "520x300"
+    },
+    "Tooltip": {
+      "cardMode": "single",
+      "primaryStory": "WithShortcut",
+      "viewport": "340x140"
+    },
+    "MetricCard": {
+      "cardMode": "column"
+    },
+    "TrendChart": {
       "cardMode": "column"
     }
   },

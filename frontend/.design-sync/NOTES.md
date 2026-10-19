@@ -17,17 +17,30 @@
 ## Known render warns
 - `[RENDER_THIN]` Toaster: rendered height 0 because the toast is portaled/fixed; screenshot shows the toasts correctly — benign.
 
-## Yêu cầu bắt buộc cho stylesheet đồng bộ (`dist-lib/design-system.css` -> `_ds_bundle.css`)
-Claude Design đã nhiều lần báo cảnh báo token vì các điểm dưới đây; plugin `designSyncTokens` trong `vite.lib.config.ts` đảm bảo chúng, và build:lib báo lỗi nếu không tìm thấy đúng 1 khối `:root` và 1 khối `.dark` ngoài layer.
-- Khối token `:root` và `.dark` (`--page`, `--background`, `--shell`, `--panel`, `--foreground`…) phải nằm ở **đầu file**, **không nén** (selector trên dòng riêng, mỗi khai báo một dòng), đứng **trước mọi `@layer`** của Tailwind. Không để chúng dính vào dòng utility đã nén.
-- Chỉ token thật trong `:root`/`.dark` được gắn `@kind`, chú thích **cùng dòng** với khai báo: `--warning: #f59e0b; /* @kind color */`.
-- **Không quét, không gắn `@kind`** cho bất kỳ biến `--tw-*` nào (rule utility, `:where(...)`, `@property`), và không chuyển `--tw-*` vào `:root`. Khối `:root,:host` trong `@layer theme` cũng giữ nguyên, không gắn chú thích.
-- Hai khối token trong `index.css` nằm ngoài mọi `@layer`; nhờ vậy dời chúng lên đầu file không đổi cascade. Nếu sau này bọc chúng vào `@layer`, hoặc khai báo lại các biến này ở rule ngoài layer khác, phải xem lại plugin.
-- Kiểm tra sau `npm run build:lib`: `head dist-lib/design-system.css` bắt đầu bằng `:root {`; `grep '@kind' dist-lib/design-system.css | grep -c -- '--tw-'` ra 0.
+## Yêu cầu bắt buộc cho token khi đồng bộ (2 quy tắc — áp dụng cho mọi lần sync)
+Claude Design đã nhiều lần báo cảnh báo token. Nguyên nhân gốc: khi không có `tokens/`, bước sync quét toàn bộ `_ds_bundle.css` và ghi cả biến `--tw-*` của utility vào danh sách token. Cơ chế hiện tại:
+- `vite.lib.config.ts` (plugin `designSyncTokens`, chỉ chạy cho build:lib) tách các khối token sang **`dist-lib/tokens/tokens.css`**: câu lệnh `@layer properties, theme, base, components, utilities;` (giữ nguyên thứ tự layer), `:root,:host` của `@layer properties` (`--shimmer-angle`) và của `@layer theme`, rồi `:root` và `.dark` (ngoài layer). Các khối này không nén, mỗi khai báo một dòng. `dist-lib/design-system.css` không còn khối token nào. Build báo lỗi nếu cấu trúc CSS của Tailwind thay đổi khiến không tách được.
+- `.design-sync/config.json`: `"tokensPkg": ".."` (thư mục `frontend`, tính từ `--node-modules ./node_modules`) + `"tokensGlob": "dist-lib/tokens/*.css"`. Converter copy file đó vào `ds-bundle/tokens/`; `styles.css` `@import` `tokens/tokens.css` trước `_ds_bundle.css`; danh sách token trong README chỉ lấy từ `tokens/`. **Không bỏ hai key này** — thiếu chúng, bước sync quay lại quét `_ds_bundle.css`.
+
+**Quy tắc 1 — chỉ đăng ký token trong `:root` / `.dark`** (gồm cả `:root,:host` của Tailwind theme). Không quét, không gắn `@kind`, không đăng ký bất kỳ biến `--tw-*` nào, cũng như mọi biến khai báo dưới selector của utility class (`:where(.space-y-*>…)`, `.translate-x-1`, …) hay trong `@property`. Không chuyển `--tw-*` vào `:root`. Các biến đó ở nguyên trong `_ds_bundle.css`.
+
+**Quy tắc 2 — token hiệu ứng/easing là `@kind other`**, chú thích cùng dòng với khai báo: `--ease-out`, `--animate-*`, `--shimmer-angle`, `--default-transition-*`, `--blur-*`, `--perspective-*`, `--aspect-*`… (`kindOf` trong `vite.lib.config.ts`; thêm prefix mới vào regex đầu tiên của hàm khi có loại token hiệu ứng mới). Các token khác: `color`/`font`/`radius`/`shadow`/`spacing` theo tên, hoặc theo giá trị màu / `var()` trỏ tới token đã biết.
+
+Kiểm tra nhanh sau `npm run build:lib`:
+- `grep -c '@kind' dist-lib/design-system.css` ra 0
+- `grep -c -- '--tw-' dist-lib/tokens/tokens.css` ra 0
+- `grep -E -- '^\s*--(ease|animate|shimmer|default-transition|blur)' dist-lib/tokens/tokens.css | grep -vc '@kind other'` ra 0
+
+Sau khi chạy driver: `ds-bundle/styles.css` phải có `@import "./tokens/tokens.css";`, và mục "## Tokens" của README không được có `--tw-`.
+
+Lưu ý thêm:
+- Thư mục tạm chứa CSS/JS build (ví dụ `dist-lib-old/` để so sánh) phải nằm trong `.gitignore` hoặc bị xoá trước `build:lib`. Tailwind v4 tự quét mọi file không bị ignore, nên thư mục như vậy sẽ thêm hàng chục utility thừa.
+- Hai khối `:root`/`.dark` trong `index.css` nằm ngoài mọi `@layer`. Nếu sau này bọc chúng vào `@layer`, hoặc khai báo lại các biến này ở rule khác, phải xem lại plugin.
+- README ghi "N CSS custom properties from .." vì `tokensPkg` là `..` (converter in nguyên tên). Không ảnh hưởng gì.
 
 ## Re-sync risks
 - Class list in `src/design-system.css` is a manual allowlist: new tokens/utilities added to `index.css` or to the conventions must also be added there.
-- `conventions.md` names tokens/classes from `docs/design-system.md`; re-validate against the fresh `_ds_bundle.css` after token changes.
+- `conventions.md` names tokens/classes from `docs/design-system.md`; re-validate against the fresh `tokens/tokens.css` + `_ds_bundle.css` after token changes.
 - `.d.ts` are generated by `build-lib-types.mjs` (Base UI props come through from `@base-ui/react`, some doc comments are truncated by the converter).
 - Dark mode (`.dark`) was not visually graded; previews were graded in light mode only.
 
@@ -47,7 +60,7 @@ Claude Design đã nhiều lần báo cảnh báo token vì các điểm dưới
 - 2026-10-19: synced the 16 shell components with authored English previews (39 components; floor cards remain PageBanner, PageShell, TableCard*). Overlays: AccountMenu opens via `.click()` on mount, Tooltip via synthetic pointer/mouse enter events (`delay={0}`); Dialog/ConfirmDialog are `open` controlled. `cardMode: single` for AppShell (1120x600 - needs >=1024px for the `lg` layout), AppSidebar, AccountMenu, Dialog, ConfirmDialog, Tooltip; `column` for MetricCard, TrendChart. The AccountMenu wrapper needs `alignItems: flex-start`, otherwise the stretched trigger flips the menu upward and clips it. `conventions.md` gained the app-frame / dashboard / overlay bullets.
 - Known render warns: `[RENDER_THIN]` Dialog, ConfirmDialog (portaled + fixed, height 0; screenshots correct) - benign. TrendChart/Sparkline review sheets catch the `line-in` draw animation mid-way (300ms delay + 1s); the live card completes - benign.
 
-- 2026-10-19: `vite.lib.config.ts` có plugin `designSyncTokens` (chỉ cho build:lib) xử lý CSS thư viện sau khi build: bỏ khối dự phòng `*,:before,:after,::backdrop{--tw-*}` trong `@layer properties` (chỉ có tác dụng ở trình duyệt không hỗ trợ `@property`; giá trị khởi tạo đã có qua `@property`), và tách khối token ra đầu file (xem mục "Yêu cầu bắt buộc cho stylesheet đồng bộ" ở trên). Mục đích: Claude Design hết báo "biến chưa đăng ký" / "token chưa phân loại". Token mới trong `index.css` được phân loại theo tên (`kindOf`); tên không theo quy ước nào sẽ rơi vào `other`, trừ khi giá trị là màu hoặc `var()` trỏ tới một token màu.
+- 2026-10-19: `vite.lib.config.ts` có plugin `designSyncTokens` (chỉ cho build:lib) xử lý CSS thư viện sau khi build: bỏ khối dự phòng `*,:before,:after,::backdrop{--tw-*}` trong `@layer properties` (chỉ có tác dụng ở trình duyệt không hỗ trợ `@property`; giá trị khởi tạo đã có qua `@property`), và tách khối token ra `dist-lib/tokens/tokens.css` (xem mục "Yêu cầu bắt buộc cho token khi đồng bộ" ở trên). Mục đích: Claude Design hết báo "biến chưa đăng ký" / "token chưa phân loại". Token mới trong `index.css` được phân loại theo tên (`kindOf`); tên không theo quy ước nào sẽ rơi vào `other`, trừ khi giá trị là màu hoặc `var()` trỏ tới một token màu.
 - Known render warns: `[TOKENS_MISSING]` (9 biến: `--available-height`, `--anchor-width`, `--transform-origin` do Base UI gán lúc chạy; `--tw-gradient-*-position`, `--tw-inset-shadow`, `--tw-inset-ring-shadow`… chỉ định nghĩa qua `@property`, sau khi đã bỏ khối dự phòng) - không ảnh hưởng hiển thị, render check vẫn sạch.
 
 - 2026-10-19: pinned project 92836757 was gone remotely (404) — second time (see 2026-10-12). Re-created as "KPI Performance" (8615c890-4d9b-4bf8-9a50-05f33023132a), pinned in config, uploaded via the incremental path: 39 components (34 authored, all grades carried forward; floor: PageShell, TableCard, TableCardBar, TableCardBody), 198 content files + sentinel + `_ds_sync.json`. If `get_project` 404s again, check whether the project is being deleted on the claude.ai side before re-creating.
@@ -55,3 +68,5 @@ Claude Design đã nhiều lần báo cảnh báo token vì các điểm dưới
 - 2026-10-19 (later): project 8615c890 was gone too (404, absent from `list_projects`) - the THIRD synced project lost (2138b908, 92836757, 8615c890), each within hours to days. User chose to re-create: "KPI Performance" (1e3f61d3-e159-49a8-8651-dd36f7b51407), pinned. Incremental path, nothing changed in the DS: 34 authored grades carried forward, render check 39/0 bad, 198 content files + sentinel + `_ds_sync.json`. Cause still unknown - if it 404s again, have the user check claude.ai (trash / workspace admin / retention policy) before re-creating a fourth.
 
 - 2026-10-19: re-sync chỉ đổi định dạng CSS (khối token không nén, bỏ @kind khỏi `--tw-*`; ngữ nghĩa CSS không đổi). Driver: 39 unchanged, `upload.styling` only, render check 39/0 bad; atomic upload 198 file + sentinel + `_ds_sync.json`, không xoá gì. Dự án còn chứa `screens/kpi-proposal/` và `screenshots/` không do sync tạo — không bao giờ xoá.
+
+- 2026-10-19: tokens tách sang `tokens/tokens.css` qua `tokensPkg`/`tokensGlob`; README token list từ 196 biến (gồm `--tw-*`) còn 162, không còn `--tw-*`. CSS tổng (tokens.css + _ds_bundle.css) giống hệt bản trước, chỉ đổi thứ tự (đã so). Render check 39/0 bad; 39 component unchanged.
