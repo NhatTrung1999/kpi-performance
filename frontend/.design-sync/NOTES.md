@@ -17,6 +17,14 @@
 ## Known render warns
 - `[RENDER_THIN]` Toaster: rendered height 0 because the toast is portaled/fixed; screenshot shows the toasts correctly — benign.
 
+## Yêu cầu bắt buộc cho stylesheet đồng bộ (`dist-lib/design-system.css` -> `_ds_bundle.css`)
+Claude Design đã nhiều lần báo cảnh báo token vì các điểm dưới đây; plugin `designSyncTokens` trong `vite.lib.config.ts` đảm bảo chúng, và build:lib báo lỗi nếu không tìm thấy đúng 1 khối `:root` và 1 khối `.dark` ngoài layer.
+- Khối token `:root` và `.dark` (`--page`, `--background`, `--shell`, `--panel`, `--foreground`…) phải nằm ở **đầu file**, **không nén** (selector trên dòng riêng, mỗi khai báo một dòng), đứng **trước mọi `@layer`** của Tailwind. Không để chúng dính vào dòng utility đã nén.
+- Chỉ token thật trong `:root`/`.dark` được gắn `@kind`, chú thích **cùng dòng** với khai báo: `--warning: #f59e0b; /* @kind color */`.
+- **Không quét, không gắn `@kind`** cho bất kỳ biến `--tw-*` nào (rule utility, `:where(...)`, `@property`), và không chuyển `--tw-*` vào `:root`. Khối `:root,:host` trong `@layer theme` cũng giữ nguyên, không gắn chú thích.
+- Hai khối token trong `index.css` nằm ngoài mọi `@layer`; nhờ vậy dời chúng lên đầu file không đổi cascade. Nếu sau này bọc chúng vào `@layer`, hoặc khai báo lại các biến này ở rule ngoài layer khác, phải xem lại plugin.
+- Kiểm tra sau `npm run build:lib`: `head dist-lib/design-system.css` bắt đầu bằng `:root {`; `grep '@kind' dist-lib/design-system.css | grep -c -- '--tw-'` ra 0.
+
 ## Re-sync risks
 - Class list in `src/design-system.css` is a manual allowlist: new tokens/utilities added to `index.css` or to the conventions must also be added there.
 - `conventions.md` names tokens/classes from `docs/design-system.md`; re-validate against the fresh `_ds_bundle.css` after token changes.
@@ -35,3 +43,15 @@
 - 2026-10-13: re-sync after the Permissions v2 page. `PageBanner` badges gained `onClick/active/dot/title` (clickable filter badges). The badge type is inlined in `PageBannerProps` (not a separate alias) because the converter's `.d.ts` emitter drops referenced local type aliases (it left a dangling `PageBannerBadge`). Still a floor card (no authored preview) so verification reported it `unchanged`; the bundle/`.d.ts` upload still shipped. 23 components, 0 bad. Atomic upload, 118 content files, nothing deleted; remote `templates/` untouched.
 
 - 2026-10-16: added shell components (AppShell, AppSidebar, SidebarNavGroup/Item, SidebarToggle, AccountMenu/Avatar, Tooltip, Kbd, Dialog/ConfirmDialog, MetricCard/Eyebrow/Pill, TrendChart/Sparkline), tokens `shell`/`panel`, shadows `card`/`panel`/`nav`, animations `rise-in`/`bar-in`/`line-in` (all in the `@source inline` list). Not synced yet; no authored previews. Tooltip/AccountMenu/Dialog are portaled (likely `cardMode: single`).
+
+- 2026-10-19: synced the 16 shell components with authored English previews (39 components; floor cards remain PageBanner, PageShell, TableCard*). Overlays: AccountMenu opens via `.click()` on mount, Tooltip via synthetic pointer/mouse enter events (`delay={0}`); Dialog/ConfirmDialog are `open` controlled. `cardMode: single` for AppShell (1120x600 - needs >=1024px for the `lg` layout), AppSidebar, AccountMenu, Dialog, ConfirmDialog, Tooltip; `column` for MetricCard, TrendChart. The AccountMenu wrapper needs `alignItems: flex-start`, otherwise the stretched trigger flips the menu upward and clips it. `conventions.md` gained the app-frame / dashboard / overlay bullets.
+- Known render warns: `[RENDER_THIN]` Dialog, ConfirmDialog (portaled + fixed, height 0; screenshots correct) - benign. TrendChart/Sparkline review sheets catch the `line-in` draw animation mid-way (300ms delay + 1s); the live card completes - benign.
+
+- 2026-10-19: `vite.lib.config.ts` có plugin `designSyncTokens` (chỉ cho build:lib) xử lý CSS thư viện sau khi build: bỏ khối dự phòng `*,:before,:after,::backdrop{--tw-*}` trong `@layer properties` (chỉ có tác dụng ở trình duyệt không hỗ trợ `@property`; giá trị khởi tạo đã có qua `@property`), và tách khối token ra đầu file (xem mục "Yêu cầu bắt buộc cho stylesheet đồng bộ" ở trên). Mục đích: Claude Design hết báo "biến chưa đăng ký" / "token chưa phân loại". Token mới trong `index.css` được phân loại theo tên (`kindOf`); tên không theo quy ước nào sẽ rơi vào `other`, trừ khi giá trị là màu hoặc `var()` trỏ tới một token màu.
+- Known render warns: `[TOKENS_MISSING]` (9 biến: `--available-height`, `--anchor-width`, `--transform-origin` do Base UI gán lúc chạy; `--tw-gradient-*-position`, `--tw-inset-shadow`, `--tw-inset-ring-shadow`… chỉ định nghĩa qua `@property`, sau khi đã bỏ khối dự phòng) - không ảnh hưởng hiển thị, render check vẫn sạch.
+
+- 2026-10-19: pinned project 92836757 was gone remotely (404) — second time (see 2026-10-12). Re-created as "KPI Performance" (8615c890-4d9b-4bf8-9a50-05f33023132a), pinned in config, uploaded via the incremental path: 39 components (34 authored, all grades carried forward; floor: PageShell, TableCard, TableCardBar, TableCardBody), 198 content files + sentinel + `_ds_sync.json`. If `get_project` 404s again, check whether the project is being deleted on the claude.ai side before re-creating.
+
+- 2026-10-19 (later): project 8615c890 was gone too (404, absent from `list_projects`) - the THIRD synced project lost (2138b908, 92836757, 8615c890), each within hours to days. User chose to re-create: "KPI Performance" (1e3f61d3-e159-49a8-8651-dd36f7b51407), pinned. Incremental path, nothing changed in the DS: 34 authored grades carried forward, render check 39/0 bad, 198 content files + sentinel + `_ds_sync.json`. Cause still unknown - if it 404s again, have the user check claude.ai (trash / workspace admin / retention policy) before re-creating a fourth.
+
+- 2026-10-19: re-sync chỉ đổi định dạng CSS (khối token không nén, bỏ @kind khỏi `--tw-*`; ngữ nghĩa CSS không đổi). Driver: 39 unchanged, `upload.styling` only, render check 39/0 bad; atomic upload 198 file + sentinel + `_ds_sync.json`, không xoá gì. Dự án còn chứa `screens/kpi-proposal/` và `screenshots/` không do sync tạo — không bao giờ xoá.
