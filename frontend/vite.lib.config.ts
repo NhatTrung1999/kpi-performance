@@ -7,7 +7,7 @@ type TokenKind = 'color' | 'spacing' | 'radius' | 'shadow' | 'font' | 'other';
 
 // Phân loại token theo tên; tên không rõ thì xét giá trị (màu, hoặc var() trỏ tới token đã biết loại).
 function kindOf(name: string, value: string, known: Map<string, TokenKind>): TokenKind {
-  if (/^--(tw-|shimmer-|scroll-fade-|animate-|ease-|blur-|default-transition-)/.test(name)) return 'other';
+  if (/^--(shimmer-|scroll-fade-|animate-|ease-|blur-|default-transition-)/.test(name)) return 'other';
   if (/^--(color-|chart-|sidebar)/.test(name)) return 'color';
   if (/^--shadow-/.test(name)) return 'shadow';
   if (/^--radius/.test(name)) return 'radius';
@@ -22,7 +22,9 @@ function kindOf(name: string, value: string, known: Map<string, TokenKind>): Tok
 // 1. Bỏ khối dự phòng `*,:before,:after,::backdrop{--tw-*…}` trong @layer properties. Khối này chỉ chạy ở
 //    trình duyệt chưa có @property (đã có @supports chặn); trình duyệt hiện đại lấy giá trị khởi tạo từ
 //    @property nên giao diện không đổi, còn Claude Design không còn coi ~100 biến nội bộ là biến chưa đăng ký.
-// 2. Gắn `/* @kind … */` sau mỗi biến trong :root/.dark (token thật) và sau mọi biến --tw-*, mỗi biến một dòng.
+// 2. Chỉ token thật trong :root/.dark được gắn `/* @kind … */` cùng dòng với khai báo; các khối này được xuất
+//    dạng không nén, selector trên dòng riêng để không dính vào dòng utility đã nén phía trước.
+//    Biến --tw-* trong rule utility giữ nguyên, không gắn @kind.
 function designSyncTokens(): Plugin {
   const TOKEN_SCOPE = /^(:root|:root,:host|\.dark)$/;
   const RULE = /([^{};]+)\{([^{}]*)\}/g;
@@ -42,23 +44,20 @@ function designSyncTokens(): Plugin {
       css = css.replace(fallback, '');
 
       const known = new Map<string, TokenKind>();
-      const annotate = (selector: string, body: string) => {
-        const tokenScope = TOKEN_SCOPE.test(selector.trim());
-        const decls = body.split(';').filter((d) => d.trim());
-        if (!decls.some((d) => tokenScope || /^\s*--tw-/.test(d))) return null;
-        return decls
+      css = css.replace(RULE, (rule, selector: string, body: string) => {
+        const sel = selector.trim();
+        if (!TOKEN_SCOPE.test(sel)) return rule;
+        const decls = body
+          .split(';')
+          .filter((d) => d.trim())
           .map((d) => {
             const m = DECL.exec(d);
-            if (!m || (!tokenScope && !m[1].startsWith('--tw-'))) return `${d.trim()};`;
+            if (!m) return `  ${d.trim()};`;
             const kind = kindOf(m[1], m[2].trim(), known);
             known.set(m[1], kind);
-            return `${m[1]}:${m[2].trim()}; /* @kind ${kind} */`;
-          })
-          .join('\n');
-      };
-      css = css.replace(RULE, (rule, selector: string, body: string) => {
-        const out = annotate(selector, body);
-        return out === null ? rule : `${selector}{\n${out}\n}`;
+            return `  ${m[1]}: ${m[2].trim()}; /* @kind ${kind} */`;
+          });
+        return `\n${sel} {\n${decls.join('\n')}\n}\n`;
       });
       asset.source = css;
     },
