@@ -2,7 +2,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { ArrowRight, ArrowUp, ArrowDown, Check, CircleAlert, CircleCheck, MessageSquare, Pencil, Sun } from 'lucide-react';
-import { MobileToolbar } from '@/components/common/Header';
+import { MobileToolbar } from '@/components/common/Toolbar';
 import { Badge, type BadgeStatus } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -14,7 +14,7 @@ import { getKpiTone, type KpiTone } from '@/config/kpi';
 import { useCountUp } from '@/hooks/use-count-up';
 import { formatDate, formatMonthShort, formatMonthYear, formatNumber, formatPercent, formatTime, formatWeekdayShort } from '@/lib/format';
 import { getQuarterInfo } from '@/lib/quarter';
-import { getCurrentUser, shortNameOf } from '@/lib/session';
+import { shortNameOf, useCurrentUser } from '@/lib/session';
 import { cn } from '@/lib/utils';
 import { getOverview, type OverviewActivityKind, type OverviewData, type OverviewEvent } from '@/services/dashboard';
 
@@ -464,7 +464,7 @@ const Dashboard = () => {
 
   const now = new Date();
   const quarter = getQuarterInfo(now, TIME_ZONE);
-  const user = getCurrentUser();
+  const user = useCurrentUser();
   const hour = now.getHours();
   const greeting = t(hour < 12 ? 'greeting.morning' : hour < 18 ? 'greeting.afternoon' : 'greeting.evening', { name: shortNameOf(user.name) });
   const data = state.status === 'ready' ? state.data : null;

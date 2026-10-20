@@ -7,7 +7,8 @@
 
 @theme inline {
     --font-heading: var(--font-sans);
-    --font-sans: 'Be Vietnam Pro', system-ui, sans-serif;
+    /* Be Vietnam Pro cho Latin/tiếng Việt; chữ Hán rơi về font CJK có sẵn trên máy (không đóng gói font CJK nặng vài MB). */
+    --font-sans: 'Be Vietnam Pro', 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', 'Noto Sans CJK TC', system-ui, sans-serif;
     --font-login: var(--font-sans);
 
     /* Thang cỡ chữ bổ sung (ngoài text-xs/sm/base/lg… mặc định của Tailwind) */
@@ -42,6 +43,13 @@
     --color-surface-dark: var(--surface-dark);
     --color-placeholder: var(--placeholder);
     --color-border-strong: var(--border-strong);
+    /* Nền tiêu đề bảng dữ liệu (DataGrid): nhóm/cột chỉ đọc, nhóm/cột nhập liệu, cột khóa */
+    --color-grid-group-read: var(--grid-group-read);
+    --color-grid-group-input: var(--grid-group-input);
+    --color-grid-head-read: var(--grid-head-read);
+    --color-grid-head-input: var(--grid-head-input);
+    --color-grid-locked: var(--grid-locked);
+    --color-grid-row-muted: var(--grid-row-muted);
 
     /* Đổ bóng */
     --shadow-glass: var(--shadow-glass-value);
@@ -122,6 +130,15 @@
     --scrollbar-thumb: var(--border-strong); /* thanh cuộn mảnh dùng chung */
     --scrollbar-thumb-hover: var(--muted-foreground);
 
+    /* Bảng dữ liệu (DataGrid) — luôn ĐỤC vì nằm trên ô dính (sticky): nội dung cuộn qua không được lộ ra.
+       Ghi hex đã pha sẵn (không dùng color-mix: sinh thêm khối :root dự phòng, làm hỏng tách token của build:lib). */
+    --grid-group-read: #F7F7F9; /* hàng nhóm cột, nhóm chỉ đọc (≈ muted 70% trên card) */
+    --grid-group-input: #F1F5FF; /* hàng nhóm cột, nhóm nhập liệu (≈ accent 80%) */
+    --grid-head-read: #FBFBFC; /* tiêu đề cột chỉ đọc (≈ muted 35%) */
+    --grid-head-input: #F8FAFF; /* tiêu đề cột nhập liệu (≈ accent 40%) */
+    --grid-locked: #F5F6F8; /* cột chỉ người khác cập nhật (≈ muted 80%) */
+    --grid-row-muted: var(--muted); /* dòng làm mờ (vd. tạm hoãn, sắp thôi việc) */
+
     /* Thương hiệu */
     --brand: #6366F1; /* ring, điểm nhấn */
     --brand-from: #4F46E5; /* gradient chính */
@@ -198,6 +215,14 @@
     --placeholder: #6B7280;
     --scrollbar-thumb: var(--border-strong);
     --scrollbar-thumb-hover: rgb(255 255 255 / 0.35);
+
+    /* muted/accent tối là màu trong suốt → ghi sẵn kết quả đã phủ lên card */
+    --grid-group-read: #1F1F26;
+    --grid-group-input: #222336;
+    --grid-head-read: #1A1A21;
+    --grid-head-input: #1C1C29;
+    --grid-locked: #202027;
+    --grid-row-muted: #23232A;
 
     --brand: #818CF8;
     --brand-from: #4F46E5;

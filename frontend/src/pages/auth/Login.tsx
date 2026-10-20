@@ -13,6 +13,7 @@ import { HR_ANNOUNCEMENTS, RELEASE_NOTES_URL, UPDATES, type UpdateIcon, type Upd
 import { useNow } from "@/hooks/use-now";
 import { formatClockParts, formatDate, formatLongDate, formatMonthShort } from "@/lib/format";
 import { WEEKS_IN_QUARTER, getQuarterInfo } from "@/lib/quarter";
+import { HOME_PATH } from "@/routes/config";
 
 const TIME_ZONE = "Asia/Ho_Chi_Minh";
 
@@ -143,7 +144,7 @@ const Login = () => {
         {/* Form: thẻ vào sau cùng */}
         <main className="flex min-h-0 flex-1 items-start justify-center lg:items-center">
           <div className="max-h-full w-full max-w-[468px] animate-form-in overflow-y-auto rounded-xl border border-border bg-card/80 p-6 shadow-glass-sm backdrop-blur-sm [animation-delay:360ms] sm:p-8 lg:max-w-none lg:p-10 [@media(max-height:820px)]:lg:p-8">
-            <LoginForm onSuccess={() => navigate("/dashboard", { replace: true })} />
+            <LoginForm onSuccess={() => navigate(HOME_PATH, { replace: true })} />
           </div>
         </main>
       </div>

@@ -15,6 +15,8 @@ export { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader,
 export { AnnouncementCard } from '@/components/ui/announcement-card';
 export type { AnnouncementCardProps } from '@/components/ui/announcement-card';
 export { Checkbox } from '@/components/ui/checkbox';
+export { DataGrid } from '@/components/ui/data-grid';
+export type { DataGridColumn, DataGridGroup, DataGridProps, DataGridTone } from '@/components/ui/data-grid';
 export { ConfirmDialog, Dialog } from '@/components/ui/dialog';
 export type { ConfirmDialogProps, DialogProps } from '@/components/ui/dialog';
 export { ClockCard } from '@/components/ui/clock-card';

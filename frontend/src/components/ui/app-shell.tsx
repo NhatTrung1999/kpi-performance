@@ -12,8 +12,8 @@ import { cn } from "@/lib/utils"
  */
 
 type AppShellProps = {
-  /** Sidebar desktop (thường là AppSidebar). */
-  sidebar: React.ReactNode
+  /** Sidebar desktop (thường là AppSidebar). Bỏ trống = không có sidebar: tấm nội dung bo hai góc trên, cách hai mép. */
+  sidebar?: React.ReactNode
   /** Sidebar trong menu trượt mobile. */
   mobileSidebar?: React.ReactNode
   mobileSidebarOpen?: boolean
@@ -38,7 +38,7 @@ function AppShell({ sidebar, mobileSidebar, mobileSidebarOpen = false, onMobileS
 
   return (
     <div data-slot="app-shell" className={cn("flex min-h-dvh bg-page text-foreground lg:h-dvh lg:overflow-hidden lg:bg-shell", className)}>
-      <div className="hidden lg:flex">{sidebar}</div>
+      {sidebar && <div className="hidden lg:flex">{sidebar}</div>}
 
       {mobileSidebar && (
         <>
@@ -68,7 +68,10 @@ function AppShell({ sidebar, mobileSidebar, mobileSidebarOpen = false, onMobileS
         {header}
         <div
           data-slot="app-shell-panel"
-          className="relative flex flex-1 flex-col lg:mt-2 lg:min-h-0 lg:overflow-hidden lg:rounded-tl-2xl lg:bg-panel lg:shadow-panel"
+          className={cn(
+            "relative flex flex-1 flex-col lg:mt-2 lg:min-h-0 lg:overflow-hidden lg:bg-panel lg:shadow-panel",
+            sidebar ? "lg:rounded-tl-2xl" : "lg:mx-2 lg:rounded-t-2xl"
+          )}
         >
           <div
             aria-hidden="true"

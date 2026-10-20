@@ -1,0 +1,76 @@
+{
+  "appName": "KPI Performance",
+  "user": "Người dùng",
+  "loading": "Đang tải",
+  "openMenu": "Mở menu",
+  "closeMenu": "Đóng menu",
+  "mainNav": "Điều hướng chính",
+  "notifications": "Thông báo",
+  "unknownRole": "Chưa xác định vai trò",
+  "portal": {
+    "AD": "Quản trị viên",
+    "CQ": "Chủ quản",
+    "BLD": "Ban lãnh đạo",
+    "NV": "Nhân viên"
+  },
+  "period": {
+    "label": "Kỳ đánh giá",
+    "month": "Tháng",
+    "quarter": "Quý",
+    "year": "Năm"
+  },
+  "search": "Tìm kiếm",
+  "searchPlaceholder": "Tìm mục tiêu, đánh giá…",
+  "theme": {
+    "toLight": "Chuyển sang giao diện sáng",
+    "toDark": "Chuyển sang giao diện tối"
+  },
+  "toaster": {
+    "label": "Thông báo",
+    "close": "Đóng thông báo"
+  },
+  "forbidden": {
+    "title": "Không có quyền truy cập",
+    "heading": "Bạn không có quyền truy cập",
+    "description": "Trang này chỉ dành cho các vai trò được cấp quyền. Nếu cần truy cập, vui lòng liên hệ Admin.",
+    "back": "Về trang chủ"
+  },
+  "notFound": "Không tìm thấy trang",
+  "trend": {
+    "flat": "Không đổi",
+    "up": "Tăng",
+    "down": "Giảm"
+  },
+  "shell": {
+    "collapseSidebar": "Thu gọn thanh bên",
+    "expandSidebar": "Mở rộng thanh bên",
+    "accountMenu": "Menu tài khoản",
+    "profile": "Hồ sơ & cài đặt",
+    "shortcuts": "Phím tắt",
+    "logout": "Đăng xuất",
+    "unsavedTitle": "Bạn có thay đổi chưa lưu",
+    "unsavedDescription": "Vẫn đăng xuất? Các thay đổi chưa lưu sẽ bị mất.",
+    "cancel": "Hủy",
+    "close": "Đóng"
+  },
+  "shortcuts": {
+    "title": "Phím tắt",
+    "description": "Phím tắt dùng được ở mọi nơi, trừ khi đang gõ trong ô nhập.",
+    "toggleSidebar": "Thu gọn hoặc mở rộng thanh bên",
+    "focusSearch": "Tìm mục tiêu và đánh giá",
+    "showShortcuts": "Hiện danh sách phím tắt",
+    "closeDialog": "Đóng menu và hộp thoại",
+    "keys": {
+      "toggleSidebar": "Ctrl B",
+      "search": "Ctrl K",
+      "showShortcuts": "?",
+      "close": "Esc"
+    }
+  },
+  "retry": "Thử lại",
+  "quarterLabel": "Q{{quarter}} {{year}}",
+  "underConstruction": {
+    "heading": "Đang xây dựng",
+    "description": "Trang này đang được xây dựng và sẽ sớm ra mắt."
+  }
+}

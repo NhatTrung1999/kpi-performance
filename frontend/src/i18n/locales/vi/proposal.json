@@ -1,0 +1,109 @@
+{
+  "banner": {
+    "title": "Đề xuất KPI của DC - đợt {{round}}",
+    "subtitle": "Kỳ {{range}}"
+  },
+  "badge": {
+    "open": "Đang mở",
+    "deadline": "Hạn {{date}}",
+    "submitted": "Đã gửi",
+    "awaiting": "Chờ duyệt",
+    "filled": "Đã điền",
+    "filledValue": "{{filled}}/{{total}}"
+  },
+  "unitLabel": "Bộ phận:",
+  "unitFilter": "Lọc theo bộ phận",
+  "allUnits": "Tất cả",
+  "searchPlaceholder": "Tìm tên hoặc số thẻ",
+  "search": "Tìm nhân viên",
+  "issues_one": "Còn {{count}} cảnh báo bình bầu ABC",
+  "issues_other": "Còn {{count}} cảnh báo bình bầu ABC",
+  "saveDraft": "Lưu nháp",
+  "saving": "Đang lưu…",
+  "savedAt": "Đã lưu lúc {{time}}",
+  "submit": "Xác nhận & gửi",
+  "submittedPill": "Đã gửi · Chờ BLĐ duyệt",
+  "readOnlyPill": "Chỉ xem",
+  "loadError": "Không tải được đề xuất KPI.",
+  "saveError": "Không lưu được bản nháp. Vui lòng thử lại.",
+  "submitError": "Không gửi được đề xuất. Vui lòng thử lại.",
+  "submitted": "Đã gửi đề xuất KPI cho Ban lãnh đạo.",
+  "confirm": {
+    "title": "Gửi đề xuất KPI cho các bộ phận {{units}}?",
+    "description": "BLĐ sẽ nhận được email thông báo. Sau khi gửi bạn không thể chỉnh sửa, trừ khi được trả lại.",
+    "confirm": "Xác nhận gửi",
+    "cancel": "Hủy"
+  },
+  "grid": "Bảng đề xuất KPI",
+  "groups": {
+    "hr": { "label": "Lấy theo dữ liệu của HT nhân sự", "full": "Lấy theo dữ liệu của HT nhân sự" },
+    "cqFill": { "label": "CQ tự điền", "full": "Dữ liệu CQ tự điền theo tính chất CV của NV đang phụ trách" },
+    "preset": { "label": "Thiết lập sẵn & cho chọn", "full": "Thiết lập sẵn & cho chọn" },
+    "system": { "label": "Lấy từ hệ thống", "full": "Dữ liệu lấy từ thông tin gần nhất trên hệ thống" },
+    "cqGive": { "label": "CQ tự cho", "full": "Dữ liệu CQ tự cho sau khi xem xét các tiêu chí đánh giá" },
+    "auto": { "label": "HT tự tính", "full": "HT tự tính" }
+  },
+  "cols": {
+    "unit": { "label": "BỘ PHẬN", "sub": "單位", "full": "BỘ PHẬN 單位" },
+    "name": { "label": "HỌ TÊN", "sub": "姓名", "full": "HỌ TÊN 姓名" },
+    "cardNo": { "label": "SỐ THẺ", "sub": "工号", "full": "SỐ THẺ 工号" },
+    "joinDate": { "label": "NVCT", "sub": "進廠日期", "full": "Ngày vào công ty 進廠日期" },
+    "seniority": { "label": "Thâm niên", "sub": "工作年資", "full": "Thâm niên làm việc 工作年資" },
+    "position": { "label": "Chức vụ", "sub": "職務", "full": "Chức vụ 職務" },
+    "abc": { "label": "Bình bầu ABC", "sub": "3 tháng gần nhất", "full": "Bình bầu ABC trong 3 tháng gần nhất" },
+    "status": { "label": "Tình trạng NV", "sub": "", "full": "Tình trạng nhân viên" },
+    "leave": { "label": "Thời gian nghỉ", "sub": "Ốm / Thai sản / THHĐ", "full": "Thời gian nghỉ ốm / thai sản / tạm hoãn hợp đồng" },
+    "resignDate": { "label": "Ngày thôi việc", "sub": "", "full": "Ngày thôi việc" },
+    "duties": { "label": "Công việc & hiệu suất", "sub": "目前職責與績效", "full": "Công việc đang phụ trách & hiệu suất 目前職責與績效" },
+    "result": { "label": "Kết quả đánh giá", "sub": "審核結果", "full": "Kết quả đánh giá 審核結果" },
+    "amount": { "sub": "(金額)", "full": "{{range}} (金額)" },
+    "diff": { "label": "Diff", "sub": "", "full": "Kỳ này − kỳ trước" },
+    "percent": { "label": "% thay đổi", "sub": "", "full": "Phần trăm thay đổi so với kỳ trước" },
+    "note": { "label": "Ghi chú", "sub": "", "full": "Ghi chú" },
+    "board": { "label": "Quyết định của BLĐ", "sub": "管理委員會的決定", "full": "Quyết định của BLĐ 管理委員會的決定" }
+  },
+  "results": {
+    "suspend": { "label": "Tạm hoãn KPI", "hint": "Suspend KPI" },
+    "sick": { "label": "Giảm KPI theo thời gian nghỉ ốm", "hint": "Reduce KPI based on sick leave duration" },
+    "cancel": { "label": "Hủy bỏ KPI", "hint": "Cancelled KPI" },
+    "maintain": { "label": "Giữ nguyên KPI", "hint": "Maintain KPI" },
+    "increase": { "label": "Tăng KPI theo hiệu suất CV", "hint": "Increase KPI based on work performance" },
+    "reduce": { "label": "Giảm KPI theo hiệu suất CV", "hint": "Reduce KPI based on job performance" },
+    "add": { "label": "Thêm mới KPI", "hint": "Add new KPI" }
+  },
+  "status": {
+    "active": "",
+    "maternity": "Nghỉ thai sản",
+    "sickLeave": "Nghỉ ốm dài ngày",
+    "resigning": "Sắp thôi việc",
+    "contractSuspended": "Tạm hoãn HĐ",
+    "resigned": "Đã thôi việc"
+  },
+  "leaveRange": "{{from}} → {{to}}",
+  "issue": {
+    "mustReduce": "Bình bầu 3C: bắt buộc giảm KPI",
+    "capIncrease": "Bình bầu 2C: chỉ được tăng tối đa {{max}}"
+  },
+  "rules": {
+    "title": "=> Ghi chú trên hệ thống để các CQ lưu ý khi xem xét đánh giá:",
+    "body": "Đánh giá hiệu suất công việc kết hợp với bình bầu A-B-C trong 3 tháng gần nhất",
+    "c3": "3C: giảm KPI",
+    "c2": "2C: tăng tối đa {{max}}",
+    "c1": "1C: không ảnh hưởng"
+  },
+  "total": "Tổng cộng",
+  "employeeCount_one": "{{count}} nhân viên",
+  "employeeCount_other": "{{count}} nhân viên",
+  "newEntry": "Mới",
+  "placeholder": "Nhập...",
+  "boardOnly": "Chỉ BLĐ cập nhật",
+  "noMatch": "Không có nhân viên phù hợp.",
+  "noScopeTitle": "Chưa được giao bộ phận nào",
+  "noScopeHint": "Liên hệ Admin để được gán các bộ phận bạn quản lý.",
+  "fields": {
+    "duties": "Công việc & hiệu suất của {{name}}",
+    "result": "Kết quả đánh giá của {{name}}",
+    "amount": "Số tiền KPI {{range}} của {{name}}",
+    "note": "Ghi chú cho {{name}}"
+  }
+}

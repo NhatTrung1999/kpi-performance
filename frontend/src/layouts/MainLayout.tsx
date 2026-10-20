@@ -6,9 +6,11 @@ import Sidebar from '@/components/common/Sidebar';
 import { AppShell } from '@/components/ui/app-shell';
 import { ConfirmDialog, Dialog } from '@/components/ui/dialog';
 import { Kbd } from '@/components/ui/kbd';
-import { toast } from '@/components/ui/toast';
+import { useMe } from '@/hooks/use-me';
 import { logout } from '@/lib/auth';
+import { useCurrentUser } from '@/lib/session';
 import { hasUnsavedChanges } from '@/lib/unsaved-changes';
+import { SIDEBAR_ROLES } from '@/routes/config';
 import { ShellContext, type ShellContextValue } from './shell-context';
 
 const SIDEBAR_KEY = 'kpi-sidebar-collapsed';
@@ -33,6 +35,10 @@ const MainLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  // Chỉ Admin có sidebar; Chủ quản và BLĐ chỉ có thanh trên.
+  const withSidebar = SIDEBAR_ROLES.includes(useCurrentUser().role);
+  // Xác nhận phiên với server + cập nhật họ tên/vai trò mới nhất khi vào khu vực đã đăng nhập.
+  useMe();
 
   // Nhớ trạng thái đóng/mở sidebar giữa các lần vào.
   useEffect(() => {
@@ -48,9 +54,9 @@ const MainLayout = () => {
   const signOut = useCallback(async () => {
     setConfirmOpen(false);
     await logout();
+    // Đăng xuất xong về thẳng trang login, không hiện thông báo.
     navigate('/login', { replace: true });
-    toast.success(t('shell.signedOut'), { id: 'signed-out' });
-  }, [navigate, t]);
+  }, [navigate]);
 
   const requestLogout = useCallback(() => {
     if (hasUnsavedChanges()) setConfirmOpen(true);
@@ -60,8 +66,8 @@ const MainLayout = () => {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'b') {
-        // Ctrl/⌘+B chỉ có nghĩa ở desktop (mobile dùng menu trượt).
-        if (!window.matchMedia(DESKTOP).matches) return;
+        // Ctrl/⌘+B chỉ có nghĩa ở desktop có sidebar (mobile dùng menu trượt).
+        if (!withSidebar || !window.matchMedia(DESKTOP).matches) return;
         e.preventDefault();
         toggleSidebar();
       } else if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey && !isTyping(e.target)) {
@@ -71,7 +77,7 @@ const MainLayout = () => {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [toggleSidebar]);
+  }, [toggleSidebar, withSidebar]);
 
   const shell = useMemo<ShellContextValue>(
     () => ({ collapsed, toggleSidebar, openMobileMenu: () => setMenuOpen(true), openShortcuts: () => setShortcutsOpen(true), requestLogout }),
@@ -80,8 +86,7 @@ const MainLayout = () => {
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   const shortcuts = [
-    { label: t('shortcuts.toggleSidebar'), keys: t('shortcuts.keys.toggleSidebar') },
-    { label: t('shortcuts.focusSearch'), keys: t('shortcuts.keys.search') },
+    ...(withSidebar ? [{ label: t('shortcuts.toggleSidebar'), keys: t('shortcuts.keys.toggleSidebar') }] : []),
     { label: t('shortcuts.showShortcuts'), keys: t('shortcuts.keys.showShortcuts') },
     { label: t('shortcuts.closeDialog'), keys: t('shortcuts.keys.close') },
   ];
@@ -89,11 +94,11 @@ const MainLayout = () => {
   return (
     <ShellContext.Provider value={shell}>
       <AppShell
-        sidebar={<Sidebar collapsed={collapsed} />}
-        mobileSidebar={<Sidebar onClose={closeMenu} onNavigate={closeMenu} className="w-70 border-r border-border bg-sidebar shadow-toast" />}
+        sidebar={withSidebar ? <Sidebar collapsed={collapsed} /> : undefined}
+        mobileSidebar={withSidebar ? <Sidebar onClose={closeMenu} onNavigate={closeMenu} className="w-70 border-r border-border bg-sidebar shadow-toast" /> : undefined}
         mobileSidebarOpen={menuOpen}
         onMobileSidebarClose={closeMenu}
-        header={<Header />}
+        header={<Header withSidebar={withSidebar} />}
       >
         <Outlet />
       </AppShell>

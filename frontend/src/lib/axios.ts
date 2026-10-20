@@ -1,31 +1,58 @@
-import axios, { AxiosError, type AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios';
+import { useAuthStore } from '@/stores/auth';
 
-export const TOKEN_KEY = 'token';
-export const USER_KEY = 'user';
-
-export const getToken = () =>
-  localStorage.getItem(TOKEN_KEY) ?? sessionStorage.getItem(TOKEN_KEY);
+// Token/user nằm trong useAuthStore (stores/auth.ts). Các hàm dưới đây cho code ngoài React.
+export const getToken = () => useAuthStore.getState().token;
 
 /** remember = true lưu lâu dài (localStorage), ngược lại chỉ trong phiên (sessionStorage). */
-export function setToken(token: string, remember: boolean) {
-  clearToken();
-  (remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, token);
-}
+export const setToken = (token: string, remember: boolean) => useAuthStore.getState().signIn(token, remember);
 
-export function clearToken() {
-  localStorage.removeItem(TOKEN_KEY);
-  sessionStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(USER_KEY);
-  sessionStorage.removeItem(USER_KEY);
-}
+/** Xoá token + user (đăng xuất phía trình duyệt). */
+export const clearToken = () => useAuthStore.getState().signOut();
 
-export const api = axios.create({
+const baseConfig = {
   baseURL: import.meta.env.VITE_API_URL ?? '/api',
   timeout: Number(import.meta.env.VITE_API_TIMEOUT ?? 30000),
+  // Gửi kèm cookie refresh token (httpOnly) — cần khi frontend và API khác origin.
+  withCredentials: true,
+};
+
+export const api = axios.create({
+  ...baseConfig,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+/** Instance riêng cho refresh/logout: không qua interceptor của `api` để tránh vòng lặp 401 → refresh. */
+const authApi = axios.create(baseConfig);
+
+// Các URL không tự refresh khi gặp 401 (chính chúng là bước xác thực).
+const NO_REFRESH = ['/auth/login', '/auth/refresh', '/auth/logout'];
+
+let refreshing: Promise<string> | null = null;
+
+/**
+ * Xin access token mới bằng refresh token trong cookie. Nhiều request cùng gặp 401
+ * thì dùng chung một lần gọi (server xoay vòng refresh token mỗi lần dùng).
+ */
+export function refreshAccessToken(): Promise<string> {
+  refreshing ??= authApi
+    .post<{ token: string }>('/auth/refresh')
+    .then((res) => {
+      useAuthStore.getState().replaceToken(res.data.token);
+      return res.data.token;
+    })
+    .finally(() => {
+      refreshing = null;
+    });
+  return refreshing;
+}
+
+/** Thu hồi phiên trên server (xoá cookie refresh). Lỗi mạng thì bỏ qua để vẫn đăng xuất được. */
+export async function revokeSession() {
+  await authApi.post('/auth/logout').catch(() => undefined);
+}
 
 // Chỉ tồn tại ở dev: nhánh này bị loại hoàn toàn khỏi bản build production.
 if (import.meta.env.DEV && import.meta.env.VITE_MOCK_AUTH === 'true') {
@@ -51,15 +78,30 @@ export class ApiError extends Error {
   }
 }
 
+type RetriableConfig = InternalAxiosRequestConfig & { _retried?: boolean };
+
 api.interceptors.response.use(
   (response) => response,
-  (error: AxiosError<{ message?: string; error?: string }>) => {
+  async (error: AxiosError<{ message?: string; error?: string }>) => {
     if (axios.isCancel(error)) return Promise.reject(error);
 
     const status = error.response?.status;
     const serverMsg =
       error.response?.data?.message ?? error.response?.data?.error;
     const url = error.config?.url ?? '';
+    const config = error.config as RetriableConfig | undefined;
+
+    // Access token hết hạn: refresh một lần rồi gửi lại request.
+    if (status === 401 && config && !config._retried && !NO_REFRESH.some((u) => url.includes(u))) {
+      config._retried = true;
+      try {
+        const token = await refreshAccessToken();
+        config.headers.Authorization = `Bearer ${token}`;
+        return api(config);
+      } catch {
+        /* refresh thất bại → đăng xuất như bên dưới */
+      }
+    }
 
     if (status === 401 && !url.includes('/auth/login')) {
       clearToken();

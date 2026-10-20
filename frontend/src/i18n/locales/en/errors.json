@@ -1,6 +1,6 @@
 {
   "retry": "Try again",
-  "invalidCredentials": "Incorrect email/employee ID or password.",
+  "invalidCredentials": "Incorrect account ID or password.",
   "attemptsLeft_one": "{{count}} attempt left.",
   "attemptsLeft_other": "{{count}} attempts left.",
   "invalidTitle": "Sign-in failed",
@@ -18,5 +18,7 @@
   "mock": {
     "invalid": "Invalid credentials (mock).",
     "token": "Invalid mock token."
-  }
+  },
+  "noAccessTitle": "You don't have access",
+  "noAccessDescription": "Your account has not been granted access to this system. Please contact the administrator."
 }

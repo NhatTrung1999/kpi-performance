@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
+import { toast } from "sonner";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowBigUp, CircleAlert, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { ArrowBigUp, CircleAlert, Eye, EyeOff, Lock, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -34,7 +34,6 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
   const loginSchema = useMemo(() => createLoginSchema(t), [t]);
   const [showPassword, setShowPassword] = useState(false);
   const [lockLeft, setLockLeft] = useState(0);
-  const [success, setSuccess] = useState(false);
   const [capsOn, setCapsOn] = useState(false);
   const [locked, setLocked] = useState(false);
   const inFlight = useRef(false);
@@ -69,13 +68,12 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
   const updateCaps = (e: KeyboardEvent<HTMLInputElement>) => setCapsOn(e.getModifierState("CapsLock"));
 
   const onSubmit = async (values: LoginValues) => {
-    setSuccess(false);
     try {
       const result = await login(values); // không ném lỗi — mọi lỗi đã được chuẩn hoá
       if (result.ok) {
-        setSuccess(true);
-        loginToasts.success();
-        window.setTimeout(() => onSuccess?.(values), 800);
+        // Thành công thì chuyển trang ngay, không hiện thông báo.
+        loginToasts.clear();
+        onSuccess?.(values);
         return;
       }
       const { failure } = result;
@@ -121,12 +119,6 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
         </FormAlert>
       )}
 
-      {success && (
-        <FormAlert tone="success" className="mb-6 animate-slide-down">
-          {t("successBanner")}
-        </FormAlert>
-      )}
-
       <h2 className="mb-2 animate-blur-in text-title font-bold leading-tight tracking-[-0.025em] text-foreground">
         {t("welcome")} <span aria-hidden="true">👋</span>
       </h2>
@@ -142,7 +134,7 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
               id="identifier"
               type="text"
               size="lg"
-              startIcon={<Mail />}
+              startIcon={<UserRound />}
               autoComplete="username"
               placeholder={t("identifierPlaceholder")}
               aria-invalid={!!errors.identifier}
@@ -220,12 +212,14 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
                 {t("remember")}
               </Label>
             </div>
-            <Link
-              to="/quen-mat-khau"
+            {/* Mật khẩu do HRIS quản lý (web chỉ đọc) nên không có trang đặt lại mật khẩu: chỉ hướng dẫn liên hệ IT. */}
+            <button
+              type="button"
+              onClick={() => toast.info(t("forgotTitle"), { id: "forgot-password", description: t("forgotHint"), duration: 8000 })}
               className="rounded-md text-sm font-medium text-brand-text underline-offset-4 hover:text-brand-text-hover hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             >
               {t("forgot")}
-            </Link>
+            </button>
           </div>
 
           <Button type="submit" size="xl" loading={isSubmitting} disabled={locked} className="mt-1 w-full bg-[length:200%_200%] animate-gradient-drift">

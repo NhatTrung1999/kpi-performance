@@ -55,7 +55,9 @@ export const TreeRowView = ({ row, query, onToggle, lead, className }: Props) =>
         <Highlight text={row.name} query={query} />
       </span>
     </span>
-    <span className="flex-none text-xs whitespace-nowrap text-muted-foreground tabular-nums">{t('peopleCount', { count: row.count })}</span>
+    {row.count !== undefined && (
+      <span className="flex-none text-xs whitespace-nowrap text-muted-foreground tabular-nums">{t('peopleCount', { count: row.count })}</span>
+    )}
   </>
   );
 };

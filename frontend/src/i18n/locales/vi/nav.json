@@ -1,0 +1,10 @@
+{
+  "periods": "Kỳ đánh giá",
+  "proposals": "Đề xuất KPI",
+  "history": "Lịch sử",
+  "roles": "Phân quyền",
+  "groups": {
+    "proposal": "ĐỀ XUẤT",
+    "admin": "QUẢN TRỊ"
+  }
+}

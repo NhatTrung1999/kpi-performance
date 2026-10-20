@@ -10,8 +10,8 @@ export const createLoginSchema = (t: TFunction<"auth">) =>
     .min(1, t("validation.identifierRequired")),
   password: z
     .string()
-    .min(1, t("validation.passwordRequired"))
-    .min(8, t("validation.passwordMin")),
+    // Không giới hạn độ dài: mật khẩu do HRIS (LYV_HRIS.users) quản lý, có tài khoản < 8 ký tự.
+    .min(1, t("validation.passwordRequired")),
   remember: z.boolean(),
 });
 

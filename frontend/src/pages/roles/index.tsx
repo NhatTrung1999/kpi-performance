@@ -1,6 +1,8 @@
 import { Dialog } from '@base-ui/react/dialog';
 import { Briefcase, Check, ChevronDown, ChevronLeft, ChevronRight, History, MoreHorizontal, Search, ShieldCheck, TriangleAlert, UserRoundCheck, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { toast } from '@/components/ui/toast';
+import { ApiError } from '@/lib/axios';
 import { useTranslation } from 'react-i18next';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { Button } from '@/components/ui/button';
@@ -9,14 +11,17 @@ import { Popover, PopoverClose, PopoverContent, PopoverTrigger, onListKeyDown } 
 import { Input } from '@/components/ui/input';
 import { PageBanner } from '@/components/ui/page-banner';
 import { PageShell, TableCard, TableCardBar, TableCardBody } from '@/components/ui/table-page';
-import { formatDate, formatNumber } from '@/lib/format';
+import { formatIsoDate, formatNumber } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import {
-  INITIAL_ROLES, INITIAL_SCOPES, LEAF_BY_ID, PEOPLE, ROLE_FILTER_KEYS, ROLE_OPTION_KEYS, UNITS,
-  findUnit, leavesOf, norm, unitLabel, type Role,
+  ROLE_FILTER_KEYS, ROLE_OPTION_KEYS,
+  findUnit, leafMapOf, leavesOf, norm, peopleInUnit, unitLabel, type Role,
 } from './data';
 import { flattenTree } from './tree';
 import { TreeRowView } from './unit-tree';
+import { useEmployees } from './use-employees';
+import { useUnits } from './use-units';
+import { leafToScope, scopeToLeaf, useManagers, useSaveManagers, type ManagerChange } from './use-permissions';
 
 const fieldClass =
   'relative flex h-10 w-full items-center gap-2 rounded-xl border border-input bg-card px-3 text-left transition-colors hover:border-border-strong data-popup-open:border-brand data-popup-open:ring-3 data-popup-open:ring-brand/20';
@@ -25,9 +30,7 @@ const fieldClass =
 type Special = 'none' | 'noScope' | null;
 
 const ROLE_STYLE: Record<Role, string> = {
-  NV: 'border-border bg-muted text-text-secondary',
   CQ: 'border-brand/40 bg-accent text-accent-foreground',
-  AD: 'border-warning/40 bg-warning-soft text-warning-text',
   NONE: 'border-dashed border-border-strong bg-transparent text-muted-foreground',
 };
 
@@ -57,37 +60,53 @@ const Roles = () => {
   const [unit, setUnit] = useState<string | null>(null);
   const [unitMenu, setUnitMenu] = useState(false);
   const [mq, setMq] = useState('');
-  const [open, setOpen] = useState<string[]>(['kt']);
+  const unitsQuery = useUnits();
+  const units = useMemo(() => unitsQuery.data ?? [], [unitsQuery.data]);
+  const parentIds = useMemo(() => units.filter((u) => u.k).map((u) => u.id), [units]);
+  // null = chưa bấm mở/đóng lần nào → mặc định mở mọi phòng ban có bộ phận con.
+  const [openState, setOpenState] = useState<string[] | null>(null);
+  const open = openState ?? parentIds;
+  const toggleMenuOpen = (id: string) => setOpenState((o) => toggleIn(o ?? parentIds, id));
   const [filter, setFilter] = useState<'all' | Role>('all');
   const [special, setSpecial] = useState<Special>(null);
   const [q, setQ] = useState('');
   const dq0 = useDebouncedValue(q, 300);
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(20);
   const [page, setPage] = useState(1);
-  const [saved, setSaved] = useState({ roles: INITIAL_ROLES, scopes: INITIAL_SCOPES });
-  const [roles, setRoles] = useState<Record<number, Role>>(INITIAL_ROLES);
-  const [scopes, setScopes] = useState<Record<number, string[]>>(INITIAL_SCOPES);
-  const [drawer, setDrawer] = useState<number | null>(null);
+  // Đã lưu (server) + bản nháp đang sửa, theo Person_Serial_Key. "Save changes" gửi bản nháp lên một lần.
+  const managersQuery = useManagers();
+  const saveManagers = useSaveManagers();
+  const saved = useMemo(() => {
+    const roles: Record<string, Role> = {};
+    const scopes: Record<string, string[]> = {};
+    for (const m of managersQuery.data ?? []) {
+      roles[m.personSerialKey] = m.isActive ? 'CQ' : 'NONE';
+      scopes[m.personSerialKey] = m.scopes.map(scopeToLeaf);
+    }
+    return { roles, scopes };
+  }, [managersQuery.data]);
+  const [roleEdits, setRoles] = useState<Record<string, Role>>({});
+  const [scopeEdits, setScopes] = useState<Record<string, string[]>>({});
+  const [drawer, setDrawer] = useState<string | null>(null);
   const [dSel, setDSel] = useState<string[]>([]);
   const [dq, setDq] = useState('');
-  const [dOpen, setDOpen] = useState<string[]>(['kt']);
+  const [dOpenState, setDOpen] = useState<string[] | null>(null);
+  const dOpen = dOpenState ?? parentIds;
 
-  const roleOf = (i: number): Role => roles[i] ?? 'NV';
-  const baseOf = (i: number): Role => saved.roles[i] ?? 'NV';
-  const fu = unit ? findUnit(unit) : undefined;
+  // Chưa có dòng trong bảng phân quyền = không được vào hệ thống.
+  const roleOf = (psk: string): Role => roleEdits[psk] ?? saved.roles[psk] ?? 'NONE';
+  const baseOf = (psk: string): Role => saved.roles[psk] ?? 'NONE';
+  const scopeOf = (psk: string): string[] => scopeEdits[psk] ?? saved.scopes[psk] ?? [];
+  const sameSet = (a: string[], b: string[]) => a.length === b.length && a.every((x) => b.includes(x));
+  const fu = unit ? findUnit(units, unit) : undefined;
   const unitName = fu ? unitLabel(fu.n) : '';
-  /** Phạm vi thống kê: toàn hệ thống khi chưa chọn đơn vị, ngược lại là đơn vị đã chọn. */
-  const people = useMemo(() => {
-    const all = PEOPLE.map((p, i) => ({ ...p, i }));
-    if (!fu) return all;
-    const depts = leavesOf(fu).map((l) => l.n);
-    return all.filter((p) => depts.includes(p.dept));
-  }, [fu]);
-  // Dữ liệu hiện là mock cục bộ nên không có trạng thái tải; khi nối API thì lấy từ query.
-  const loading = false;
-  const count = (r: Role) => people.filter((p) => roleOf(p.i) === r).length;
-  const noScopeCount = people.filter((p) => roleOf(p.i) === 'CQ' && (scopes[p.i] ?? []).length === 0).length;
-  const assignedCount = people.length - count('NONE');
+  const rootIds = useMemo(() => units.map((u) => u.id), [units]);
+  const employees = useEmployees(rootIds);
+  /** Phạm vi thống kê: mọi đơn vị gốc khi chưa chọn đơn vị, ngược lại là đơn vị/team đã chọn. */
+  const people = useMemo(() => peopleInUnit(employees.data, units, fu), [employees.data, fu, units]);
+  const loading = unitsQuery.isPending || employees.isPending || managersQuery.isPending;
+  const count = (r: Role) => people.filter((p) => roleOf(p.psk) === r).length;
+  const noScopeCount = people.filter((p) => roleOf(p.psk) === 'CQ' && scopeOf(p.psk).length === 0).length;
   // Huy hiệu "without scope" biến mất khi hết quản lý thiếu phạm vi thì bộ lọc cũng tự tắt.
   const activeSpecial: Special = special === 'noScope' && noScopeCount === 0 ? null : special;
   // Chưa chọn đơn vị: bảng chỉ hiện khi bật bộ lọc từ banner (khi đó xem toàn hệ thống).
@@ -95,27 +114,52 @@ const Roles = () => {
 
   const k = norm(dq0.trim());
   const searched = people.filter((p) => !k || norm(p.name).includes(k) || p.id.includes(k));
-  const tabCount = (key: 'all' | Role) => (key === 'all' ? searched.length : searched.filter((p) => roleOf(p.i) === key).length);
+  const tabCount = (key: 'all' | Role) => (key === 'all' ? searched.length : searched.filter((p) => roleOf(p.psk) === key).length);
   const rows = searched.filter((p) => {
-    if (filter !== 'all' && roleOf(p.i) !== filter) return false;
-    if (activeSpecial === 'none') return roleOf(p.i) === 'NONE';
-    if (activeSpecial === 'noScope') return roleOf(p.i) === 'CQ' && (scopes[p.i] ?? []).length === 0;
+    if (filter !== 'all' && roleOf(p.psk) !== filter) return false;
+    if (activeSpecial === 'none') return roleOf(p.psk) === 'NONE';
+    if (activeSpecial === 'noScope') return roleOf(p.psk) === 'CQ' && scopeOf(p.psk).length === 0;
     return true;
   });
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
   const curPage = Math.min(page, pageCount);
   const start = (curPage - 1) * pageSize;
   const pageRows = rows.slice(start, start + pageSize);
-  const changes = people.filter((p) => roleOf(p.i) !== baseOf(p.i));
-  const peopleOf = (ids: string[]) => ids.reduce((a, id) => a + (LEAF_BY_ID[id].c ?? 0), 0);
+  // Thay đổi chưa lưu (trên mọi đơn vị đã tải, không chỉ đơn vị đang xem).
+  const changes = employees.data.filter(
+    (p) => roleOf(p.psk) !== baseOf(p.psk) || (roleOf(p.psk) === 'CQ' && !sameSet(scopeOf(p.psk), saved.scopes[p.psk] ?? [])),
+  );
+  const discard = () => {
+    setRoles({});
+    setScopes({});
+  };
+  const save = () => {
+    const payload: ManagerChange[] = changes.map((p) => ({
+      personSerialKey: p.psk,
+      personId: p.id,
+      personName: p.name,
+      active: roleOf(p.psk) === 'CQ',
+      scopes: roleOf(p.psk) === 'CQ' ? scopeOf(p.psk).map((id) => leafToScope(id, units)) : [],
+    }));
+    saveManagers.mutate(payload, {
+      onSuccess: discard,
+      onError: (error) => {
+        const code = error instanceof ApiError ? (error.data as { code?: string } | undefined)?.code : undefined;
+        toast.error(t(code === 'INVALID_SCOPE' ? 'saveInvalidScope' : 'saveError'), { id: 'permissions-save' });
+      },
+    });
+  };
+  const leafById = useMemo(() => leafMapOf(units), [units]);
+  // Số người theo bộ phận: chưa có từ API (c trống) → 0; mã phạm vi mẫu không có trong HRIS cũng tính 0.
+  const peopleOf = (ids: string[]) => ids.reduce((a, id) => a + (leafById[id]?.c ?? 0), 0);
 
-  const menuRows = flattenTree(UNITS, mq, open);
-  const dRows = flattenTree(UNITS, dq, dOpen);
-  const dParents = UNITS.filter((u) => u.k).map((u) => u.id);
+  const menuRows = flattenTree(units, mq, open);
+  const dRows = flattenTree(units, dq, dOpen);
+  const dParents = parentIds;
   const dAllOpen = dParents.every((id) => dOpen.includes(id));
   const dSet = new Set(dSel);
-  const dPerson = drawer !== null ? PEOPLE[drawer] : null;
-  const tabLabel = (key: 'all' | Role) => t(`tabs.${key as 'all' | 'NV' | 'CQ' | 'AD'}`);
+  const dPerson = drawer !== null ? employees.data.find((p) => p.psk === drawer) : undefined;
+  const tabLabel = (key: 'all' | Role) => t(`tabs.${key}`);
 
   const pickUnit = (id: string) => {
     setUnit(id);
@@ -133,9 +177,9 @@ const Roles = () => {
     setFilter(on || s === 'none' ? 'all' : 'CQ');
     setPage(1);
   };
-  const openScope = (i: number) => {
-    setDrawer(i);
-    setDSel([...(scopes[i] ?? [])]);
+  const openScope = (psk: string) => {
+    setDrawer(psk);
+    setDSel([...scopeOf(psk)]);
     setDq('');
   };
   const closeDrawer = () => setDrawer(null);
@@ -149,8 +193,7 @@ const Roles = () => {
           subtitle={t('subtitle')}
           loadingLabel={t('common:loading')}
           badges={[
-            { label: t('badgeAssigned'), value: `${formatNumber(assignedCount)}/${formatNumber(people.length)}`, loading },
-            { label: t('badgeManagers'), value: formatNumber(count('CQ')), loading },
+            { label: t('badgeManagers'), value: `${formatNumber(count('CQ'))}/${formatNumber(people.length)}`, loading },
             {
               label: roleLabel('NONE'),
               value: formatNumber(count('NONE')),
@@ -204,17 +247,26 @@ const Roles = () => {
                         onKeyDown={(e) => {
                           if (e.target !== e.currentTarget) return;
                           if (e.key === 'Enter') pickUnit(r.unit.id);
-                          else if (e.key === 'ArrowRight' && r.hasKids && !r.open) setOpen((o) => toggleIn(o, r.unit.id));
-                          else if (e.key === 'ArrowLeft' && r.hasKids && r.open) setOpen((o) => toggleIn(o, r.unit.id));
+                          else if (e.key === 'ArrowRight' && r.hasKids && !r.open) toggleMenuOpen(r.unit.id);
+                          else if (e.key === 'ArrowLeft' && r.hasKids && r.open) toggleMenuOpen(r.unit.id);
                         }}
                         className={cn('flex min-h-10 cursor-pointer items-center gap-2.5 rounded-lg py-1.5 pr-2.5 pl-1.5 outline-none hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-brand/50', sel && 'bg-accent')}
                       >
-                        <TreeRowView row={r} query={mq} onToggle={() => setOpen((o) => toggleIn(o, r.unit.id))} />
+                        <TreeRowView row={r} query={mq} onToggle={() => toggleMenuOpen(r.unit.id)} />
                         {sel && <Check className="size-4 text-brand-text" />}
                       </div>
                     );
                   })}
-                  {menuRows.length === 0 && <div className="p-6 text-center text-muted-foreground">{t('noUnitMatch', { query: mq })}</div>}
+                  {unitsQuery.isPending && <div className="p-6 text-center text-muted-foreground">{t('common:loading')}…</div>}
+                  {unitsQuery.isError && (
+                    <div className="flex flex-col items-center gap-2 p-6 text-center text-muted-foreground">
+                      {t('unitsError')}
+                      <Button variant="outline" size="sm" onClick={() => void unitsQuery.refetch()}>{t('common:retry')}</Button>
+                    </div>
+                  )}
+                  {unitsQuery.isSuccess && menuRows.length === 0 && (
+                    <div className="p-6 text-center text-muted-foreground">{mq ? t('noUnitMatch', { query: mq }) : t('noUnits')}</div>
+                  )}
                 </div>
                 <div className="flex-none border-t border-border px-4 py-2.5 text-xs text-muted-foreground">{t('unitHint')}</div>
               </PopoverContent>
@@ -279,14 +331,14 @@ const Roles = () => {
                 {changes.length > 0 && (
                   <>
                     <span
-                      title={changes.map((p) => `${p.name}: ${roleLabel(baseOf(p.i))} → ${roleLabel(roleOf(p.i))}`).join(' · ')}
+                      title={changes.map((p) => `${p.name}: ${roleLabel(baseOf(p.psk))} → ${roleLabel(roleOf(p.psk))}`).join(' · ')}
                       className="flex items-center gap-2 font-medium whitespace-nowrap"
                     >
                       <span className="size-2 flex-none rounded-full bg-warning" />
                       {t('unsavedChanges', { count: changes.length })}
                     </span>
-                    <Button variant="outline" size="sm" onClick={() => { setRoles(saved.roles); setScopes(saved.scopes); }}>{t('discard')}</Button>
-                    <Button size="sm" onClick={() => setSaved({ roles, scopes })} className="font-semibold">{t('save')}</Button>
+                    <Button variant="outline" size="sm" disabled={saveManagers.isPending} onClick={discard}>{t('discard')}</Button>
+                    <Button size="sm" loading={saveManagers.isPending} onClick={save} className="font-semibold">{t('save')}</Button>
                   </>
                 )}
                 <Button variant="ghost" size="sm">
@@ -307,23 +359,26 @@ const Roles = () => {
                   </thead>
                   <tbody>
                     {pageRows.map((p, k) => {
-                      const role = roleOf(p.i);
-                      const sc = scopes[p.i] ?? [];
+                      const role = roleOf(p.psk);
+                      const sc = scopeOf(p.psk);
                       const cell = 'h-14 border-b border-border [background:inherit] px-3 text-sm font-normal';
-                      const changed = role !== baseOf(p.i);
+                      const changed = changes.includes(p);
                       return (
-                        <tr key={p.i} className={cn('bg-card bg-linear-to-b hover:from-accent hover:to-accent', changed ? 'from-accent to-accent' : k % 2 ? 'from-accent/40 to-accent/40' : 'from-transparent to-transparent')}>
+                        <tr key={p.psk} className={cn('bg-card bg-linear-to-b hover:from-accent hover:to-accent', changed ? 'from-accent to-accent' : k % 2 ? 'from-accent/40 to-accent/40' : 'from-transparent to-transparent')}>
                           <td style={colStyle(COLS[0])} className={cn(cell, stickyClass(COLS[0]), 'text-center text-muted-foreground tabular-nums')}>{start + k + 1}</td>
                           <td style={colStyle(COLS[1])} className={cn(cell, stickyClass(COLS[1]), 'tabular-nums')}>{p.id}</td>
                           <td style={colStyle(COLS[2])} className={cn(cell, stickyClass(COLS[2]), 'border-r')}>
                             <span className="flex max-w-full items-center gap-2">
-                              <span className="truncate font-medium">{p.name}</span>
+                              <span className="flex min-w-0 flex-col">
+                                <span className="truncate font-medium">{p.name}</span>
+                                {p.position && <span className="truncate text-xs text-muted-foreground">{p.position}</span>}
+                              </span>
                               {changed && <span className="flex-none rounded-md bg-warning-soft px-1.5 py-0.5 text-[11px] font-semibold text-warning-text">{t('edited')}</span>}
                             </span>
                           </td>
-                          <td className={cn(cell, 'text-text-secondary')}>VPCT</td>
-                          <td className={cn(cell, 'text-text-secondary')}>{p.dept}</td>
-                          <td className={cn(cell, 'text-text-secondary tabular-nums')}>{formatDate(p.join)}</td>
+                          <td className={cn(cell, 'text-text-secondary')}>{p.unit}</td>
+                          <td className={cn(cell, 'text-text-secondary')}>{p.dept || <span className="text-placeholder">{t('noTeam')}</span>}</td>
+                          <td className={cn(cell, 'text-text-secondary tabular-nums')}>{p.join ? formatIsoDate(p.join) : '—'}</td>
                           <td className={cell}>
                             <div className="flex items-center gap-2">
                               <Popover>
@@ -335,7 +390,7 @@ const Roles = () => {
                                 <PopoverContent className="w-72.5 min-w-72.5" onKeyDown={onListKeyDown}>
                                   <div role="listbox" aria-label={t('roleField')} className="flex flex-col gap-0.5 overflow-y-auto p-2">
                                     {ROLE_OPTION_KEYS.map((key) => (
-                                      <PopoverClose key={key} role="option" aria-selected={role === key} tabIndex={-1} onClick={() => setRoles((r) => ({ ...r, [p.i]: key }))} className={cn('flex items-start gap-2.5 rounded-lg px-2.5 py-2 text-left outline-none hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-brand/50', role === key && 'bg-accent')}>
+                                      <PopoverClose key={key} role="option" aria-selected={role === key} tabIndex={-1} onClick={() => setRoles((r) => ({ ...r, [p.psk]: key }))} className={cn('flex items-start gap-2.5 rounded-lg px-2.5 py-2 text-left outline-none hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-brand/50', role === key && 'bg-accent')}>
                                         <span className="flex flex-1 flex-col gap-0.5">
                                           <span className="font-semibold">{roleLabel(key)}</span>
                                           <span className="text-xs leading-snug text-muted-foreground">{t(`roleDesc.${key}`)}</span>
@@ -364,7 +419,7 @@ const Roles = () => {
                                     <Briefcase className="size-3.5 text-brand-text" />
                                     {t('scopeSummary', { depts: t('deptCount', { count: sc.length }), people: t('peopleCount', { count: peopleOf(sc) }) })}
                                   </span>
-                                  <button type="button" onClick={() => openScope(p.i)} className="h-7 rounded-lg border border-brand/40 bg-card px-2.5 text-[13px] font-semibold whitespace-nowrap text-brand-text hover:bg-accent/40">{t('edit')}</button>
+                                  <button type="button" onClick={() => openScope(p.psk)} className="h-7 rounded-lg border border-brand/40 bg-card px-2.5 text-[13px] font-semibold whitespace-nowrap text-brand-text hover:bg-accent/40">{t('edit')}</button>
                                 </>
                               ) : (
                                 <>
@@ -372,7 +427,7 @@ const Roles = () => {
                                     <TriangleAlert className="size-3.5" />
                                     {t('noScope')}
                                   </span>
-                                  <button type="button" onClick={() => openScope(p.i)} className="h-7 rounded-lg bg-brand-from px-2.5 text-[13px] font-semibold whitespace-nowrap text-white">{t('assignScope')}</button>
+                                  <button type="button" onClick={() => openScope(p.psk)} className="h-7 rounded-lg bg-brand-from px-2.5 text-[13px] font-semibold whitespace-nowrap text-white">{t('assignScope')}</button>
                                 </>
                               )}
                             </div>
@@ -388,7 +443,16 @@ const Roles = () => {
                     })}
                   </tbody>
                 </table>
-                {rows.length === 0 && <div className="sticky left-0 w-full px-6 py-12 text-center text-muted-foreground">{t('noMatch')}</div>}
+                {employees.isPending || managersQuery.isPending ? (
+                  <div className="sticky left-0 w-full px-6 py-12 text-center text-muted-foreground">{t('common:loading')}…</div>
+                ) : (employees.isError && rows.length === 0) || managersQuery.isError ? (
+                  <div className="sticky left-0 flex w-full flex-col items-center gap-2 px-6 py-12 text-center text-muted-foreground">
+                    {t(managersQuery.isError ? 'managersError' : 'employeesError')}
+                    <Button variant="outline" size="sm" onClick={() => (managersQuery.isError ? void managersQuery.refetch() : employees.refetch())}>{t('common:retry')}</Button>
+                  </div>
+                ) : (
+                  rows.length === 0 && <div className="sticky left-0 w-full px-6 py-12 text-center text-muted-foreground">{t('noMatch')}</div>
+                )}
               </TableCardBody>
               <TableCardBar className="h-14 flex-wrap justify-between gap-4 border-t border-border px-5">
                 <span className="text-[13px] text-muted-foreground">
@@ -456,7 +520,7 @@ const Roles = () => {
                       <TreeRowView
                         row={r}
                         query={dq}
-                        onToggle={() => setDOpen((o) => toggleIn(o, r.unit.id))}
+                        onToggle={() => setDOpen((o) => toggleIn(o ?? parentIds, r.unit.id))}
                         lead={
                           <Checkbox
                             checked={all}

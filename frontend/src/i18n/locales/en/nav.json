@@ -1,12 +1,10 @@
 {
-  "dashboard": "Overview",
-  "kpi": "My KPI",
-  "evaluations": "Evaluations",
-  "notifications": "Notifications",
-  "profile": "Profile & settings",
+  "periods": "Review periods",
+  "proposals": "KPI proposal",
+  "history": "History",
   "roles": "Permissions",
   "groups": {
-    "admin": "ADMINISTRATION",
-    "general": "General"
+    "proposal": "PROPOSALS",
+    "admin": "ADMINISTRATION"
   }
 }

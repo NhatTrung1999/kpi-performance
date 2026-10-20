@@ -5,6 +5,7 @@ export type LoginFailure =
   | { kind: "invalid"; attemptsLeft?: number }
   | { kind: "locked"; retryAfter?: number }
   | { kind: "rate-limited" }
+  | { kind: "no-access" } // đúng mật khẩu nhưng chưa được admin cấp quyền (403)
   | { kind: "unavailable" } // 5xx, 408, mất mạng, quá thời gian chờ → có nút "Thử lại"
   | { kind: "unknown" };
 
@@ -39,6 +40,7 @@ function classify({ status, body, error }: RawFailure): LoginFailure {
   if (status === 400 || status === 401 || status === 404) {
     return { kind: "invalid", attemptsLeft: asNumber(pick(body, "attemptsLeft", "remainingAttempts", "attempts_left")) };
   }
+  if (status === 403) return { kind: "no-access" };
   if (status === 429) return { kind: "rate-limited" };
   if (status === 408 || status >= 500) return { kind: "unavailable" };
   return { kind: "unknown" };
@@ -88,6 +90,8 @@ export function describeLoginFailure(f: LoginFailure): {
     }
     case "rate-limited":
       return { title: i18n.t("errors:rateLimited"), tone: "warning", retry: false };
+    case "no-access":
+      return { title: i18n.t("errors:noAccessTitle"), description: i18n.t("errors:noAccessDescription"), tone: "error", retry: false };
     case "unavailable":
       return { title: i18n.t("errors:unavailableTitle"), description: i18n.t("errors:unavailableDescription"), tone: "error", retry: true };
     default:

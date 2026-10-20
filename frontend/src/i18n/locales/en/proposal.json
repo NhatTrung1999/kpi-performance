@@ -1,0 +1,109 @@
+{
+  "banner": {
+    "title": "DC's KPI Proposal - round {{round}}",
+    "subtitle": "Period {{range}}"
+  },
+  "badge": {
+    "open": "Open",
+    "deadline": "Due {{date}}",
+    "submitted": "Submitted",
+    "awaiting": "Awaiting approval",
+    "filled": "Filled",
+    "filledValue": "{{filled}}/{{total}}"
+  },
+  "unitLabel": "Unit:",
+  "unitFilter": "Filter by unit",
+  "allUnits": "All",
+  "searchPlaceholder": "Search name or card no.",
+  "search": "Search employees",
+  "issues_one": "{{count}} A-B-C rating warning left",
+  "issues_other": "{{count}} A-B-C rating warnings left",
+  "saveDraft": "Save draft",
+  "saving": "Saving…",
+  "savedAt": "Saved at {{time}}",
+  "submit": "Confirm & submit",
+  "submittedPill": "Submitted · Awaiting board approval",
+  "readOnlyPill": "View only",
+  "loadError": "Couldn't load the KPI proposal.",
+  "saveError": "Couldn't save the draft. Please try again.",
+  "submitError": "Couldn't submit the proposal. Please try again.",
+  "submitted": "KPI proposal submitted to the board of directors.",
+  "confirm": {
+    "title": "Submit the KPI proposal for {{units}}?",
+    "description": "The board of directors will be notified by email. After submitting you can't edit it unless it is returned.",
+    "confirm": "Submit",
+    "cancel": "Cancel"
+  },
+  "grid": "KPI proposal table",
+  "groups": {
+    "hr": { "label": "From the HR system", "full": "Taken from the HR system" },
+    "cqFill": { "label": "Filled by manager", "full": "Filled in by the manager based on the employee's current duties" },
+    "preset": { "label": "Preset options", "full": "Preset options to choose from" },
+    "system": { "label": "From the system", "full": "Latest data in the system" },
+    "cqGive": { "label": "Set by manager", "full": "Set by the manager after reviewing the evaluation criteria" },
+    "auto": { "label": "Calculated", "full": "Calculated by the system" }
+  },
+  "cols": {
+    "unit": { "label": "UNIT", "sub": "單位", "full": "Unit 單位" },
+    "name": { "label": "FULL NAME", "sub": "姓名", "full": "Full name 姓名" },
+    "cardNo": { "label": "CARD NO.", "sub": "工号", "full": "Card number 工号" },
+    "joinDate": { "label": "Join date", "sub": "進廠日期", "full": "Join date 進廠日期" },
+    "seniority": { "label": "Seniority", "sub": "工作年資", "full": "Years of service 工作年資" },
+    "position": { "label": "Position", "sub": "職務", "full": "Position 職務" },
+    "abc": { "label": "A-B-C rating", "sub": "Last 3 months", "full": "A-B-C rating over the last 3 months" },
+    "status": { "label": "Status", "sub": "", "full": "Employee status" },
+    "leave": { "label": "Leave period", "sub": "Sick / Maternity / Suspended", "full": "Leave period: sick / maternity / contract suspension" },
+    "resignDate": { "label": "Resign date", "sub": "", "full": "Resignation date" },
+    "duties": { "label": "Duties & performance", "sub": "目前職責與績效", "full": "Current duties & performance 目前職責與績效" },
+    "result": { "label": "Evaluation result", "sub": "審核結果", "full": "Evaluation result 審核結果" },
+    "amount": { "sub": "(金額)", "full": "{{range}} (金額)" },
+    "diff": { "label": "Diff", "sub": "", "full": "This period − previous period" },
+    "percent": { "label": "% change", "sub": "", "full": "Change compared with the previous period" },
+    "note": { "label": "Note", "sub": "", "full": "Note" },
+    "board": { "label": "Board decision", "sub": "管理委員會的決定", "full": "Board of directors' decision 管理委員會的決定" }
+  },
+  "results": {
+    "suspend": { "label": "Suspend KPI", "hint": "" },
+    "sick": { "label": "Reduce KPI based on sick leave duration", "hint": "" },
+    "cancel": { "label": "Cancel KPI", "hint": "" },
+    "maintain": { "label": "Maintain KPI", "hint": "" },
+    "increase": { "label": "Increase KPI based on work performance", "hint": "" },
+    "reduce": { "label": "Reduce KPI based on job performance", "hint": "" },
+    "add": { "label": "Add new KPI", "hint": "" }
+  },
+  "status": {
+    "active": "",
+    "maternity": "Maternity leave",
+    "sickLeave": "Long-term sick leave",
+    "resigning": "Resigning soon",
+    "contractSuspended": "Contract suspended",
+    "resigned": "Resigned"
+  },
+  "leaveRange": "{{from}} → {{to}}",
+  "issue": {
+    "mustReduce": "3C rating: KPI must be reduced",
+    "capIncrease": "2C rating: increase capped at {{max}}"
+  },
+  "rules": {
+    "title": "=> Note for managers when reviewing:",
+    "body": "Evaluate work performance together with the A-B-C ratings of the last 3 months",
+    "c3": "3C: reduce KPI",
+    "c2": "2C: increase up to {{max}}",
+    "c1": "1C: no effect"
+  },
+  "total": "Total",
+  "employeeCount_one": "{{count}} employee",
+  "employeeCount_other": "{{count}} employees",
+  "newEntry": "New",
+  "placeholder": "Enter…",
+  "boardOnly": "Updated by the board of directors only",
+  "noMatch": "No matching employees.",
+  "noScopeTitle": "No departments assigned yet",
+  "noScopeHint": "Ask the administrator to assign the departments you manage.",
+  "fields": {
+    "duties": "Duties & performance of {{name}}",
+    "result": "Evaluation result of {{name}}",
+    "amount": "KPI amount {{range}} of {{name}}",
+    "note": "Note for {{name}}"
+  }
+}

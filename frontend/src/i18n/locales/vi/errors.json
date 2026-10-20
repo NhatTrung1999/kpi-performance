@@ -1,0 +1,24 @@
+{
+  "retry": "Thử lại",
+  "invalidCredentials": "Sai mã tài khoản hoặc mật khẩu.",
+  "attemptsLeft_one": "Còn {{count}} lần thử.",
+  "attemptsLeft_other": "Còn {{count}} lần thử.",
+  "invalidTitle": "Đăng nhập không thành công",
+  "lockedTitle": "Tài khoản tạm thời bị khóa",
+  "lockedMinutes_one": "Vui lòng thử lại sau {{count}} phút hoặc liên hệ IT.",
+  "lockedMinutes_other": "Vui lòng thử lại sau {{count}} phút hoặc liên hệ IT.",
+  "lockedNoTime": "Vui lòng liên hệ IT để được hỗ trợ.",
+  "rateLimited": "Bạn thao tác quá nhanh. Vui lòng thử lại sau vài phút.",
+  "unavailableTitle": "Không kết nối được máy chủ",
+  "unavailableDescription": "Vui lòng kiểm tra kết nối mạng và thử lại.",
+  "unknown": "Đã có lỗi xảy ra. Vui lòng thử lại.",
+  "lastAttempts_one": "Chỉ còn {{count}} lần thử",
+  "lastAttempts_other": "Chỉ còn {{count}} lần thử",
+  "lastAttemptsHint": "Tài khoản sẽ tạm thời bị khóa nếu bạn nhập sai thêm lần nữa.",
+  "mock": {
+    "invalid": "Sai thông tin đăng nhập (mock).",
+    "token": "Token mock không hợp lệ."
+  },
+  "noAccessTitle": "Bạn không có quyền truy cập",
+  "noAccessDescription": "Tài khoản của bạn chưa được cấp quyền vào hệ thống này. Vui lòng liên hệ Admin."
+}

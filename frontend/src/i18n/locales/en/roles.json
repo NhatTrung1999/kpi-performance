@@ -2,15 +2,12 @@
   "title": "Permissions",
   "subtitle": "Manage roles and management scope",
   "role": {
-    "NV": "Employee",
     "CQ": "Manager",
-    "AD": "Admin",
-    "NONE": "Unassigned"
+    "NONE": "No access"
   },
   "roleDesc": {
-    "NV": "View and update your own KPIs",
-    "CQ": "Manage employees within assigned departments",
-    "AD": "Full system access, including permissions"
+    "CQ": "Can sign in and see employees in assigned departments",
+    "NONE": "Cannot sign in to the system"
   },
   "unit": "Unit",
   "roleField": "Role",
@@ -18,6 +15,9 @@
   "searchUnitPlaceholder": "Search units (e.g. pattern)",
   "searchUnit": "Search units",
   "noUnitMatch": "No unit matches “{{query}}”",
+  "noUnits": "No units available",
+  "noTeam": "No team",
+  "unitsError": "Couldn't load units.",
   "unitHint": "Select a parent department to see employees of all its sub-departments",
   "listTitle": "EMPLOYEE PERMISSION LIST",
   "employeeCount_one": "{{count}} employee",
@@ -55,6 +55,7 @@
   "roleHistory": "Permission history",
   "moreActions": "More actions",
   "noMatch": "No employees match the filters",
+  "employeesError": "Couldn't load employees.",
   "showing": "Showing",
   "prevPage": "Previous page",
   "nextPage": "Next page",
@@ -75,17 +76,18 @@
   "expand": "Expand",
   "tabs": {
     "all": "All",
-    "NV": "Employees",
     "CQ": "Managers",
-    "AD": "Admins"
+    "NONE": "No access"
   },
-  "badgeAssigned": "Assigned",
   "badgeManagers": "Managers",
   "badgeNoScope_one": "{{count}} manager without scope",
   "badgeNoScope_other": "{{count}} managers without scope",
-  "filterUnassigned": "Filter table: Unassigned",
+  "filterUnassigned": "Filter table: No access",
   "filterNoScope": "Filter table: managers without scope",
   "allUnits": "All units",
   "clearSearch": "Clear search",
-  "emptyTitle": "Select a unit to view employees"
+  "emptyTitle": "Select a unit to view employees",
+  "saveError": "Couldn't save changes. Please try again.",
+  "saveInvalidScope": "Some selected departments no longer exist. Review the management scope and try again.",
+  "managersError": "Couldn't load permissions."
 }

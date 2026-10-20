@@ -4,7 +4,7 @@ import i18n from '@/i18n';
  * Định dạng ngày/số dùng chung — mọi nơi hiển thị phải đi qua đây để đổi theo ngôn ngữ sau này.
  * Locale Intl lấy từ ngôn ngữ đang dùng của i18n.
  */
-const INTL_LOCALE: Record<string, string> = { en: 'en-US' };
+const INTL_LOCALE: Record<string, string> = { en: 'en-US', vi: 'vi-VN' };
 const intlLocale = () => INTL_LOCALE[i18n.language] ?? i18n.language;
 
 type DateInput = string | number | Date;
@@ -21,6 +21,42 @@ export const formatDate = (value: DateInput, withYear = true) => {
   const parts = new Intl.DateTimeFormat(intlLocale(), { day: 'numeric', month: 'short', year: 'numeric' }).formatToParts(toDate(value));
   const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '';
   return [get('day'), get('month'), withYear ? get('year') : ''].filter(Boolean).join(' ');
+};
+
+/** Ngày dạng "2015-01-15" (YYYY-MM-DD, theo giờ địa phương) — dùng cho cột ngày trong bảng. */
+export const formatIsoDate = (value: DateInput) => {
+  const d = toDate(value);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+
+/** Ngày dạng "2017/06/02" (YYYY/MM/DD) — quy ước của các bảng nghiệp vụ KPI, không đổi theo ngôn ngữ. */
+export const formatSlashDate = (value: DateInput) => formatIsoDate(value).replace(/-/g, '/');
+
+/**
+ * Số theo quy ước kế toán của công ty, KHÔNG đổi theo ngôn ngữ: phẩy nhóm hàng nghìn, chấm thập phân ("3,000,000", "9.3").
+ * Số âm trong ngoặc đơn: -500000 → "(500,000)". Màu đỏ do nơi hiển thị tự tô.
+ */
+export const formatAccounting = (value: number, fractionDigits = 0) => {
+  const text = new Intl.NumberFormat('en-US', { minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits }).format(Math.abs(value));
+  return value < 0 ? `(${text})` : text;
+};
+
+/** Số tiền: "3,000,000", âm → "(500,000)". */
+export const formatMoney = (value: number) => formatAccounting(value);
+
+/** Kỳ theo tháng, vd. ("2026-07", "2026-09") → "07–09/2026"; khác năm → "11/2026–01/2027". */
+export const formatMonthRange = (from: string, to: string) => {
+  const [fy, fm] = from.split('-');
+  const [ty, tm] = to.split('-');
+  return fy === ty ? `${fm}–${tm}/${ty}` : `${fm}/${fy}–${tm}/${ty}`;
+};
+
+/** Kỳ dạng ngắn, vd. ("2026-10", "2026-12") → "2026.10 ~ 12". */
+export const formatPeriodShort = (from: string, to: string) => {
+  const [fy, fm] = from.split('-');
+  const [ty, tm] = to.split('-');
+  return fy === ty ? `${fy}.${fm} ~ ${tm}` : `${fy}.${fm} ~ ${ty}.${tm}`;
 };
 
 /** Tên tháng viết tắt, `month` từ 1 đến 12. */

@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next";
 import { AppSidebar, SidebarNavGroup, SidebarNavItem } from "@/components/ui/app-shell";
 import { SidebarToggle } from "@/components/ui/sidebar-toggle";
 import { useShell } from "@/layouts/shell-context";
-import { getCurrentUser } from "@/lib/session";
+import { useCurrentUser } from "@/lib/session";
 import { canAccess, NAV_GROUP_LABEL, ROUTE_META, type NavGroup } from "@/routes/config";
 
-const GROUPS: NavGroup[] = ["main", "admin"];
+const GROUPS: NavGroup[] = ["proposal", "admin"];
 
 type SidebarProps = {
   collapsed?: boolean;
@@ -21,7 +21,7 @@ const Sidebar = ({ collapsed = false, onClose, onNavigate, className }: SidebarP
   const { t } = useTranslation(["common", "nav"]);
   const shell = useShell();
   const { pathname } = useLocation();
-  const user = getCurrentUser();
+  const user = useCurrentUser();
   const items = Object.entries(ROUTE_META).filter(([, m]) => m.nav && canAccess(m, user.role));
 
   return (

@@ -5,9 +5,11 @@ import { createBrowserRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import ProtectedRoute from './ProtectedRoute';
 import RequireRole from './RequireRole';
-import Dashboard from '@/pages/dashboard';
+import { HOME_PATH } from './config';
 import NotFound from '@/pages/NotFound';
+import Proposals from '@/pages/proposals';
 import Roles from '@/pages/roles';
+import UnderConstruction from '@/pages/UnderConstruction';
 
 const router = createBrowserRouter([
   {
@@ -22,12 +24,17 @@ const router = createBrowserRouter([
         children: [
           {
             path: '/',
-            element: <Navigate to="dashboard" replace />,
+            element: <Navigate to={HOME_PATH} replace />,
           },
-          { path: 'dashboard', element: <Dashboard /> },
           {
+            // Mọi trang đều giới hạn vai trò theo ROUTE_META.
             element: <RequireRole />,
-            children: [{ path: 'roles', element: <Roles /> }],
+            children: [
+              { path: 'proposals', element: <Proposals /> },
+              { path: 'periods', element: <UnderConstruction /> },
+              { path: 'history', element: <UnderConstruction /> },
+              { path: 'roles', element: <Roles /> },
+            ],
           },
         ],
       },

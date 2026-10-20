@@ -10,6 +10,7 @@
   "portal": {
     "AD": "Admin portal",
     "CQ": "Manager portal",
+    "BLD": "Board of directors",
     "NV": "Employee portal"
   },
   "period": {
@@ -32,7 +33,7 @@
     "title": "Access denied",
     "heading": "You don't have access",
     "description": "This page is only available to authorized roles. If you need access, please contact an administrator.",
-    "back": "Back to Overview"
+    "back": "Back to home"
   },
   "notFound": "Page not found",
   "trend": {
@@ -47,7 +48,6 @@
     "profile": "Profile & settings",
     "shortcuts": "Keyboard shortcuts",
     "logout": "Log out",
-    "signedOut": "You've been signed out",
     "unsavedTitle": "You have unsaved changes",
     "unsavedDescription": "Log out anyway? Changes you haven't saved will be lost.",
     "cancel": "Cancel",
@@ -67,5 +67,10 @@
       "close": "Esc"
     }
   },
-  "retry": "Retry"
+  "retry": "Retry",
+  "quarterLabel": "Q{{quarter}} {{year}}",
+  "underConstruction": {
+    "heading": "Under construction",
+    "description": "This page is being built and will be available soon."
+  }
 }
