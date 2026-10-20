@@ -8,11 +8,14 @@
     "deadline": "Due {{date}}",
     "submitted": "Submitted",
     "awaiting": "Awaiting approval",
+    "approved": "Approved",
     "filled": "Filled",
+    "decided": "Decided",
     "filledValue": "{{filled}}/{{total}}"
   },
   "unitLabel": "Unit:",
   "unitFilter": "Filter by unit",
+  "nameFilter": "Search by name or card no.",
   "allUnits": "All",
   "searchPlaceholder": "Search name or card no.",
   "search": "Search employees",
@@ -22,17 +25,38 @@
   "saving": "Saving…",
   "savedAt": "Saved at {{time}}",
   "submit": "Confirm & submit",
-  "submittedPill": "Submitted · Awaiting board approval",
-  "readOnlyPill": "View only",
+  "approve": "Approve",
+  "return": "Return",
+  "pill": {
+    "draft": "Manager is preparing the proposal",
+    "submitted": "Submitted · Awaiting board approval",
+    "approved": "Approved by the board"
+  },
   "loadError": "Couldn't load the KPI proposal.",
   "saveError": "Couldn't save the draft. Please try again.",
-  "submitError": "Couldn't submit the proposal. Please try again.",
-  "submitted": "KPI proposal submitted to the board of directors.",
+  "actionError": "Something went wrong. Please try again.",
+  "done": {
+    "submit": "KPI proposal submitted to the board of directors.",
+    "approve": "KPI proposal approved.",
+    "return": "Proposal returned to the manager."
+  },
   "confirm": {
-    "title": "Submit the KPI proposal for {{units}}?",
-    "description": "The board of directors will be notified by email. After submitting you can't edit it unless it is returned.",
-    "confirm": "Submit",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "submit": {
+      "title": "Submit the KPI proposal for {{units}}?",
+      "description": "The board of directors will be notified by email. After submitting you can't edit it unless it is returned.",
+      "confirm": "Submit"
+    },
+    "approve": {
+      "title": "Approve the KPI proposal of {{units}}?",
+      "description": "The board decisions are saved with it. The proposal is locked after approval.",
+      "confirm": "Approve"
+    },
+    "return": {
+      "title": "Return the KPI proposal of {{units}}?",
+      "description": "The manager will revise and resubmit it. Board decisions entered so far are kept.",
+      "confirm": "Return"
+    }
   },
   "grid": "KPI proposal table",
   "groups": {
@@ -44,23 +68,20 @@
     "auto": { "label": "Calculated", "full": "Calculated by the system" }
   },
   "cols": {
-    "unit": { "label": "UNIT", "sub": "單位", "full": "Unit 單位" },
-    "name": { "label": "FULL NAME", "sub": "姓名", "full": "Full name 姓名" },
-    "cardNo": { "label": "CARD NO.", "sub": "工号", "full": "Card number 工号" },
+    "unit": { "label": "Unit", "sub": "單位", "full": "Unit 單位" },
+    "name": { "label": "Full name", "sub": "姓名 · 工号", "full": "Full name 姓名 · Card no. 工号" },
     "joinDate": { "label": "Join date", "sub": "進廠日期", "full": "Join date 進廠日期" },
     "seniority": { "label": "Seniority", "sub": "工作年資", "full": "Years of service 工作年資" },
     "position": { "label": "Position", "sub": "職務", "full": "Position 職務" },
     "abc": { "label": "A-B-C rating", "sub": "Last 3 months", "full": "A-B-C rating over the last 3 months" },
-    "status": { "label": "Status", "sub": "", "full": "Employee status" },
-    "leave": { "label": "Leave period", "sub": "Sick / Maternity / Suspended", "full": "Leave period: sick / maternity / contract suspension" },
-    "resignDate": { "label": "Resign date", "sub": "", "full": "Resignation date" },
+    "status": { "label": "Status", "sub": "狀態", "full": "Status 狀態 · Sick / maternity / contract suspension leave · Resignation date" },
     "duties": { "label": "Duties & performance", "sub": "目前職責與績效", "full": "Current duties & performance 目前職責與績效" },
     "result": { "label": "Evaluation result", "sub": "審核結果", "full": "Evaluation result 審核結果" },
-    "amount": { "sub": "(金額)", "full": "{{range}} (金額)" },
-    "diff": { "label": "Diff", "sub": "", "full": "This period − previous period" },
-    "percent": { "label": "% change", "sub": "", "full": "Change compared with the previous period" },
+    "prev": { "label": "Previous", "sub": "{{range}} · 金額", "full": "Previous period {{range}} (金額)" },
+    "next": { "label": "This period", "sub": "{{range}} · 金額", "full": "This period {{range}} (金額)" },
+    "diff": { "label": "Difference", "sub": "Diff · %", "full": "This period − previous period, with % change" },
     "note": { "label": "Note", "sub": "", "full": "Note" },
-    "board": { "label": "Board decision", "sub": "管理委員會的決定", "full": "Board of directors' decision 管理委員會的決定" }
+    "board": { "label": "Board decision", "sub": "主管決定", "full": "Board of directors' decision 主管決定" }
   },
   "results": {
     "suspend": { "label": "Suspend KPI", "hint": "" },
@@ -79,9 +100,10 @@
     "contractSuspended": "Contract suspended",
     "resigned": "Resigned"
   },
+  "resignOn": "Leaves on {{date}}",
   "leaveRange": "{{from}} → {{to}}",
   "issue": {
-    "mustReduce": "3C rating: KPI must be reduced",
+    "mustReduce": "3C rating: a reducing result is required",
     "capIncrease": "2C rating: increase capped at {{max}}"
   },
   "rules": {
@@ -96,6 +118,8 @@
   "employeeCount_other": "{{count}} employees",
   "newEntry": "New",
   "placeholder": "Enter…",
+  "none": "—",
+  "boardPending": "Awaiting board",
   "boardOnly": "Updated by the board of directors only",
   "noMatch": "No matching employees.",
   "noScopeTitle": "No departments assigned yet",
@@ -103,7 +127,8 @@
   "fields": {
     "duties": "Duties & performance of {{name}}",
     "result": "Evaluation result of {{name}}",
-    "amount": "KPI amount {{range}} of {{name}}",
-    "note": "Note for {{name}}"
+    "amount": "This period's KPI amount of {{name}}",
+    "note": "Note for {{name}}",
+    "decision": "Board decision for {{name}}"
   }
 }

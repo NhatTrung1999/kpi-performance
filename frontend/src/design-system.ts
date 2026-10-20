@@ -4,6 +4,8 @@
  */
 import './design-system.css';
 
+export { AbcChip } from '@/components/ui/abc-chip';
+export type { AbcChipProps, AbcChipTone } from '@/components/ui/abc-chip';
 export { AccountMenu, Avatar } from '@/components/ui/account-menu';
 export type { AccountMenuItem, AccountMenuProps } from '@/components/ui/account-menu';
 export { AppShell, AppSidebar, SidebarNavGroup, SidebarNavItem } from '@/components/ui/app-shell';

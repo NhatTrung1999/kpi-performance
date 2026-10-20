@@ -50,6 +50,7 @@
     --color-grid-head-input: var(--grid-head-input);
     --color-grid-locked: var(--grid-locked);
     --color-grid-row-muted: var(--grid-row-muted);
+    --color-grid-row-alt: var(--grid-row-alt);
 
     /* Đổ bóng */
     --shadow-glass: var(--shadow-glass-value);
@@ -139,6 +140,7 @@
     --grid-head-input: #F8FAFF; /* tiêu đề cột nhập liệu (≈ accent 40%) */
     --grid-locked: #F5F6F8; /* cột chỉ người khác cập nhật (≈ muted 80%) */
     --grid-row-muted: var(--muted); /* dòng làm mờ (vd. tạm hoãn, sắp thôi việc) */
+    --grid-row-alt: #FBFCFC; /* dòng xen kẽ khi bảng có sọc (≈ muted 30% trên card) */
 
     /* Thương hiệu */
     --brand: #6366F1; /* ring, điểm nhấn */
@@ -225,6 +227,7 @@
     --grid-head-input: #1C1C29;
     --grid-locked: #202027;
     --grid-row-muted: #23232A;
+    --grid-row-alt: #19191F;
 
     --brand: #818CF8;
     --brand-from: #4F46E5;
