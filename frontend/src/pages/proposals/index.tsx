@@ -361,7 +361,8 @@ const Proposals = () => {
         </FormAlert>
       ) : (
         <TableCard>
-          <TableCardBody>
+          {/* flex-col: DataGrid (flex-1) cao ít nhất bằng khung để dòng tổng nằm ở đáy. */}
+          <TableCardBody className="flex flex-col">
             {isPending ? (
               <p role="status" className="p-6 text-center text-sm text-muted-foreground">
                 {t('common:loading')}

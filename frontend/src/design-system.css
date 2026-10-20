@@ -15,7 +15,7 @@
 /* Bo góc */
 @source inline("rounded-{sm,md,lg,xl,2xl,3xl,4xl,control,hero,full}");
 /* Đổ bóng */
-@source inline("shadow-{glass,glass-sm,brand,brand-hover,field,toast,card,panel,nav}");
+@source inline("shadow-{glass,glass-sm,brand,brand-hover,field,toast,card,panel,nav,grid-footer}");
 /* Cỡ chữ */
 @source inline("text-{xs,sm,base,lg,xl,2xl,3xl,label,body,title}");
 /* Bố cục: khoảng cách theo thang 4px, flex/grid, cỡ khung, font — để mã bố cục viết thêm bên ngoài (Claude Design) không bị thiếu class */

@@ -4,7 +4,10 @@ import { cn } from "@/lib/utils"
 
 /*
  * Bảng dữ liệu dạng CSS grid cho bảng rộng nhiều cột (vd. Đề xuất KPI).
- * - Đặt trong một khung cuộn (TableCardBody): hàng nhóm cột + hàng tiêu đề dính trên, dòng tổng dính dưới.
+ * - Đặt làm con TRỰC TIẾP của khung cuộn (TableCardBody với `flex flex-col`): hàng nhóm cột + hàng tiêu đề dính trên,
+ *   dòng tổng dính dưới (sticky bottom) trong cùng vùng cuộn nên luôn thẳng cột khi cuộn ngang.
+ * - Ít dòng: một hàng đệm co giãn (1fr) đặt trước dòng tổng đẩy nó xuống đáy khung — khoảng trống nằm trên dòng tổng.
+ * - Dòng tổng nền đặc; còn dòng bị che phía dưới thì hiện bóng mờ phía trên (`shadow-grid-footer`).
  * - Các cột `pinned` (phải đứng đầu, `width` là số px) dính bên trái khi cuộn ngang.
  * - Chữ hiển thị đều truyền qua props (thư viện không phụ thuộc i18n).
  */
@@ -108,6 +111,33 @@ function DataGrid<T>({ columns, groups, rows, rowKey, rowClassName, empty, foote
     left += c.width
   }
   const pinnedCount = pinnedLeft.length
+  const hasFooter = footerLabel !== undefined
+  const gridRef = React.useRef<HTMLDivElement>(null)
+  // Còn dòng nằm dưới dòng tổng (chưa cuộn tới đáy) → bóng mờ phía trên dòng tổng.
+  const [covered, setCovered] = React.useState(false)
+  React.useEffect(() => {
+    const grid = gridRef.current
+    const scroller = grid?.parentElement
+    if (!grid || !scroller || !hasFooter) return
+    const update = () => setCovered(scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 1)
+    update()
+    scroller.addEventListener("scroll", update, { passive: true })
+    const observer = new ResizeObserver(update)
+    observer.observe(scroller)
+    observer.observe(grid)
+    return () => {
+      scroller.removeEventListener("scroll", update)
+      observer.disconnect()
+    }
+  }, [hasFooter])
+  // Hàng: [nhóm cột] + tiêu đề + các dòng (hoặc dòng trống) + hàng đệm 1fr + dòng tổng.
+  const headRows = (groups?.length ? 1 : 0) + 1
+  const bodyRows = rows.length || (empty ? 1 : 0)
+  const gridTemplateRows = hasFooter ? `repeat(${headRows + bodyRows}, auto) 1fr auto` : undefined
+  const footerCell = cn(
+    "sticky bottom-0 flex h-10 min-w-0 items-center border-t border-t-border-strong bg-card px-2.5 font-semibold whitespace-nowrap tabular-nums transition-shadow duration-150",
+    covered && "shadow-grid-footer"
+  )
   const pin = (i: number) => (i < pinnedCount ? { left: pinnedLeft[i] } : undefined)
   const headTop = groups?.length ? GROUP_H : 0
   const align = (c: DataGridColumn<T>) => (c.align === "end" ? "justify-end text-right" : "")
@@ -115,11 +145,12 @@ function DataGrid<T>({ columns, groups, rows, rowKey, rowClassName, empty, foote
 
   return (
     <div
+      ref={gridRef}
       role="table"
       aria-label={aria["aria-label"]}
       data-slot="data-grid"
-      className={cn("grid w-max min-w-full text-xs leading-[1.35]", className)}
-      style={{ gridTemplateColumns: columns.map((c) => track(c.width)).join(" ") }}
+      className={cn("grid w-max min-w-full flex-1 text-xs leading-[1.35]", className)}
+      style={{ gridTemplateColumns: columns.map((c) => track(c.width)).join(" "), gridTemplateRows }}
     >
       {groups && groups.length > 0 && (
         <div role="row" className="contents">
@@ -209,30 +240,23 @@ function DataGrid<T>({ columns, groups, rows, rowKey, rowClassName, empty, foote
         </div>
       )}
 
-      {footerLabel !== undefined && (
-        <div role="row" className="contents">
-          {pinnedCount > 0 && (
-            <div
-              role="cell"
-              style={{ gridColumn: `span ${pinnedCount}`, left: 0 }}
-              className="sticky bottom-0 z-5 flex h-10 items-center gap-1.5 border-t border-r border-t-border-strong border-r-border bg-grid-group-read px-2.5 font-semibold whitespace-nowrap"
-            >
-              {footerLabel}
-            </div>
-          )}
-          {columns.slice(pinnedCount).map((c) => (
-            <div
-              key={c.key}
-              role="cell"
-              className={cn(
-                "sticky bottom-0 z-3 flex h-10 min-w-0 items-center border-t border-t-border-strong bg-grid-group-read px-2.5 font-semibold tabular-nums",
-                align(c)
-              )}
-            >
-              {c.footer}
-            </div>
-          ))}
-        </div>
+      {hasFooter && (
+        <>
+          {/* Hàng đệm co giãn: ít dòng thì khoảng trống dồn ở đây, dòng tổng nằm sát đáy khung. */}
+          <div aria-hidden="true" className="col-span-full" />
+          <div role="row" className="contents">
+            {pinnedCount > 0 && (
+              <div role="cell" style={{ gridColumn: `span ${pinnedCount}`, left: 0 }} className={cn(footerCell, "z-5 gap-1.5 border-r border-r-border")}>
+                {footerLabel}
+              </div>
+            )}
+            {columns.slice(pinnedCount).map((c) => (
+              <div key={c.key} role="cell" className={cn(footerCell, "z-3", align(c))}>
+                {c.footer}
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )
