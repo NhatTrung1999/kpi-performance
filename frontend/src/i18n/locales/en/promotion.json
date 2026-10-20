@@ -17,7 +17,13 @@
     "label": "Review group",
     "sub": "審核組別 · approved group by group",
     "option": "{{headcount}} employees · {{proposed}} proposed",
-    "approvedCount": "Approved {{approved}}/{{total}} groups"
+    "approvedCount": "Approved {{approved}}/{{total}} groups",
+    "total": {
+      "label": "All groups",
+      "sub": "Grand Total · as in sheet SUM",
+      "promotion": "Promotion {{count}}/{{base}} · {{percent}}",
+      "raise": "Raise {{count}}/{{base}} · {{percent}}"
+    }
   },
   "unitLabel": "Department:",
   "allUnits": "All",
@@ -30,7 +36,12 @@
     "raiseExpat": "Raise (expat)",
     "value": "{{count}}/{{base}} · {{percent}}",
     "limit": "/ {{limit}}",
-    "over": "Over the {{limit}} budget — warning only, submitting is not blocked"
+    "over": "Over the {{limit}} budget — warning only, submitting is not blocked",
+    "budget": {
+      "title": "Headcount budget: (only for High Performing Individuals)",
+      "promotion": "* Promotion headcount: 5% for local and expats;",
+      "raise": "* Salary adjustment headcount: 10% for local; 5% for expats."
+    }
   },
   "saveDraft": "Save draft",
   "save": "Save",
@@ -65,11 +76,11 @@
     },
     "return": {
       "title": "Return the proposal to the manager of {{group}}?",
-      "description": "The group's proposal goes back to draft so the manager can edit and resubmit it.",
+      "description": "The group's proposal goes back to draft so the manager can edit and resubmit it. The manager and Admin receive the reason by email.",
       "confirm": "Return to manager",
       "reasonLabel": "Reason",
       "reasonPlaceholder": "What should the manager add or change…",
-      "reasonHint": "The manager and Admin receive this reason by email."
+      "reasonRequired": "A reason is required."
     }
   },
   "done": {
@@ -89,8 +100,11 @@
   "placeholder": "Click to enter…",
   "typing": "Enter…",
   "expat": "Expat",
-  "salaryLock": "Only the board, HR and Accounting see salary information",
-  "salaryLockShort": "Board, HR, Accounting only",
+  "salaryLock": {
+    "label": "Who can see salary information",
+    "text": "Only the board, Accounting and HR see this information for review; the approval file sent back to managers does not show it.",
+    "sub": "以上資訊僅供高階管理層、會計及人資部門查看與審核，因此發送給各部門主管的核准文件中，不會顯示這些資訊。"
+  },
   "collapse": "Collapse group: {{name}}",
   "expand": "Expand group: {{name}}",
   "groups": {
@@ -142,8 +156,7 @@
     },
     "seniority": {
       "label": "Seniority (years)",
-      "sub": "工作年資",
-      "note": "System-calculated"
+      "sub": "工作年資"
     },
     "contract": {
       "label": "Contract type",
@@ -204,8 +217,7 @@
     },
     "salaryLevels": {
       "label": "Adjusted salary levels",
-      "sub": "已調整的薪資項目",
-      "note": "Contract salary only, excluding living allowance, rating bonus…"
+      "sub": "已調整的薪資項目"
     },
     "currentTitle": {
       "label": "Current position",
@@ -229,8 +241,7 @@
     },
     "totalCurrent": {
       "label": "Current total salary",
-      "sub": "目前薪資",
-      "note": "System-calculated"
+      "sub": "目前薪資"
     },
     "newPosition": {
       "label": "New position",
@@ -254,13 +265,11 @@
     },
     "totalNew": {
       "label": "Total salary after the raise",
-      "sub": "加薪後的總薪資",
-      "note": "System-calculated"
+      "sub": "加薪後的總薪資"
     },
     "diffOldNew": {
       "label": "Old vs new difference",
-      "sub": "新舊薪資差額",
-      "note": "estimate"
+      "sub": "新舊薪資差額"
     },
     "hrOpinion": {
       "label": "HR opinion",
@@ -426,22 +435,27 @@
     }
   },
   "rules": {
-    "title": "Company rules",
-    "sub": "公司規定 · 4C in one year",
-    "lockedPill": "Cannot be selected",
-    "lockedWho": "Employees without a permanent contract",
-    "lockedBody": ": 4C in one year means the contract is not renewed → cannot be proposed for promotion / raise.",
-    "reasonPill": "Reason required",
-    "reasonWho": "Employees with a permanent contract",
-    "reasonBody": ": 4C in one year → consider carefully; can be selected but needs a specific reason.",
-    "quota": "Headcount budget (high performers only): promotion {{promotion}} for local and expats; salary adjustment {{raiseLocal}} local, {{raiseExpat}} expats."
+    "title": "Company rules:",
+    "sub": "公司規定",
+    "locked": {
+      "text": "* Employees without a permanent contract: 4C in one year means the contract is not renewed => cannot be proposed for promotion / salary raise",
+      "result": "=> The manager CANNOT select a proposal",
+      "pill": "Cannot be selected"
+    },
+    "reason": {
+      "text": "* Employees with a permanent contract: 4C in one year => the manager should consider carefully before proposing a promotion / salary raise",
+      "result": "=> The manager can select it but must give a specific reason",
+      "pill": "Reason required"
+    }
   },
   "notes": {
     "title": "Notes",
-    "sub": "注意事項",
+    "sub": "注意事項 · read before proposing",
     "n1": "Proposals apply to high-performing individuals only.",
     "n2": "Runs every April and October; the evaluation is finalized about one month earlier.",
     "n3": "Promote level by level; don't jump over levels.",
-    "n4": "If the job scale stays the same after a promotion, explain clearly why the promotion is needed."
+    "n4": "If the job scale stays the same after a promotion, explain clearly why the promotion is needed.",
+    "collapse": "Collapse",
+    "expand": "Expand"
   }
 }

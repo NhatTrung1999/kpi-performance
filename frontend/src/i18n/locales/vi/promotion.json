@@ -17,7 +17,13 @@
     "label": "Nhóm xét duyệt",
     "sub": "審核組別 · BLĐ duyệt từng nhóm",
     "option": "{{headcount}} NV · {{proposed}} đề xuất",
-    "approvedCount": "Đã duyệt {{approved}}/{{total}} nhóm"
+    "approvedCount": "Đã duyệt {{approved}}/{{total}} nhóm",
+    "total": {
+      "label": "Toàn TTKT",
+      "sub": "Grand Total · theo sheet SUM",
+      "promotion": "Thăng chức {{count}}/{{base}} · {{percent}}",
+      "raise": "Tăng lương {{count}}/{{base}} · {{percent}}"
+    }
   },
   "unitLabel": "Bộ phận:",
   "allUnits": "Tất cả",
@@ -30,7 +36,12 @@
     "raiseExpat": "Tăng lương expat",
     "value": "{{count}}/{{base}} · {{percent}}",
     "limit": "/ {{limit}}",
-    "over": "Vượt hạn mức {{limit}} — chỉ cảnh báo, không chặn gửi"
+    "over": "Vượt hạn mức {{limit}} — chỉ cảnh báo, không chặn gửi",
+    "budget": {
+      "title": "Headcount budget: (only for High Performing Individuals)",
+      "promotion": "* Promotion headcount: 5% for local and expats;",
+      "raise": "* Salary adjustment headcount: 10% for local; 5% for expats."
+    }
   },
   "saveDraft": "Lưu nháp",
   "save": "Lưu",
@@ -65,11 +76,11 @@
     },
     "return": {
       "title": "Trả lại đề xuất cho CQ · {{group}}?",
-      "description": "Đề xuất của nhóm sẽ chuyển về trạng thái nháp để CQ chỉnh sửa và gửi lại.",
+      "description": "Đề xuất của nhóm sẽ chuyển về trạng thái nháp để CQ chỉnh sửa và gửi lại. CQ và Admin nhận email kèm lý do.",
       "confirm": "Trả lại CQ",
       "reasonLabel": "Lý do trả lại",
       "reasonPlaceholder": "Ghi rõ nội dung CQ cần bổ sung hoặc điều chỉnh...",
-      "reasonHint": "CQ và Admin sẽ nhận email kèm lý do này."
+      "reasonRequired": "Bắt buộc nhập lý do trả lại."
     }
   },
   "done": {
@@ -89,8 +100,11 @@
   "placeholder": "Bấm để nhập...",
   "typing": "Nhập...",
   "expat": "Expat",
-  "salaryLock": "Chỉ BLĐ, HR, Kế toán xem được thông tin lương",
-  "salaryLockShort": "Chỉ BLĐ, HR, Kế toán",
+  "salaryLock": {
+    "label": "Quyền xem thông tin lương",
+    "text": "những thông tin này chỉ có BLĐ, Kế toán & Nhân sự nhìn thấy để xét duyệt => file approval gửi về cho các chủ quản sẽ ko hiển thị những thông tin này",
+    "sub": "以上資訊僅供高階管理層、會計及人資部門查看與審核，因此發送給各部門主管的核准文件中，不會顯示這些資訊。"
+  },
   "collapse": "Thu gọn nhóm: {{name}}",
   "expand": "Mở rộng nhóm: {{name}}",
   "groups": {
@@ -142,8 +156,7 @@
     },
     "seniority": {
       "label": "Thâm niên làm việc",
-      "sub": "工作年資",
-      "note": "HT tự tính"
+      "sub": "工作年資"
     },
     "contract": {
       "label": "Loại hợp đồng",
@@ -204,8 +217,7 @@
     },
     "salaryLevels": {
       "label": "Các mức lương đã được điều chỉnh",
-      "sub": "已調整的薪資項目",
-      "note": "chỉ tính mức lương ký HD, ko tính PSH, BB….."
+      "sub": "已調整的薪資項目"
     },
     "currentTitle": {
       "label": "Chức vụ hiện tại",
@@ -229,8 +241,7 @@
     },
     "totalCurrent": {
       "label": "Tổng lương hiện tại",
-      "sub": "目前薪資",
-      "note": "HT tự tính"
+      "sub": "目前薪資"
     },
     "newPosition": {
       "label": "Chức vụ mới",
@@ -254,13 +265,11 @@
     },
     "totalNew": {
       "label": "Tổng lương sau khi tăng",
-      "sub": "加薪後的總薪資",
-      "note": "HT tự tính"
+      "sub": "加薪後的總薪資"
     },
     "diffOldNew": {
       "label": "Mức chênh lệch giữa cũ & mới",
-      "sub": "新舊薪資差額",
-      "note": "tạm tính"
+      "sub": "新舊薪資差額"
     },
     "hrOpinion": {
       "label": "Ý kiến của nhân sự",
@@ -426,22 +435,27 @@
     }
   },
   "rules": {
-    "title": "Theo quy định Cty",
-    "sub": "公司規定 · quy tắc 4C trong 1 năm",
-    "lockedPill": "Không thể chọn",
-    "lockedWho": "NV chưa ký HĐLĐ vô thời hạn",
-    "lockedBody": ": có 4C trong 1 năm sẽ không được tái ký HĐLĐ → không được đề xuất thăng chức / tăng lương.",
-    "reasonPill": "Bắt buộc ghi lý do",
-    "reasonWho": "NV đã ký HĐ vô thời hạn",
-    "reasonBody": ": có 4C trong 1 năm → CQ cân nhắc kỹ, có thể chọn nhưng phải có lý do cụ thể.",
-    "quota": "Hạn mức (chỉ NV hiệu suất cao): thăng chức {{promotion}} cho local & expat; tăng lương {{raiseLocal}} local, {{raiseExpat}} expat."
+    "title": "Theo quy định Cty:",
+    "sub": "公司規定",
+    "locked": {
+      "text": "* Đối với NV chưa ký HĐLĐ vô thời hạn: nếu có 4C trong 1 năm sẽ không được tái ký HĐLĐ => không được đề xuất thăng chức/ tăng lương",
+      "result": "=> CQ KHÔNG thể chọn đề xuất",
+      "pill": "Không thể chọn"
+    },
+    "reason": {
+      "text": "* Đối với NV đã ký HĐ vô thời hạn: nếu có 4C trong 1 năm => CQ cần cân nhắc kỹ khi đề xuất thăng chức/ tăng lương",
+      "result": "=> CQ có thể chọn nhưng phải có lý do cụ thể",
+      "pill": "Bắt buộc ghi lý do"
+    }
   },
   "notes": {
     "title": "Notes",
-    "sub": "注意事項",
-    "n1": "Proposal is only applied for high performance individual only — chỉ áp dụng cho NV hiệu suất cao.",
-    "n2": "Frequency is every Apr/Oct and finalize the evaluation about 1 month earlier — đợt tháng 4 & 10.",
-    "n3": "Promotion level by level, don't jump over levels — thăng từng bậc, không nhảy bậc.",
-    "n4": "Promotion but the job scale remains the same, please provide clear explanation why promotion needed."
+    "sub": "注意事項 · lưu ý trước khi đề xuất",
+    "n1": "Proposal is only applied for high performance indivisual only;",
+    "n2": "Frequency is every Apr/Oct and finalize the evaluation about 1month earlier.",
+    "n3": "Promotion level by level, don't jump over levels;",
+    "n4": "Promotion but the job scale remains the same, please provide clear explanation why promotion needed.",
+    "collapse": "Thu gọn",
+    "expand": "Mở rộng"
   }
 }

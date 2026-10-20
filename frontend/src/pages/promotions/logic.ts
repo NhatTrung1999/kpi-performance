@@ -134,3 +134,15 @@ export function headcountUsage(rows: readonly PromotionRow[], group: Pick<Review
   if (group.expatHeadcount > 0) meters.push(meter('raiseExpat', raises.filter((r) => r.expat).length, group.expatHeadcount, HEADCOUNT_RULES.raiseExpat));
   return meters;
 }
+
+/** Dòng "Grand Total" của sheet SUM: tổng số đề xuất và tổng nhân sự của mọi nhóm, % = tổng đề xuất / tổng nhân sự (không lấy trung bình % các nhóm). */
+export type TotalUsage = { headcount: number; promotions: number; raises: number; promotionPercent: number; raisePercent: number };
+
+export function totalUsage(groups: readonly Pick<ReviewGroup, 'headcount' | 'promotions' | 'raises'>[]): TotalUsage {
+  const sum = (k: 'headcount' | 'promotions' | 'raises') => groups.reduce((n, g) => n + g[k], 0);
+  const headcount = sum('headcount');
+  const promotions = sum('promotions');
+  const raises = sum('raises');
+  const pct = (n: number) => (headcount > 0 ? (n / headcount) * 100 : 0);
+  return { headcount, promotions, raises, promotionPercent: pct(promotions), raisePercent: pct(raises) };
+}

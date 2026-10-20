@@ -15,6 +15,7 @@ import {
   seniorityYears,
   totalCurrent,
   totalNew,
+  totalUsage,
   typeChange,
 } from './logic';
 
@@ -149,6 +150,26 @@ describe('hạn mức theo nhóm', () => {
 
   it('nhóm không có expat thì không có đồng hồ expat', () => {
     expect(headcountUsage(rows, { headcount: 40, expatHeadcount: 0 }, 'manager')).toHaveLength(2);
+  });
+});
+
+describe('tổng toàn TTKT (sheet SUM)', () => {
+  // 3 dòng của sheet SUM: CC PLANNING 8/1/1, VR 31/2/2, Basketball 33/0/3.
+  const groups = [
+    { headcount: 8, promotions: 1, raises: 1 },
+    { headcount: 31, promotions: 2, raises: 2 },
+    { headcount: 33, promotions: 0, raises: 3 },
+  ];
+
+  it('Grand Total = tổng đề xuất / tổng nhân sự, không phải trung bình % các nhóm', () => {
+    const total = totalUsage(groups);
+    expect(total).toMatchObject({ headcount: 72, promotions: 3, raises: 6 });
+    expect(total.promotionPercent).toBeCloseTo((3 / 72) * 100, 10);
+    expect(total.raisePercent).toBeCloseTo((6 / 72) * 100, 10);
+  });
+
+  it('không có nhóm nào → 0%', () => {
+    expect(totalUsage([])).toEqual({ headcount: 0, promotions: 0, raises: 0, promotionPercent: 0, raisePercent: 0 });
   });
 });
 

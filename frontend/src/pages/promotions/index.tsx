@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, ChevronDown, Lock, Search, TrendingUp, TriangleAlert } from 'lucide-react';
+import { Check, ChevronDown, Info, Lock, Search, TrendingUp, TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DataGrid } from '@/components/ui/data-grid';
 import { ConfirmDialog } from '@/components/ui/dialog';
@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger, onListKeyDown } from '@/compon
 import { PageShell, TableCard, TableCardBody } from '@/components/ui/table-page';
 import { toast } from '@/components/ui/toast';
 import { Tooltip } from '@/components/ui/tooltip';
-import { HEADCOUNT_RULES, isEditor, type ColumnGroup, type GroupStatus } from '@/config/promotion-proposal';
+import { isEditor, type ColumnGroup, type GroupStatus } from '@/config/promotion-proposal';
 import { formatPercent, formatSlashDate, formatTime } from '@/lib/format';
 import { useCurrentUser } from '@/lib/session';
 import { useUnsavedChanges } from '@/lib/unsaved-changes';
@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 import { applyEdit, type PromotionEdit, type PromotionRow } from '@/services/promotionProposal';
 import { fieldClass } from './cells';
 import { buildColumns } from './columns';
-import { boardIssue, boardTypeOf, headcountUsage, managerIssue, type RowIssue } from './logic';
+import { boardIssue, boardTypeOf, headcountUsage, managerIssue, totalUsage, type RowIssue } from './logic';
 import { OrgChartCard } from './org-charts';
 import { useApprovePromotion, usePromotionProposal, useReturnPromotion, useSavePromotionDraft, useSubmitPromotion } from './use-promotion-proposal';
 
@@ -49,6 +49,9 @@ const Promotions = () => {
   const [collapsed, setCollapsed] = useState<ReadonlySet<ColumnGroup>>(new Set());
   const [confirm, setConfirm] = useState<ConfirmMode | null>(null);
   const [returnReason, setReturnReason] = useState('');
+  /** Bấm "Trả lại CQ" khi chưa có lý do → báo lỗi dưới ô (nút không bị khóa, như layout 7b). */
+  const [returnError, setReturnError] = useState(false);
+  const [notesOpen, setNotesOpen] = useState(true);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const group = data?.group ?? null;
@@ -102,6 +105,7 @@ const Promotions = () => {
   const runConfirm = () => {
     if (!confirm || !group) return;
     const mode = confirm;
+    if (mode === 'return' && !returnReason.trim()) return setReturnError(true);
     const id = group.id;
     setGroupId(id);
     const done = { onSuccess: () => (clearSent(id, edits), toast.success(t(`done.${mode}`))), onError: () => toast.error(t('actionError')) };
@@ -122,6 +126,8 @@ const Promotions = () => {
   const month = data ? data.period.month.split('-').reverse().join('/') : '';
   const approvedGroups = data?.groups.filter((g) => g.status === 'approved').length ?? 0;
   const showGroupPicker = !!data && (!isManager || data.groups.length > 1);
+  // Tổng toàn TTKT như dòng Grand Total của sheet SUM — chỉ vai trò thấy mọi nhóm (BLĐ, HR, KT, Admin).
+  const total = data && !isManager ? totalUsage(data.groups) : null;
   const issueText = user.role === 'BLD' ? t('rejectIssues', { count: issues.size }) : t('issues', { count: issues.size });
 
   const submitButton = (
@@ -140,6 +146,37 @@ const Promotions = () => {
         badges={badges}
         loadingLabel={t('common:loading')}
       />
+
+      {/* Notes của file ("hiển thị ở trang đầu để các Chủ quản lưu ý"), thu gọn được. */}
+      <section className="flex flex-none flex-col gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 text-xs leading-normal">
+        <div className="flex items-center gap-2">
+          <span aria-hidden="true" className="flex size-5.5 flex-none items-center justify-center rounded-md bg-accent text-brand-text">
+            <Info className="size-3.5" />
+          </span>
+          <h2 className="text-[13px] font-semibold">{t('notes.title')}</h2>
+          <span className="text-[11px] text-muted-foreground">{t('notes.sub')}</span>
+          <button
+            type="button"
+            onClick={() => setNotesOpen((o) => !o)}
+            aria-expanded={notesOpen}
+            aria-controls="promotion-notes"
+            className="ml-auto flex h-6 items-center gap-1 rounded-md px-2 text-xs font-medium text-text-secondary outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/50"
+          >
+            {notesOpen ? t('notes.collapse') : t('notes.expand')}
+            <ChevronDown aria-hidden="true" className={cn('size-3 transition-transform', notesOpen && 'rotate-180')} />
+          </button>
+        </div>
+        {notesOpen && (
+          <ol id="promotion-notes" className="m-0 grid list-none gap-x-6 gap-y-1.5 p-0 pl-7.5 lg:grid-cols-2">
+            {(['n1', 'n2', 'n3', 'n4'] as const).map((k, i) => (
+              <li key={k} className="flex gap-2 text-text-secondary">
+                <span className="flex size-4.5 flex-none items-center justify-center rounded-full bg-muted text-[11px] font-semibold text-foreground tabular-nums">{i + 1}</span>
+                <span className="text-pretty">{t(`notes.${k}`)}</span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
 
       <div className="flex flex-none flex-wrap items-center gap-2">
         {showGroupPicker && (
@@ -177,6 +214,18 @@ const Promotions = () => {
                     );
                   })}
                 </div>
+                {total && (
+                  <div className="mt-0.5 flex items-start justify-between gap-3 border-t border-border px-2.5 pt-2 pb-1.5 text-xs">
+                    <span className="flex flex-col gap-px">
+                      <span className="font-semibold">{t('groupPicker.total.label')}</span>
+                      <span className="text-[11px] text-muted-foreground">{t('groupPicker.total.sub')}</span>
+                    </span>
+                    <span className="flex flex-col items-end gap-px whitespace-nowrap text-text-secondary tabular-nums">
+                      <span>{t('groupPicker.total.promotion', { count: total.promotions, base: total.headcount, percent: formatPercent(total.promotionPercent, 1) })}</span>
+                      <span>{t('groupPicker.total.raise', { count: total.raises, base: total.headcount, percent: formatPercent(total.raisePercent, 1) })}</span>
+                    </span>
+                  </div>
+                )}
               </PopoverContent>
             </Popover>
             {!isManager && <span className="text-xs text-text-secondary tabular-nums">{t('groupPicker.approvedCount', { approved: approvedGroups, total: data.groups.length })}</span>}
@@ -212,26 +261,41 @@ const Promotions = () => {
           <Input ref={searchRef} type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('searchPlaceholder')} aria-label={t('search')} startIcon={<Search />} className="h-9 pl-9 text-[13px]" />
         </div>
         {/* Hạn mức theo nhóm, cập nhật mỗi lần chọn; vượt thì cảnh báo màu cam, không chặn gửi (HEADCOUNT_RULES.mode). */}
+        {/* Tooltip: "Headcount budget" nguyên văn file; vượt hạn mức thêm dòng cảnh báo. */}
         {meters.map((m) => {
           const limit = formatPercent(m.limit);
+          const value = t('meters.value', { count: m.count, base: m.base, percent: formatPercent(m.percent, 1) });
+          const budget = t(m.key === 'promotion' ? 'meters.budget.promotion' : 'meters.budget.raise');
+          const over = m.over ? t('meters.over', { limit }) : '';
           return (
-            <div
+            <Tooltip
               key={m.key}
-              className={cn('flex h-9 flex-none items-center gap-1.5 rounded-lg border px-2.5 text-xs whitespace-nowrap', m.over ? 'border-warning-text bg-warning-soft' : 'border-border bg-card')}
+              side="top"
+              sideOffset={6}
+              content={
+                <span className="flex max-w-75 flex-col gap-0.5 text-left whitespace-normal">
+                  <span className="font-semibold">{t('meters.budget.title')}</span>
+                  <span>{budget}</span>
+                  {over && <span className="mt-1">{over}</span>}
+                </span>
+              }
             >
-              {m.over && (
-                <Tooltip content={t('meters.over', { limit })} side="top" sideOffset={6}>
-                  <span tabIndex={0} role="img" aria-label={t('meters.over', { limit })} className="flex cursor-help rounded-sm text-warning-text outline-none focus-visible:ring-2 focus-visible:ring-ring/50">
-                    <TriangleAlert aria-hidden="true" className="size-3.5" strokeWidth={2.2} />
-                  </span>
-                </Tooltip>
-              )}
-              <span className="font-medium">{t(`meters.${m.key}`)}</span>
-              <span className={cn('font-semibold tabular-nums', m.over ? 'text-warning-text' : 'text-foreground')}>
-                {t('meters.value', { count: m.count, base: m.base, percent: formatPercent(m.percent, 1) })}
-              </span>
-              <span className="text-muted-foreground tabular-nums">{t('meters.limit', { limit })}</span>
-            </div>
+              <div
+                tabIndex={0}
+                aria-label={[`${t(`meters.${m.key}`)} ${value} ${t('meters.limit', { limit })}`, t('meters.budget.title'), budget, over].filter(Boolean).join('. ')}
+                className={cn(
+                  'flex h-9 flex-none cursor-help items-center gap-1.5 rounded-lg border px-2.5 text-xs whitespace-nowrap outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+                  m.over ? 'border-warning-text bg-warning-soft' : 'border-border bg-card'
+                )}
+              >
+                {m.over && <TriangleAlert aria-hidden="true" className="size-3.5 text-warning-text" strokeWidth={2.2} />}
+                <span aria-hidden="true" className="font-medium">{t(`meters.${m.key}`)}</span>
+                <span aria-hidden="true" className={cn('font-semibold tabular-nums', m.over ? 'text-warning-text' : 'text-foreground')}>
+                  {value}
+                </span>
+                <span aria-hidden="true" className="text-muted-foreground tabular-nums">{t('meters.limit', { limit })}</span>
+              </div>
+            </Tooltip>
           );
         })}
 
@@ -318,57 +382,43 @@ const Promotions = () => {
         </TableCard>
       )}
 
-      <div className="grid flex-none gap-3 lg:grid-cols-2">
-        <section className="flex flex-col gap-2 rounded-xl border border-border bg-card px-3.5 py-3 text-xs leading-normal">
-          <h2 className="text-[13px] font-semibold">
-            {t('rules.title')} <span className="text-[11px] font-normal text-muted-foreground">{t('rules.sub')}</span>
-          </h2>
-          <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-2.5 gap-y-2">
-            <Pill tone="danger">{t('rules.lockedPill')}</Pill>
-            <span className="text-pretty text-text-secondary">
-              <b className="font-semibold text-foreground">{t('rules.lockedWho')}</b>
-              {t('rules.lockedBody')}
-            </span>
-            <Pill tone="warning">{t('rules.reasonPill')}</Pill>
-            <span className="text-pretty text-text-secondary">
-              <b className="font-semibold text-foreground">{t('rules.reasonWho')}</b>
-              {t('rules.reasonBody')}
-            </span>
-          </div>
-          <p className="m-0 text-text-secondary">
-            {t('rules.quota', {
-              promotion: formatPercent(HEADCOUNT_RULES.promotion),
-              raiseLocal: formatPercent(HEADCOUNT_RULES.raiseLocal),
-              raiseExpat: formatPercent(HEADCOUNT_RULES.raiseExpat),
-            })}
-          </p>
-        </section>
-        <section className="flex flex-col gap-2 rounded-xl border border-border bg-card px-3.5 py-3 text-xs leading-normal">
-          <h2 className="text-[13px] font-semibold">
-            {t('notes.title')} <span className="text-[11px] font-normal text-muted-foreground">{t('notes.sub')}</span>
-          </h2>
-          <ol className="m-0 grid list-none gap-1.5 p-0">
-            {(['n1', 'n2', 'n3', 'n4'] as const).map((k, i) => (
-              <li key={k} className="flex gap-2 text-text-secondary">
-                <span className="flex size-4.5 flex-none items-center justify-center rounded-full bg-muted text-[11px] font-semibold text-foreground tabular-nums">{i + 1}</span>
-                <span className="text-pretty">{t(`notes.${k}`)}</span>
-              </li>
-            ))}
-          </ol>
-        </section>
-      </div>
+      {/* Quy định Cty về 4C — câu nguyên văn file, mỗi trường hợp kèm kết quả trên hệ thống. */}
+      <section className="flex flex-none flex-col gap-2 rounded-xl border border-border bg-card px-3.5 py-3 text-xs leading-normal">
+        <h2 className="text-[13px] font-semibold">
+          {t('rules.title')} <span className="text-[11px] font-normal text-muted-foreground">{t('rules.sub')}</span>
+        </h2>
+        <div className="grid gap-3 lg:grid-cols-2">
+          {(
+            [
+              ['locked', 'danger'],
+              ['reason', 'warning'],
+            ] as const
+          ).map(([k, tone]) => (
+            <div key={k} className="flex flex-col gap-1.5 rounded-lg bg-muted/50 px-3 py-2.5">
+              <span className="text-pretty text-foreground">{t(`rules.${k}.text`)}</span>
+              <span className="flex flex-wrap items-center gap-2 pl-3.5 text-text-secondary">
+                {t(`rules.${k}.result`)}
+                <Pill tone={tone}>{t(`rules.${k}.pill`)}</Pill>
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {group && <OrgChartCard group={group} editable={isManager && editor} />}
 
       <ConfirmDialog
         open={confirm !== null}
-        onOpenChange={(o) => !o && setConfirm(null)}
+        onOpenChange={(o) => {
+          if (o) return;
+          setConfirm(null);
+          setReturnError(false);
+        }}
         title={confirm && group ? t(`confirm.${confirm}.title`, { group: group.name }) : ''}
         description={confirm ? t(`confirm.${confirm}.description`) : undefined}
         confirmLabel={confirm ? t(`confirm.${confirm}.confirm`) : undefined}
         cancelLabel={t('confirm.cancel')}
         tone={confirm === 'return' ? 'danger' : 'default'}
-        confirmDisabled={confirm === 'return' && !returnReason.trim()}
         onConfirm={runConfirm}
       >
         {confirm === 'return' && (
@@ -377,15 +427,23 @@ const Promotions = () => {
               {t('confirm.return.reasonLabel')} <span className="text-danger-text">*</span>
             </span>
             <textarea
-              rows={4}
+              rows={3}
               autoFocus
               value={returnReason}
-              onChange={(e) => setReturnReason(e.target.value)}
+              onChange={(e) => {
+                setReturnReason(e.target.value);
+                setReturnError(false);
+              }}
               placeholder={t('confirm.return.reasonPlaceholder')}
-              aria-invalid={!returnReason.trim() || undefined}
-              className={cn(fieldClass, 'resize-y px-2.5 py-2 text-[13px] font-normal leading-normal', returnReason.trim() ? 'border-border' : 'border-danger-text')}
+              aria-invalid={returnError || undefined}
+              aria-describedby={returnError ? 'return-reason-error' : undefined}
+              className={cn(fieldClass, 'resize-y px-2.5 py-2 text-[13px] font-normal leading-normal', returnError ? 'border-danger-text' : 'border-border')}
             />
-            <span className="text-[11px] font-normal text-muted-foreground">{t('confirm.return.reasonHint')}</span>
+            {returnError && (
+              <span id="return-reason-error" role="alert" className="text-xs font-normal text-danger-text">
+                {t('confirm.return.reasonRequired')}
+              </span>
+            )}
           </label>
         )}
       </ConfirmDialog>

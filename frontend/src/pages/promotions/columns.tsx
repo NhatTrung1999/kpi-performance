@@ -27,7 +27,7 @@ import { formatAccounting, formatSlashDate } from '@/lib/format';
 import type { AppRole } from '@/lib/session';
 import { cn } from '@/lib/utils';
 import type { PromotionEdit, PromotionRow, SalaryInfo } from '@/services/promotionProposal';
-import { Dash, fieldClass, HistoryCell, LockedCell, LongTextCell, Money, MoneyInput, Position, SelectCell, TwoLine } from './cells';
+import { AutoTextarea, Dash, fieldClass, HistoryCell, LockedCell, LongTextCell, Money, MoneyInput, Position, SelectCell, TwoLine } from './cells';
 import {
   boardTypeChange,
   boardTypeOf,
@@ -83,7 +83,8 @@ export function buildColumns({ t, role, status, issues, edit, collapsed, toggle 
   const titleOpts = (r: PromotionRow) =>
     titleOptions(r).map((code) => {
       const info = levelInfo(code);
-      return { key: code, label: `${code} · ${POSITION_CODES[code]?.cn ?? ''}`, hint: info ? t('titleLevel', { level: info.level, name: `${info.en} ${info.cn}` }) : undefined };
+      // Mã + tên hệ thống trên 2 dòng (không cắt chữ); bậc theo sheet Promotion levels ở dòng gợi ý.
+      return { key: code, label: code, sub: POSITION_CODES[code]?.cn, hint: info ? t('titleLevel', { level: info.level, name: `${info.en} ${info.cn}` }) : undefined };
     });
   const salaryOf = (r: PromotionRow) => r.salary as SalaryInfo;
   const newMoney = (field: 'newContract' | 'newRating' | 'newAttendance' | 'newLiving'): DataGridColumn<PromotionRow>['cell'] => (r) =>
@@ -108,7 +109,7 @@ export function buildColumns({ t, role, status, issues, edit, collapsed, toggle 
       }),
       col('cardNo', 72, { cellClassName: 'tabular-nums', cell: (r) => r.cardNo }),
       col('joinDate', 92, { cellClassName: 'whitespace-nowrap tabular-nums', cell: (r) => formatSlashDate(r.joinDate) }),
-      col('seniority', 92, { align: 'end', cellClassName: 'pr-2.5 tabular-nums', cell: (r) => formatAccounting(seniorityYears(r.joinDate), 2) }),
+      col('seniority', 92, { align: 'end', cellClassName: 'pr-2.5 tabular-nums', cell: (r) => formatAccounting(seniorityYears(r.joinDate), 1) }),
       col('contract', 100, { cell: (r) => (r.contract ? <TwoLine main={t(`contract.${r.contract}.label`)} sub={t(`contract.${r.contract}.sub`)} /> : <Dash />) }),
       col('position', 92, { cell: (r) => <TwoLine main={<span className="font-medium">{r.position}</span>} sub={r.positionName} /> }),
       col('promotionCount', 136, {
@@ -163,7 +164,7 @@ export function buildColumns({ t, role, status, issues, edit, collapsed, toggle 
           );
         },
       }),
-      col('newTitle', 152, {
+      col('newTitle', 176, {
         field: true,
         cell: (r) => {
           if (!hasPromotion(r.type)) return <Dash />;
@@ -284,7 +285,7 @@ export function buildColumns({ t, role, status, issues, edit, collapsed, toggle 
           );
         },
       }),
-      col('boardTitle', 152, {
+      col('boardTitle', 176, {
         field: true,
         cell: (r) => {
           const type = boardTypeOf(r);
@@ -330,17 +331,17 @@ export function buildColumns({ t, role, status, issues, edit, collapsed, toggle 
           const missing = issues.get(r.psk) === 'rejectReason';
           return (
             <span className={cn('flex w-full flex-col gap-1', rejected && 'text-danger-text')}>
-              <TwoLine main={<span className="font-semibold">{t(`decision.${type}.label`)}</span>} sub={<span className={cn(rejected && 'text-danger-text')}>{t(`decision.${type}.hint`)}</span>} />
+              {/* Từ chối: bỏ dòng gợi ý tiếng Anh để nhường chỗ cho lý do. */}
+              <TwoLine main={<span className="font-semibold">{t(`decision.${type}.label`)}</span>} sub={rejected ? undefined : t(`decision.${type}.hint`)} />
               {rejected &&
                 (can('boardReason') ? (
-                  <textarea
-                    rows={2}
+                  <AutoTextarea
                     value={r.board?.reason ?? ''}
                     onChange={(e) => edit(r, { boardReason: e.target.value })}
                     placeholder={t('rejectReasonPlaceholder')}
                     aria-label={t('fields.boardReason', { name: r.name })}
                     aria-invalid={missing || undefined}
-                    className={cn(fieldClass, 'resize-none px-2 py-1.5 leading-[1.35] text-danger-text placeholder:text-danger-text/70', missing ? 'border-danger-text' : 'border-danger-border')}
+                    className={cn(fieldClass, 'px-2 py-1.5 leading-[1.35] text-danger-text placeholder:text-danger-text/70', missing ? 'border-danger-text' : 'border-danger-border')}
                   />
                 ) : (
                   <span className="whitespace-pre-line">{r.board?.reason || t('rejectReasonPlaceholder')}</span>
@@ -371,11 +372,25 @@ export function buildColumns({ t, role, status, issues, edit, collapsed, toggle 
         <span className="flex flex-col gap-px">
           <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs leading-tight font-semibold">
             {name}
+            {/* Quyền xem lương: icon khóa, câu nguyên văn file (Việt + Trung) trong tooltip. */}
             {g === 'salary' && (
-              <Tooltip content={t('salaryLock')} side="top" sideOffset={6}>
-                <span tabIndex={0} className="inline-flex h-[18px] items-center gap-1 rounded-full bg-card px-1.5 text-[10.5px] font-semibold text-text-secondary outline-none focus-visible:ring-2 focus-visible:ring-ring/50">
+              <Tooltip
+                content={
+                  <span className="flex max-w-80 flex-col gap-1 text-left whitespace-normal">
+                    <span>{t('salaryLock.text')}</span>
+                    <span className="opacity-80">{t('salaryLock.sub')}</span>
+                  </span>
+                }
+                side="top"
+                sideOffset={6}
+              >
+                <span
+                  tabIndex={0}
+                  role="img"
+                  aria-label={`${t('salaryLock.label')}: ${t('salaryLock.text')}`}
+                  className="inline-flex size-5 cursor-help items-center justify-center rounded-md bg-card text-text-secondary outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                >
                   <Lock aria-hidden="true" className="size-3" />
-                  {t('salaryLockShort')}
                 </span>
               </Tooltip>
             )}

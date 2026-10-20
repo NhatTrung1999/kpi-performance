@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode, type TextareaHTMLAttributes } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, ChevronDown, Info, Lock } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger, onListKeyDown } from '@/components/ui/popover';
@@ -13,8 +13,11 @@ export const fieldClass =
 const optionClass =
   'flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-lg px-2.5 py-1.5 text-xs outline-none hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-brand/50';
 
-/** `short` = nhãn ngắn hiện trên ô khi đã chọn (ô hẹp). */
-export type SelectOption<K extends string> = { key: K; label: string; hint?: string; short?: string };
+/**
+ * `short` = nhãn ngắn hiện trên ô khi đã chọn (ô hẹp).
+ * `sub` = dòng thứ hai của nhãn (vd. mã chức danh + tên hệ thống), hiện cả trên ô đã chọn lẫn trong danh sách.
+ */
+export type SelectOption<K extends string> = { key: K; label: string; sub?: string; hint?: string; short?: string };
 
 /** Ô chọn một giá trị (Popover + listbox), mỗi lựa chọn có dòng gợi ý phụ. */
 export function SelectCell<K extends string>({
@@ -53,7 +56,11 @@ export function SelectCell<K extends string>({
           danger ? 'border-danger-border text-danger-text' : invalid ? 'border-danger-text' : 'border-border'
         )}
       >
-        <span className={cn('line-clamp-2 min-w-0 flex-1', !current && 'font-normal text-placeholder')}>{current ? (current.short ?? current.label) : placeholder}</span>
+        {/* Không cắt chữ: nhãn dài xuống dòng, ô cao theo nội dung. */}
+        <span className={cn('flex min-w-0 flex-1 flex-col gap-px break-words', !current && 'font-normal text-placeholder')}>
+          <span>{current ? (current.short ?? current.label) : placeholder}</span>
+          {current?.sub && <span className="text-[11px] font-normal text-muted-foreground">{current.sub}</span>}
+        </span>
         <ChevronDown aria-hidden="true" className="size-3 flex-none text-muted-foreground" />
       </PopoverTrigger>
       <PopoverContent className="p-1" style={{ minWidth }} onKeyDown={onListKeyDown}>
@@ -67,7 +74,10 @@ export function SelectCell<K extends string>({
             return (
               <div key={o.key} role="option" aria-selected={sel} tabIndex={-1} onClick={pick} onKeyDown={(e) => e.key === 'Enter' && pick()} className={cn(optionClass, sel && 'bg-accent text-accent-foreground')}>
                 <span className="flex flex-col gap-px">
-                  <span className="font-medium">{o.label}</span>
+                  <span className="font-medium">
+                    {o.label}
+                    {o.sub && <span className="font-normal text-muted-foreground"> · {o.sub}</span>}
+                  </span>
                   {o.hint && <span className="text-[11px] text-muted-foreground">{o.hint}</span>}
                 </span>
                 {sel && <Check aria-hidden="true" className="size-3.5 flex-none text-brand-text" />}
@@ -141,6 +151,21 @@ export function LongTextCell({
       </PopoverContent>
     </Popover>
   );
+}
+
+/**
+ * Ô nhập nhiều dòng tự giãn chiều cao theo nội dung (bắt đầu 1 dòng, không che chữ, không thanh cuộn).
+ * Dùng CSS `field-sizing: content`; trình duyệt chưa hỗ trợ thì tính chiều cao bằng scrollHeight.
+ */
+export function AutoTextarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || (typeof CSS !== 'undefined' && CSS.supports?.('field-sizing', 'content'))) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight + el.offsetHeight - el.clientHeight}px`;
+  }, [props.value]);
+  return <textarea ref={ref} rows={1} {...props} className={cn('field-sizing-content resize-none overflow-hidden', className)} />;
 }
 
 export type HistoryEntry = { date: string; amount?: number };

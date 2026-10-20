@@ -14,6 +14,8 @@ import {
   canEdit,
   canView,
   EFFECTIVE_DATE,
+  hasPromotion,
+  hasRaise,
   ORG_CHART,
   POSITION_CODES,
   type BoardType,
@@ -136,6 +138,9 @@ export type ReviewGroup = {
   savedAt: string | null;
   /** Số nhân viên được CQ đề xuất trong nhóm. */
   proposed: number;
+  /** Số đề xuất thăng chức / tăng lương của CQ (cột Promotion Qty / Salary raise Qty của sheet SUM). */
+  promotions: number;
+  raises: number;
 };
 
 export type PromotionPeriod = { id: string; month: string; effectiveDate: string; deadline: string };
@@ -157,7 +162,7 @@ const PERIOD: PromotionPeriod = { id: '2026-10', month: '2026-10', effectiveDate
 
 // ───────── Dữ liệu mẫu ─────────
 
-type GroupSeed = Omit<ReviewGroup, 'savedAt' | 'proposed'>;
+type GroupSeed = Omit<ReviewGroup, 'savedAt' | 'proposed' | 'promotions' | 'raises'>;
 const sampleChart = (name: string, size: number): OrgChartFile => ({ name, size, type: 'application/pdf', uploadedAt: '2026-09-05' });
 
 const GROUPS: GroupSeed[] = [
@@ -391,13 +396,17 @@ const rowsOf = (stored: Stored, groupId: string) =>
 
 const groupOf = (stored: Stored, seed: GroupSeed): ReviewGroup => {
   const s = stored[seed.id] ?? {};
+  const rows = rowsOf(stored, seed.id);
   return {
     ...seed,
     status: s.status ?? seed.status,
     returnReason: s.returnReason !== undefined ? s.returnReason : seed.returnReason,
     orgCharts: s.orgCharts ?? seed.orgCharts,
     savedAt: s.savedAt ?? null,
-    proposed: rowsOf(stored, seed.id).filter((r) => r.type !== 'none').length };
+    proposed: rows.filter((r) => r.type !== 'none').length,
+    promotions: rows.filter((r) => hasPromotion(r.type)).length,
+    raises: rows.filter((r) => hasRaise(r.type)).length,
+  };
 };
 
 /** Nhóm mặc định: CQ → nhóm đang lập/bị trả lại; BLĐ, HR, KT → nhóm chờ duyệt; còn lại nhóm đầu tiên. */
@@ -453,7 +462,10 @@ export async function approvePromotionProposal(viewer: PromotionViewer, groupId:
   return delay({ savedAt });
 }
 
-/** BLĐ trả lại cho CQ (bắt buộc lý do); nhóm về trạng thái CQ sửa được. */
+/**
+ * BLĐ trả lại cho CQ (bắt buộc lý do); nhóm về trạng thái CQ sửa được.
+ * TODO(chị Kitty): xác nhận có tính năng "Trả lại CQ" (file chỉ mô tả Phê duyệt / Từ chối từng dòng).
+ */
 export async function returnPromotionProposal(viewer: PromotionViewer, groupId: string, reason: string, edits: Record<string, PromotionEdit>) {
   const stored = read();
   const group = scopedGroup(viewer, stored, groupId);

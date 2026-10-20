@@ -318,7 +318,7 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
             <Label tooltip={c.tooltip} className={cn("flex max-w-full flex-col gap-px", c.align === "end" && "items-end")}>
               <span className={cn("max-w-full font-medium text-foreground", wrapHeaders ? "text-balance" : "truncate")}>{c.header}</span>
               <span className={cn("max-w-full text-[11px] text-muted-foreground", wrapHeaders ? "text-balance" : "truncate")}>{c.sub ?? " "}</span>
-              {wrapHeaders && c.note && <span className="mt-0.5 max-w-full text-[10.5px] leading-tight text-muted-foreground italic">{c.note}</span>}
+              {wrapHeaders && c.note && <span className="mt-0.5 max-w-full text-[10.5px] leading-tight font-normal text-pretty text-muted-foreground">{c.note}</span>}
             </Label>
             {c.filter && (
               <button
