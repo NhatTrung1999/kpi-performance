@@ -1,10 +1,10 @@
-import { CalendarRange, FileText, History, ShieldCheck, type LucideIcon } from 'lucide-react';
+import { CalendarRange, FileText, History, ShieldCheck, TrendingUp, type LucideIcon } from 'lucide-react';
 import type { AppRole } from '@/lib/session';
 
 export type NavGroup = 'proposal' | 'admin';
 
 /** Key trong namespace `nav` (src/i18n/locales/<lng>/nav.json). */
-export type NavKey = 'periods' | 'proposals' | 'history' | 'roles';
+export type NavKey = 'periods' | 'proposals' | 'promotions' | 'history' | 'roles';
 
 export type RouteMeta = {
   /** Key dịch của tiêu đề trang (namespace `nav`). */
@@ -16,22 +16,24 @@ export type RouteMeta = {
 
 /**
  * Một nguồn cho tiêu đề, quyền truy cập và sidebar. Trang mới chỉ cần thêm một dòng.
- * Hệ thống chỉ dành cho Chủ quản (CQ), Ban lãnh đạo (BLD) và Admin (AD) — không có trang cho nhân viên.
- * Chỉ Admin có sidebar (xem SIDEBAR_ROLES); CQ và BLD chỉ có trang Đề xuất KPI.
+ * Hệ thống dành cho Admin (AD), Chủ quản (CQ), Ban lãnh đạo (BLD), Nhân sự (HR) và Kế toán (KT) — không có trang cho nhân viên.
+ * AD, CQ, BLD có sidebar (xem SIDEBAR_ROLES); HR và KT chỉ có trang Thăng chức & lương.
  */
 export const ROUTE_META: Record<string, RouteMeta> = {
   '/periods': { title: 'periods', roles: ['AD'], nav: { icon: CalendarRange, group: 'proposal' } },
   // CQ: lập đề xuất cho các bộ phận được gán; BLD: tạm thời chỉ xem; AD: xem/sửa mọi bộ phận.
   '/proposals': { title: 'proposals', roles: ['AD', 'CQ', 'BLD'], nav: { icon: FileText, group: 'proposal' } },
+  // Quyền xem/sửa theo nhóm cột: config/promotion-proposal.ts.
+  '/promotions': { title: 'promotions', roles: ['AD', 'CQ', 'BLD', 'HR', 'KT'], nav: { icon: TrendingUp, group: 'proposal' } },
   '/history': { title: 'history', roles: ['AD'], nav: { icon: History, group: 'proposal' } },
   '/roles': { title: 'roles', roles: ['AD'], nav: { icon: ShieldCheck, group: 'admin' } },
 };
 
-/** Trang chủ sau đăng nhập (mọi vai trò được vào). */
+/** Trang chủ mặc định sau đăng nhập. */
 export const HOME_PATH = '/proposals';
 
-/** Vai trò có sidebar; vai trò khác chỉ có thanh trên. */
-export const SIDEBAR_ROLES: AppRole[] = ['AD'];
+/** Vai trò có sidebar (có từ hai trang trở lên); vai trò khác chỉ có thanh trên. */
+export const SIDEBAR_ROLES: AppRole[] = ['AD', 'CQ', 'BLD'];
 
 /** Key dịch của nhãn nhóm (namespace `nav`, mục `groups`); `null` = không có nhãn. */
 export const NAV_GROUP_LABEL: Record<NavGroup, 'proposal' | 'admin' | null> = { proposal: 'proposal', admin: 'admin' };
@@ -47,3 +49,7 @@ export const canAccess = (meta: RouteMeta | undefined, role: AppRole) =>
 
 export const metaOf = (pathname: string): RouteMeta | undefined =>
   ROUTE_META[pathname.replace(/\/+$/, '') || '/'];
+
+/** Trang chủ theo vai trò: HOME_PATH nếu được vào, ngược lại trang đầu tiên vai trò được vào (HR, KT → /promotions). */
+export const homeOf = (role: AppRole) =>
+  canAccess(ROUTE_META[HOME_PATH], role) ? HOME_PATH : (Object.keys(ROUTE_META).find((p) => canAccess(ROUTE_META[p], role)) ?? HOME_PATH);

@@ -11,6 +11,8 @@
     "AD": "Admin portal",
     "CQ": "Manager portal",
     "BLD": "Board of directors",
+    "HR": "Human resources",
+    "KT": "Accounting",
     "NV": "Employee portal"
   },
   "period": {

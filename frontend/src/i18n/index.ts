@@ -8,18 +8,20 @@ import roles from './locales/en/roles.json';
 import dashboard from './locales/en/dashboard.json';
 import team from './locales/en/team.json';
 import proposal from './locales/en/proposal.json';
+import promotion from './locales/en/promotion.json';
 import viCommon from './locales/vi/common.json';
 import viNav from './locales/vi/nav.json';
 import viAuth from './locales/vi/auth.json';
 import viErrors from './locales/vi/errors.json';
 import viRoles from './locales/vi/roles.json';
 import viProposal from './locales/vi/proposal.json';
+import viPromotion from './locales/vi/promotion.json';
 
 /** Bản dịch gốc (tiếng Anh) — kiểu của nó là nguồn cho key có kiểm tra (xem i18next.d.ts). */
-export const resources = { common, nav, auth, errors, roles, dashboard, team, proposal } as const;
+export const resources = { common, nav, auth, errors, roles, dashboard, team, proposal, promotion } as const;
 
 /** Namespace của các trang đang dùng; `dashboard`, `team` thuộc các trang cũ đã gỡ khỏi menu nên chỉ có tiếng Anh. */
-type ActiveNs = 'common' | 'nav' | 'auth' | 'errors' | 'roles' | 'proposal';
+type ActiveNs = 'common' | 'nav' | 'auth' | 'errors' | 'roles' | 'proposal' | 'promotion';
 
 /** Tiếng Việt: kiểm tra kiểu theo bản tiếng Anh để không thiếu key. */
 const vi: { [K in ActiveNs]: (typeof resources)[K] } = {
@@ -29,6 +31,7 @@ const vi: { [K in ActiveNs]: (typeof resources)[K] } = {
   errors: viErrors,
   roles: viRoles,
   proposal: viProposal,
+  promotion: viPromotion,
 };
 
 export const DEFAULT_LANGUAGE = 'vi';

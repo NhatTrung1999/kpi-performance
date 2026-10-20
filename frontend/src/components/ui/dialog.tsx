@@ -20,10 +20,14 @@ type ConfirmDialogProps = {
   onConfirm: () => void
   /** `danger` = nút xác nhận màu đỏ (vd. Log out, xoá). */
   tone?: "default" | "danger"
+  /** Nội dung thêm giữa mô tả và các nút (vd. ô lý do bắt buộc). */
+  children?: React.ReactNode
+  /** Khóa nút xác nhận (vd. chưa nhập lý do). */
+  confirmDisabled?: boolean
 }
 
 /** Hộp xác nhận chặn (alert dialog), vd. "You have unsaved changes". Tiêu điểm mặc định ở nút Cancel. */
-function ConfirmDialog({ open, onOpenChange, title, description, confirmLabel = "Confirm", cancelLabel = "Cancel", onConfirm, tone = "default" }: ConfirmDialogProps) {
+function ConfirmDialog({ open, onOpenChange, title, description, confirmLabel = "Confirm", cancelLabel = "Cancel", onConfirm, tone = "default", children, confirmDisabled }: ConfirmDialogProps) {
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
@@ -38,9 +42,10 @@ function ConfirmDialog({ open, onOpenChange, title, description, confirmLabel = 
               {description && <AlertDialog.Description className="text-sm leading-normal text-muted-foreground">{description}</AlertDialog.Description>}
             </div>
           </div>
+          {children}
           <div className="flex justify-end gap-2">
             <AlertDialog.Close render={<Button variant="outline" size="lg" className="px-3.5" />}>{cancelLabel}</AlertDialog.Close>
-            <Button variant={tone === "danger" ? "destructive" : "default"} size="lg" className="px-3.5" onClick={onConfirm}>
+            <Button variant={tone === "danger" ? "destructive" : "default"} size="lg" className="px-3.5" onClick={onConfirm} disabled={confirmDisabled}>
               {confirmLabel}
             </Button>
           </div>

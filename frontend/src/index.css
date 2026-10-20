@@ -51,6 +51,15 @@
     --color-grid-locked: var(--grid-locked);
     --color-grid-row-muted: var(--grid-row-muted);
     --color-grid-row-alt: var(--grid-row-alt);
+    --color-grid-group-warn: var(--grid-group-warn);
+    --color-grid-head-warn: var(--grid-head-warn);
+    --color-grid-group-info: var(--grid-group-info);
+    --color-grid-head-info: var(--grid-head-info);
+    --color-grid-group-salary: var(--grid-group-salary);
+    --color-grid-head-salary: var(--grid-head-salary);
+    --color-grid-group-success: var(--grid-group-success);
+    --color-grid-head-success: var(--grid-head-success);
+    --color-grid-row-danger: var(--grid-row-danger);
 
     /* Đổ bóng */
     --shadow-glass: var(--shadow-glass-value);
@@ -62,6 +71,7 @@
     --shadow-card: var(--shadow-card-value);
     --shadow-panel: var(--shadow-panel-value);
     --shadow-grid-footer: var(--shadow-grid-footer-value);
+    --shadow-grid-pin: var(--shadow-grid-pin-value);
     --shadow-nav: var(--shadow-nav-value);
 
     /* Gradient chính */
@@ -141,6 +151,15 @@
     --grid-locked: #F5F6F8; /* cột chỉ người khác cập nhật (≈ muted 80%) */
     --grid-row-muted: var(--muted); /* dòng làm mờ (vd. tạm hoãn, sắp thôi việc) */
     --grid-row-alt: #FBFCFC; /* dòng xen kẽ khi bảng có sọc (≈ muted 30% trên card) */
+    --grid-group-warn: #FEF3D6; /* hàng nhóm cột tô vàng nhạt (vd. CQ tự điền) */
+    --grid-head-warn: #FFFAEB;
+    --grid-group-info: #E6EFFD; /* hàng nhóm cột tô xanh dương nhạt (vd. hệ thống KPI, BLĐ) */
+    --grid-head-info: #F3F7FE;
+    --grid-group-salary: #FCEBB6; /* nhóm cột lương (các cột tô vàng của mẫu Excel) */
+    --grid-head-salary: #FEF5DA;
+    --grid-group-success: #E3F6EC; /* hàng nhóm cột tô xanh lá nhạt (vd. ý kiến nhân sự) */
+    --grid-head-success: #F2FBF6;
+    --grid-row-danger: #FEF4F4; /* dòng bị từ chối (≈ danger-soft) */
 
     /* Thương hiệu */
     --brand: #6366F1; /* ring, điểm nhấn */
@@ -183,6 +202,7 @@
     --shadow-panel-value: 0 0 0 1px rgb(17 24 39 / 0.03), 0 10px 32px -12px rgb(17 24 39 / 0.14);
     --shadow-nav-value: 0 1px 2px rgb(17 24 39 / 0.06), 0 2px 8px -2px rgb(17 24 39 / 0.08);
     --shadow-grid-footer-value: 0 -8px 12px -8px rgb(17 24 39 / 0.18); /* bóng phía trên dòng tổng DataGrid khi còn dòng bị che */
+    --shadow-grid-pin-value: 8px 0 10px -6px rgb(17 24 39 / 0.22); /* bóng mép phải các cột cố định của DataGrid khi đã cuộn ngang */
 
     --chart-1: #6366F1;
     --chart-2: #3B82F6;
@@ -228,6 +248,15 @@
     --grid-locked: #202027;
     --grid-row-muted: #23232A;
     --grid-row-alt: #19191F;
+    --grid-group-warn: #2C261D;
+    --grid-head-warn: #231F1C;
+    --grid-group-info: #1F293B;
+    --grid-head-info: #1A1F2C;
+    --grid-group-salary: #3A301D;
+    --grid-head-salary: #2A241D;
+    --grid-group-success: #142928;
+    --grid-head-success: #151F22;
+    --grid-row-danger: #2C1E24;
 
     --brand: #818CF8;
     --brand-from: #4F46E5;
@@ -267,6 +296,7 @@
     --shadow-panel-value: 0 0 0 1px rgb(255 255 255 / 0.05), 0 10px 32px -12px rgb(0 0 0 / 0.6);
     --shadow-nav-value: 0 0 0 1px rgb(255 255 255 / 0.06), 0 2px 8px -2px rgb(0 0 0 / 0.5);
     --shadow-grid-footer-value: 0 -8px 14px -8px rgb(0 0 0 / 0.7);
+    --shadow-grid-pin-value: 8px 0 12px -6px rgb(0 0 0 / 0.75);
 
     --chart-1: #818CF8;
     --chart-2: #60A5FA;

@@ -3,10 +3,11 @@ import i18n from '@/i18n';
 import { useAuthStore, type ServerUser } from '@/stores/auth';
 
 /**
- * AD = Admin, CQ = Chủ quản, BLD = Ban lãnh đạo (duyệt đề xuất), NV = Nhân viên.
+ * AD = Admin, CQ = Chủ quản, BLD = Ban lãnh đạo (duyệt đề xuất), HR = Nhân sự, KT = Kế toán, NV = Nhân viên.
+ * HR và KT chỉ tham gia màn Thăng chức & lương (ý kiến nhân sự, lương tạm tính).
  * Hệ thống không dành cho nhân viên: NV chỉ là giá trị dự phòng khi không xác định được vai trò (server trả 403 khi đăng nhập).
  */
-export type AppRole = 'AD' | 'CQ' | 'BLD' | 'NV';
+export type AppRole = 'AD' | 'CQ' | 'BLD' | 'HR' | 'KT' | 'NV';
 
 /** Tên cổng theo vai trò, theo ngôn ngữ hiện tại. */
 export const portalOf = (role: AppRole) => i18n.t(`portal.${role}`);
@@ -17,6 +18,8 @@ const ROLE_ALIASES: Record<string, AppRole> = {
   AD: 'AD', ADMIN: 'AD',
   CQ: 'CQ', MANAGER: 'CQ',
   BLD: 'BLD', BOARD: 'BLD', DIRECTOR: 'BLD',
+  HR: 'HR', NS: 'HR',
+  KT: 'KT', ACCOUNTING: 'KT', ACCOUNTANT: 'KT',
   NV: 'NV', EMPLOYEE: 'NV', STAFF: 'NV',
 };
 

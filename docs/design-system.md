@@ -56,6 +56,22 @@ Quy tắc chung:
 | `--border-strong` | `border-border-strong` | `#D1D5DB` | `rgb(255 255 255 / .2)` |
 | `--glass`, `--glass-border` | `bg-glass`, `border-glass-border` | `rgb(255 255 255 / .75)`, `/ .8` | `rgb(16 16 24 / .7)`, `rgb(255 255 255 / .1)` |
 
+### Bảng dữ liệu (`DataGrid`)
+Mọi token dưới đây là màu **đục** (hex đã pha sẵn trên `card`) vì nằm trên ô dính (sticky): nội dung cuộn qua không được lộ ra. Không dùng `color-mix()` trong `:root`/`.dark`.
+
+| Token | Class | Sáng | Tối | Dùng cho |
+|---|---|---|---|---|
+| `--grid-group-read` / `--grid-head-read` | `bg-grid-group-read` / `bg-grid-head-read` | `#F7F7F9` / `#FBFBFC` | `#1F1F26` / `#1A1A21` | nhóm cột chỉ đọc (tông `read`) |
+| `--grid-group-input` / `--grid-head-input` | `bg-grid-group-input` / `bg-grid-head-input` | `#F1F5FF` / `#F8FAFF` | `#222336` / `#1C1C29` | nhóm cột nhập liệu (tông `input`) |
+| `--grid-group-warn` / `--grid-head-warn` | `bg-grid-group-warn` / `bg-grid-head-warn` | `#FEF3D6` / `#FFFAEB` | `#2C261D` / `#231F1C` | tông `warn` (vd. CQ tự điền) |
+| `--grid-group-info` / `--grid-head-info` | `bg-grid-group-info` / `bg-grid-head-info` | `#E6EFFD` / `#F3F7FE` | `#1F293B` / `#1A1F2C` | tông `info` (vd. hệ thống KPI, BLĐ) |
+| `--grid-group-salary` / `--grid-head-salary` | `bg-grid-group-salary` / `bg-grid-head-salary` | `#FCEBB6` / `#FEF5DA` | `#3A301D` / `#2A241D` | tông `salary` (các cột lương tô vàng) |
+| `--grid-group-success` / `--grid-head-success` | `bg-grid-group-success` / `bg-grid-head-success` | `#E3F6EC` / `#F2FBF6` | `#142928` / `#151F22` | tông `success` (vd. ý kiến nhân sự) |
+| `--grid-locked` | `bg-grid-locked` | `#F5F6F8` | `#202027` | cột chỉ người khác cập nhật |
+| `--grid-row-alt` | `bg-grid-row-alt` | `#FBFCFC` | `#19191F` | dòng xen kẽ (`striped`) |
+| `--grid-row-muted` | `bg-grid-row-muted` | `var(--muted)` | `#23232A` | dòng làm mờ |
+| `--grid-row-danger` | `bg-grid-row-danger` | `#FEF4F4` | `#2C1E24` | dòng bị từ chối |
+
 Thanh cuộn: toàn hệ thống dùng thanh mảnh (Firefox `scrollbar-width: thin`, Chrome/Edge `::-webkit-scrollbar` 8px, con trượt bo tròn ~4px) khai báo một lần trong `index.css`; không tự đặt kiểu thanh cuộn trong component.
 
 ### Font & cỡ chữ
@@ -82,7 +98,7 @@ Font: **Be Vietnam Pro** (400/500/600/700/800; subset vietnamese, latin-ext, lat
 | `rounded-hero` | 28 | **riêng trang đăng nhập**: thẻ kính |
 
 ### Đổ bóng
-`shadow-glass`, `shadow-glass-sm` (kính mờ), `shadow-brand`, `shadow-brand-hover` (nút gradient), `shadow-field` (ô nhập), `shadow-toast`, `shadow-card` (thẻ `Card variant="raised"`), `shadow-panel` (tấm nội dung của `AppShell`), `shadow-nav` (mục sidebar đang chọn). Giá trị đổi theo sáng/tối trong `index.css`. Trang bên trong: ưu tiên không đổ bóng, dùng viền `border-border`.
+`shadow-glass`, `shadow-glass-sm` (kính mờ), `shadow-brand`, `shadow-brand-hover` (nút gradient), `shadow-field` (ô nhập), `shadow-toast`, `shadow-card` (thẻ `Card variant="raised"`), `shadow-panel` (tấm nội dung của `AppShell`), `shadow-nav` (mục sidebar đang chọn), `shadow-grid-footer` (trên dòng tổng `DataGrid` khi còn dòng bị che), `shadow-grid-pin` (mép phải các cột cố định của `DataGrid` khi đã cuộn ngang). Giá trị đổi theo sáng/tối trong `index.css`. Trang bên trong: ưu tiên không đổ bóng, dùng viền `border-border`.
 
 ## Component (`components/ui`)
 
@@ -103,7 +119,9 @@ Font: **Be Vietnam Pro** (400/500/600/700/800; subset vietnamese, latin-ext, lat
 | `SidebarToggle` | `collapsed`, `onToggle`, `labels`, `shortcut` | mờ khi chuột không ở trên sidebar; tooltip kèm phím tắt |
 | `AccountMenu` / `Avatar` | `name`, `title`, `email`, `initials`, `items [{label, icon, shortcut, tone, separatorBefore, onSelect}]` | menu tài khoản duy nhất, ở avatar góc trên phải |
 | `Tooltip` / `Kbd` | `content`, `shortcut`, `side`, `disabled` | Kbd = chip phím tắt |
-| `Dialog` / `ConfirmDialog` | `open`, `onOpenChange`, `title`, `description`; confirm: `onConfirm`, `tone` | ConfirmDialog = alert dialog (vd. thay đổi chưa lưu) |
+| `Dialog` / `ConfirmDialog` | `open`, `onOpenChange`, `title`, `description`; confirm: `onConfirm`, `tone`, `children`, `confirmDisabled` | ConfirmDialog = alert dialog (vd. thay đổi chưa lưu); `children` + `confirmDisabled` cho ô lý do bắt buộc |
+| `DataGrid` | `columns` (`header`, `sub`, `note`, `width`, `pinned`, `tone`, `cell`, `footer`, `filter`), `groups` (`span`, `label`, `tone`, `marker`, `collapse`), `striped`, `wrapHeaders`, `rowAccent`, `footerLabel` | bảng rộng: nhóm cột + tiêu đề dính trên, cột `pinned` dính trái (bóng mờ khi cuộn), dòng tổng dính dưới; nhóm vắt qua mép cố định tự tách đôi; `collapse` thu gọn nhóm thành cột 40px; `wrapHeaders` cho tiêu đề dài xuống dòng |
+| `AbcChip` | `count`, `grade`, `tone` | chip bình bầu A-B-C, màu theo mức, không theo màu dòng |
 | `MetricCard` / `Eyebrow` / `Pill` | `label`, `tag`, `value`, `unit`, `caption`, `footer` | thẻ số liệu trang Overview (`Card variant="raised"`) |
 | `TrendChart` / `Sparkline` | `points`, `min`, `max`, `ticks`, `target`, `callout`, `labelEvery` | đường cong mượt có vùng gradient, tooltip từng điểm, đường vẽ dần (tắt khi giảm chuyển động) |
 | `Toast` | `<Toaster />` đặt một lần ở `App`; `toast.success/error/warning(...)` | dùng cho kết quả thao tác tạm thời; lỗi cần ở lại trong form dùng `FormAlert` |

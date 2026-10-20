@@ -2,10 +2,12 @@ import { ShieldAlert } from 'lucide-react';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { HOME_PATH } from '@/routes/config';
+import { useCurrentUser } from '@/lib/session';
+import { homeOf } from '@/routes/config';
 
 const Forbidden = () => {
   const { t } = useTranslation();
+  const { role } = useCurrentUser();
   return (
   <>
     <main className="flex flex-1 items-center justify-center p-6">
@@ -15,7 +17,7 @@ const Forbidden = () => {
         </div>
         <h2 className="text-xl font-bold">{t('forbidden.heading')}</h2>
         <p className="text-muted-foreground">{t('forbidden.description')}</p>
-        <Button size="lg" render={<Link to={HOME_PATH} />} nativeButton={false} className="mt-2 h-10 px-4">
+        <Button size="lg" render={<Link to={homeOf(role)} />} nativeButton={false} className="mt-2 h-10 px-4">
           {t('forbidden.back')}
         </Button>
       </div>

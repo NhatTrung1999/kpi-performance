@@ -6,12 +6,15 @@ import type { AppRole } from './session';
  * Backend giả CHỈ cho môi trường phát triển (xem điều kiện ở axios.ts).
  * Bật bằng VITE_MOCK_AUTH=true trong .env.local. Mật khẩu chung: dev12345.
  * Chỉ giả lập /auth/login và /auth/me; mọi URL khác vẫn đi tới backend thật.
+ * Nhân sự (hr.dev) và Kế toán (ketoan.dev) chỉ vào được màn Thăng chức & lương.
  * Nhân viên (nhanvien.dev) đúng mật khẩu vẫn bị từ chối 403 NO_ACCESS như backend thật.
  */
 const ACCOUNTS: Record<string, { name: string; title: string; email: string; role: AppRole }> = {
   'admin.dev': { name: 'Lê Quản Trị', title: 'System administrator', email: 'admin.dev@example.com', role: 'AD' },
   'chuquan.dev': { name: 'Phạm Chủ Quản', title: 'Department head', email: 'chuquan.dev@example.com', role: 'CQ' },
   'bld.dev': { name: 'Võ Lãnh Đạo', title: 'Board of directors', email: 'bld.dev@example.com', role: 'BLD' },
+  'hr.dev': { name: 'Đỗ Nhân Sự', title: 'HR specialist', email: 'hr.dev@example.com', role: 'HR' },
+  'ketoan.dev': { name: 'Hồ Kế Toán', title: 'Accountant', email: 'ketoan.dev@example.com', role: 'KT' },
   'nhanvien.dev': { name: 'Trần Minh Anh', title: 'Specialist', email: 'nhanvien.dev@example.com', role: 'NV' },
 };
 const PASSWORD = 'dev12345';
@@ -45,5 +48,5 @@ export function installMockAuth(api: AxiosInstance) {
     return realAdapter(config);
   };
   api.defaults.adapter = mock;
-  console.info('[mock-auth] Using the fake backend for /auth — accounts: admin.dev, chuquan.dev, bld.dev (nhanvien.dev → 403) / dev12345');
+  console.info('[mock-auth] Using the fake backend for /auth — accounts: admin.dev, chuquan.dev, bld.dev, hr.dev, ketoan.dev (nhanvien.dev → 403) / dev12345');
 }
