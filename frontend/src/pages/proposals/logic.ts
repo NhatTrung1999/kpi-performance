@@ -11,9 +11,6 @@ export const nextOf = (row: Pick<ProposalRow, 'next'>) => row.next ?? 0;
 /** Chênh lệch = số kỳ này − số kỳ trước. */
 export const diffOf = (row: Pick<ProposalRow, 'next' | 'prev'>) => nextOf(row) - row.prev;
 
-/** % thay đổi so với kỳ trước; kỳ trước = 0 thì không tính được → `null`. */
-export const percentOf = (prev: number, next: number) => (prev === 0 ? null : ((next - prev) / prev) * 100);
-
 /** Dòng tổng: cộng TẤT CẢ các dòng truyền vào (kể cả dòng nền xám, dòng bằng 0, dòng chưa nhập kỳ này). */
 export function summarize(rows: readonly Pick<ProposalRow, 'prev' | 'next'>[]) {
   const prev = rows.reduce((s, r) => s + r.prev, 0);

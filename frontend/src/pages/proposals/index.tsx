@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Check, ChevronDown, FileText, Search, TriangleAlert } from 'lucide-react';
 import { AbcChip } from '@/components/ui/abc-chip';
 import { Button } from '@/components/ui/button';
-import { DataGrid, type DataGridColumn, type DataGridGroup } from '@/components/ui/data-grid';
+import { DataGrid, type DataGridColumn } from '@/components/ui/data-grid';
 import { ConfirmDialog } from '@/components/ui/dialog';
 import { FormAlert } from '@/components/ui/form-alert';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import { toast } from '@/components/ui/toast';
 import { Tooltip } from '@/components/ui/tooltip';
 import { ABC_RULES, canEdit, isEditor, PROPOSAL_RESULTS, type EditableField, type ProposalResult } from '@/config/kpi-proposal';
 import { parseAbcRatings } from '@/lib/abc';
-import { formatAccounting, formatMoney, formatMonthRange, formatPercent, formatPeriodShort, formatSlashDate, formatTime } from '@/lib/format';
+import { formatAccounting, formatMoney, formatPeriodLabel, formatPeriodShort, formatSlashDate, formatTime } from '@/lib/format';
 import { useCurrentUser } from '@/lib/session';
 import { useUnsavedChanges } from '@/lib/unsaved-changes';
 import { cn } from '@/lib/utils';
@@ -24,8 +24,6 @@ import {
   abcChipTone,
   diffOf,
   isMutedRow,
-  nextOf,
-  percentOf,
   resultAccentClass,
   resultTextClass,
   summarize,
@@ -49,23 +47,25 @@ const optionClass =
 
 type ConfirmMode = 'submit' | 'approve' | 'return';
 
-/** % thay đổi: giảm trong ngoặc đơn như số tiền; kỳ trước = 0 mà kỳ này có tiền → "Mới". */
-const changeText = (prev: number, next: number, newLabel: string) => {
-  const pct = percentOf(prev, next);
-  if (pct === null) return next > 0 ? newLabel : '';
-  return pct < 0 ? `(${formatPercent(-pct)})` : formatPercent(pct);
+/**
+ * Nhóm cột theo dòng 2 sheet SUMMARY. Màn này không có hàng nhóm: nhãn nhóm (nguyên văn) là tooltip của tiêu đề cột.
+ * Ghi chú và Quyết định của BLĐ không thuộc nhóm nào.
+ */
+type ColumnGroup = 'hr' | 'cqFill' | 'preset' | 'system' | 'cqGive' | 'auto';
+type ColumnKey =
+  | 'unit' | 'name' | 'cardNo' | 'joinDate' | 'seniority' | 'position' | 'abc' | 'status' | 'leave' | 'resignDate'
+  | 'duties' | 'result' | 'prev' | 'next' | 'diff' | 'note' | 'board';
+const COLUMN_GROUP: Partial<Record<ColumnKey, ColumnGroup>> = {
+  unit: 'hr', name: 'hr', cardNo: 'hr', joinDate: 'hr', seniority: 'hr', position: 'hr', abc: 'hr', status: 'hr', leave: 'hr', resignDate: 'hr',
+  duties: 'cqFill',
+  result: 'preset',
+  prev: 'system',
+  next: 'cqGive',
+  diff: 'auto',
 };
 
-/** Số tiền + % thay đổi ở dòng phụ, căn phải; âm thì đỏ. */
-const DiffCell = ({ prev, next, newLabel, className }: { prev: number; next: number; newLabel: string; className?: string }) => {
-  const diff = next - prev;
-  return (
-    <span className={cn('flex flex-col items-end gap-px tabular-nums', diff < 0 && 'text-danger-text', className)}>
-      <span>{formatMoney(diff)}</span>
-      <span className="text-[11px] font-normal opacity-75">{changeText(prev, next, newLabel)}</span>
-    </span>
-  );
-};
+/** Chênh lệch: âm đỏ, dương xanh dương. */
+const diffClass = (diff: number) => (diff < 0 ? 'text-danger-text' : diff > 0 ? 'text-info' : undefined);
 
 const Proposals = () => {
   const { t } = useTranslation(['proposal', 'common']);
@@ -132,63 +132,63 @@ const Proposals = () => {
   };
 
   const period = data?.period;
-  const prevRange = period ? formatMonthRange(period.prev.from, period.prev.to) : '';
-  const nextRange = period ? formatMonthRange(period.next.from, period.next.to) : '';
+  // Nhãn hai cột tiền lấy từ dữ liệu kỳ (vd. "2026 07-09", "2026 10-12"), không viết cứng.
+  const prevLabel = period ? formatPeriodLabel(period.prev.from, period.prev.to) : '';
+  const nextLabel = period ? formatPeriodLabel(period.next.from, period.next.to) : '';
   const maxIncrease = formatMoney(ABC_RULES.maxIncrease);
   const issueText = (issue: RowIssue) => t(`issue.${issue}`, { max: maxIncrease });
 
   const resultLabel = (k: ProposalResult) => t(`results.${k}.label`);
   const resultHint = (k: ProposalResult) => t(`results.${k}.hint`) || undefined;
+  /** Kết quả đánh giá 2 dòng: tiếng Việt + tiếng Anh trong ngoặc (như file). */
+  const resultText = (k: ProposalResult) => (
+    <span className="flex min-w-0 flex-1 flex-col gap-px">
+      <span className="font-medium">{resultLabel(k)}</span>
+      {resultHint(k) && <span className="text-[11px] font-normal text-muted-foreground">{resultHint(k)}</span>}
+    </span>
+  );
   const readText = (text: string | null) =>
     text ? <span className="px-0.5 whitespace-pre-wrap">{text}</span> : <span className="px-0.5 text-placeholder">{t('none')}</span>;
+  /** Tiêu đề cột: nhãn dòng 3 (+ tiếng Trung nếu có), tooltip = nhãn nhóm dòng 2. */
+  const head = (key: ColumnKey, period?: string) => {
+    const group = COLUMN_GROUP[key];
+    return { header: t(`cols.${key}.label`, { period }), sub: t(`cols.${key}.sub`) || undefined, tooltip: group && t(`groups.${group}`) };
+  };
 
   const columns: DataGridColumn<ProposalRow>[] = [
     {
-      key: 'unit', width: 68, pinned: true, header: t('cols.unit.label'), sub: t('cols.unit.sub'), tooltip: t('cols.unit.full'),
+      key: 'unit', width: 76, pinned: true, ...head('unit'),
       cellClassName: 'whitespace-nowrap text-text-secondary', cell: (r) => r.unit,
       filter: { label: t('unitFilter'), active: !!unit, onClick: () => setUnitMenu(true) },
     },
     {
-      key: 'name', width: 96, pinned: true, divider: 'end', header: t('cols.name.label'), sub: t('cols.name.sub'), tooltip: t('cols.name.full'),
+      key: 'name', width: 80, pinned: true, divider: 'end', ...head('name'),
       filter: { label: t('nameFilter'), active: !!q, onClick: () => searchRef.current?.focus() },
-      cell: (r) => (
-        <span className="flex min-w-0 flex-col gap-px">
-          <span className={cn('truncate text-[13px] font-semibold', resultTextClass(r))}>{r.name}</span>
-          <span className="truncate text-[11px] text-muted-foreground tabular-nums">{r.cardNo}</span>
-        </span>
-      ),
+      cell: (r) => <span className={cn('truncate text-[13px] font-semibold', resultTextClass(r))}>{r.name}</span>,
     },
-    { key: 'joinDate', width: 88, header: t('cols.joinDate.label'), sub: t('cols.joinDate.sub'), tooltip: t('cols.joinDate.full'), cellClassName: 'whitespace-nowrap tabular-nums', cell: (r) => formatSlashDate(r.joinDate) },
-    { key: 'seniority', width: 76, align: 'end', header: t('cols.seniority.label'), sub: t('cols.seniority.sub'), tooltip: t('cols.seniority.full'), cellClassName: 'pr-3 tabular-nums', cell: (r) => formatAccounting(r.seniority, 1) },
-    { key: 'position', width: 64, header: t('cols.position.label'), sub: t('cols.position.sub'), tooltip: t('cols.position.full'), cellClassName: 'whitespace-nowrap', cell: (r) => r.position },
+    { key: 'cardNo', width: 76, ...head('cardNo'), cellClassName: 'whitespace-nowrap text-text-secondary tabular-nums', cell: (r) => r.cardNo },
+    { key: 'joinDate', width: 88, ...head('joinDate'), cellClassName: 'whitespace-nowrap tabular-nums', cell: (r) => formatSlashDate(r.joinDate) },
+    { key: 'seniority', width: 84, align: 'end', ...head('seniority'), cellClassName: 'pr-3 tabular-nums', cell: (r) => formatAccounting(r.seniority, 1) },
+    { key: 'position', width: 76, ...head('position'), cellClassName: 'whitespace-nowrap', cell: (r) => r.position },
     {
-      key: 'abc', width: 100, header: t('cols.abc.label'), sub: t('cols.abc.sub'), tooltip: t('cols.abc.full'),
+      key: 'abc', width: 112, ...head('abc'),
       // Màu chip theo mức bình bầu, không theo màu kết quả của dòng.
       cell: (r) => (
-        <span className="flex flex-nowrap items-center gap-1">
+        <span className="flex flex-wrap items-center gap-1 py-1">
           {parseAbcRatings(r.abc).map((a, i) => (
             <AbcChip key={i} count={a.count} grade={a.grade} tone={abcChipTone(a)} />
           ))}
         </span>
       ),
     },
+    { key: 'status', width: 124, ...head('status'), cell: (r) => r.status !== 'active' && <Pill tone="neutral">{t(`status.${r.status}`)}</Pill> },
     {
-      key: 'status', width: 152, header: t('cols.status.label'), sub: t('cols.status.sub'), tooltip: t('cols.status.full'),
-      cell: (r) => {
-        if (r.status === 'active') return null;
-        const sub = r.leave
-          ? t('leaveRange', { from: formatSlashDate(r.leave.from), to: formatSlashDate(r.leave.to) })
-          : r.resignDate && t('resignOn', { date: formatSlashDate(r.resignDate) });
-        return (
-          <span className="flex flex-col items-start gap-0.5 py-1">
-            <Pill tone="neutral">{t(`status.${r.status}`)}</Pill>
-            {sub && <span className="text-[11px] whitespace-nowrap text-muted-foreground tabular-nums">{sub}</span>}
-          </span>
-        );
-      },
+      key: 'leave', width: 176, ...head('leave'), cellClassName: 'whitespace-nowrap tabular-nums',
+      cell: (r) => r.leave && t('leaveRange', { from: formatSlashDate(r.leave.from), to: formatSlashDate(r.leave.to) }),
     },
+    { key: 'resignDate', width: 92, ...head('resignDate'), cellClassName: 'whitespace-nowrap tabular-nums', cell: (r) => r.resignDate && formatSlashDate(r.resignDate) },
     {
-      key: 'duties', width: 'minmax(96px,1fr)', field: true, header: t('cols.duties.label'), sub: t('cols.duties.sub'), tooltip: t('cols.duties.full'),
+      key: 'duties', width: 'minmax(176px,1fr)', field: true, ...head('duties'),
       cell: (r) =>
         can('duties') ? (
           <textarea rows={1} value={r.duties} onChange={(e) => edit(r, { duties: e.target.value })} placeholder={t('placeholder')} aria-label={t('fields.duties', { name: r.name })} className={textareaClass} />
@@ -197,25 +197,19 @@ const Proposals = () => {
         ),
     },
     {
-      key: 'result', width: 148, field: true, header: t('cols.result.label'), sub: t('cols.result.sub'), tooltip: t('cols.result.full'),
+      key: 'result', width: 268, field: true, ...head('result'),
       cellClassName: (r) => resultTextClass(r),
       cell: (r) => {
-        if (!can('result'))
-          return (
-            <span title={resultHint(r.result)} className="line-clamp-2 px-0.5 font-medium">
-              {resultLabel(r.result)}
-            </span>
-          );
+        if (!can('result')) return <span className="flex px-0.5">{resultText(r.result)}</span>;
         const invalid = issues.get(r.psk) === 'mustReduce';
         return (
           <Popover open={resultMenu === r.psk} onOpenChange={(o) => setResultMenu(o ? r.psk : null)}>
             <PopoverTrigger
-              title={resultHint(r.result)}
               aria-label={t('fields.result', { name: r.name })}
               aria-invalid={invalid || undefined}
-              className={cn(fieldClass, 'flex min-h-8 cursor-pointer items-center gap-1.5 px-2 py-1 text-left leading-[1.3] font-medium text-inherit data-popup-open:border-brand', invalid ? 'border-danger-text' : 'border-border')}
+              className={cn(fieldClass, 'flex min-h-8 cursor-pointer items-center gap-1.5 px-2 py-1 text-left leading-[1.3] text-inherit data-popup-open:border-brand', invalid ? 'border-danger-text' : 'border-border')}
             >
-              <span className="line-clamp-2 min-w-0 flex-1">{resultLabel(r.result)}</span>
+              {resultText(r.result)}
               <ChevronDown aria-hidden="true" className="size-3 flex-none text-muted-foreground" />
             </PopoverTrigger>
             <PopoverContent className="min-w-75 p-1" onKeyDown={onListKeyDown}>
@@ -243,11 +237,11 @@ const Proposals = () => {
       },
     },
     {
-      key: 'prev', width: 88, align: 'end', header: t('cols.prev.label'), sub: t('cols.prev.sub', { range: prevRange }), tooltip: t('cols.prev.full', { range: prevRange }),
+      key: 'prev', width: 104, align: 'end', ...head('prev', prevLabel),
       cellClassName: 'pr-2.5 tabular-nums', cell: (r) => formatMoney(r.prev), footer: formatMoney(total.prev),
     },
     {
-      key: 'next', width: 116, align: 'end', field: true, header: t('cols.next.label'), sub: t('cols.next.sub', { range: nextRange }), tooltip: t('cols.next.full', { range: nextRange }),
+      key: 'next', width: 136, align: 'end', field: true, ...head('next', nextLabel),
       cellClassName: (r) => cn('gap-1', resultTextClass(r)), footer: <span className="pr-1">{formatMoney(total.next)}</span>,
       cell: (r) => {
         const issue = issues.get(r.psk);
@@ -281,13 +275,14 @@ const Proposals = () => {
       },
     },
     {
-      key: 'diff', width: 100, align: 'end', header: t('cols.diff.label'), sub: t('cols.diff.sub'), tooltip: t('cols.diff.full'),
-      cellClassName: (r) => cn('pr-2.5 font-medium whitespace-nowrap', resultTextClass(r)),
-      cell: (r) => <DiffCell prev={r.prev} next={nextOf(r)} newLabel={t('newEntry')} className={cn(diffOf(r) < 0 && 'text-danger-text')} />,
-      footer: <DiffCell prev={total.prev} next={total.next} newLabel={t('newEntry')} className={cn('pr-1', total.diff > 0 && 'text-info')} />,
+      // Diff = kỳ này − kỳ trước, tính cho MỌI dòng (file gốc thiếu công thức ô O9).
+      key: 'diff', width: 104, align: 'end', ...head('diff'),
+      cellClassName: (r) => cn('pr-2.5 font-medium whitespace-nowrap tabular-nums', resultTextClass(r), diffOf(r) < 0 && 'text-danger-text'),
+      cell: (r) => formatMoney(diffOf(r)),
+      footer: <span className={cn('pr-1', diffClass(total.diff))}>{formatMoney(total.diff)}</span>,
     },
     {
-      key: 'note', width: 80, field: true, header: t('cols.note.label'), sub: t('cols.note.sub'), tooltip: t('cols.note.full'),
+      key: 'note', width: 'minmax(120px,1fr)', field: true, ...head('note'),
       cell: (r) =>
         can('note') ? (
           <textarea rows={1} value={r.note} onChange={(e) => edit(r, { note: e.target.value })} placeholder={t('placeholder')} aria-label={t('fields.note', { name: r.name })} className={textareaClass} />
@@ -297,7 +292,7 @@ const Proposals = () => {
     },
     {
       // Chỉ BLĐ nhập; CQ và Admin chỉ xem ("Chờ BLĐ" khi chưa có).
-      key: 'board', width: 100, field: true, divider: 'start', tone: can('boardDecision') ? 'plain' : 'locked', header: t('cols.board.label'), sub: t('cols.board.sub'), tooltip: t('cols.board.full'),
+      key: 'board', width: 148, field: true, divider: 'start', tone: can('boardDecision') ? 'plain' : 'locked', ...head('board'),
       cell: (r) =>
         can('boardDecision') ? (
           <textarea rows={1} value={r.boardDecision ?? ''} onChange={(e) => edit(r, { boardDecision: e.target.value || null })} placeholder={t('placeholder')} aria-label={t('fields.decision', { name: r.name })} className={textareaClass} />
@@ -307,17 +302,6 @@ const Proposals = () => {
           </span>
         ),
     },
-  ];
-
-  const groups: DataGridGroup[] = [
-    { key: 'hr', span: 2, tone: 'read', label: t('groups.hr.label'), tooltip: t('groups.hr.full') },
-    { key: 'hr-rest', span: 5, tone: 'read', divider: true },
-    { key: 'cqFill', span: 1, tone: 'read', marker: 'brand', divider: true, label: t('groups.cqFill.label'), tooltip: t('groups.cqFill.full') },
-    { key: 'preset', span: 1, tone: 'read', marker: 'brand', divider: true, label: t('groups.preset.label'), tooltip: t('groups.preset.full') },
-    { key: 'system', span: 1, tone: 'read', divider: true, label: t('groups.system.label'), tooltip: t('groups.system.full') },
-    { key: 'cqGive', span: 1, tone: 'read', marker: 'brand', divider: true, label: t('groups.cqGive.label'), tooltip: t('groups.cqGive.full') },
-    { key: 'auto', span: 1, tone: 'read', divider: true, label: t('groups.auto.label'), tooltip: t('groups.auto.full') },
-    { key: 'rest', span: 2, tone: 'plain' },
   ];
 
   const count = rows.length;
@@ -440,8 +424,8 @@ const Proposals = () => {
               <DataGrid
                 aria-label={t('grid')}
                 columns={columns}
-                groups={groups}
                 rows={visible}
+                wrapHeaders
                 rowKey={(r) => r.psk}
                 striped
                 rowAccent={resultAccentClass}

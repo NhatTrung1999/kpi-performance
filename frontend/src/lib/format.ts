@@ -59,6 +59,13 @@ export const formatPeriodShort = (from: string, to: string) => {
   return fy === ty ? `${fy}.${fm} ~ ${tm}` : `${fy}.${fm} ~ ${ty}.${tm}`;
 };
 
+/** Nhãn kỳ như tiêu đề cột tiền của sheet SUMMARY, vd. ("2026-07", "2026-09") → "2026 07-09"; khác năm → "2026 11-2027 01". */
+export const formatPeriodLabel = (from: string, to: string) => {
+  const [fy, fm] = from.split('-');
+  const [ty, tm] = to.split('-');
+  return fy === ty ? `${fy} ${fm}-${tm}` : `${fy} ${fm}-${ty} ${tm}`;
+};
+
 /** Tên tháng viết tắt, `month` từ 1 đến 12. */
 export const formatMonthShort = (month: number) =>
   new Intl.DateTimeFormat(intlLocale(), { month: 'short' }).format(new Date(2000, month - 1, 1));

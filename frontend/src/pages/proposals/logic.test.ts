@@ -17,6 +17,38 @@ describe('summarize — đúng bộ dữ liệu mẫu 10 nhân viên', () => {
     expect(rows.reduce((s, r) => s + diffOf(r), 0)).toBe(-3_000_000);
   });
 
+  // Lỗi 1 của file Excel (sheet SUMMARY): ô tổng dùng SUM(M4:M11) — chỉ 8 dòng đầu — nên ra 10,500,000 → 6,500,000.
+  it('tổng cộng đủ 10 dòng, không phải chỉ 8 dòng đầu như SUM(M4:M11) của file gốc', () => {
+    const excelBug = summarize(rows.slice(0, 8));
+    expect(excelBug).toMatchObject({ prev: 10_500_000, next: 6_500_000 });
+    expect(summarize(rows)).not.toMatchObject({ prev: excelBug.prev, next: excelBug.next });
+  });
+
+  // Lỗi 2 của file Excel: ô O9 (Diff của PLDM) để trống, thiếu công thức.
+  it('PLDM có Diff 500,000', () => {
+    const pldm = rows.find((r) => r.name === 'PLDM');
+    expect(pldm && diffOf(pldm)).toBe(500_000);
+  });
+
+  it('Diff = kỳ này − kỳ trước cho MỌI dòng', () => {
+    expect(rows.map((r) => [r.name, diffOf(r)])).toEqual([
+      ['XXXX', -3_000_000],
+      ['XYZA', -500_000],
+      ['ABCD', -1_000_000],
+      ['HGTF', 0],
+      ['ASPD', 0],
+      ['PLDM', 500_000],
+      ['KMND', -500_000],
+      ['BHTC', 500_000],
+      ['AFTT', 500_000],
+      ['HTTK', 500_000],
+    ]);
+  });
+
+  it('HTTK là nhân viên mới, có ghi chú "New employee"', () => {
+    expect(rows.find((r) => r.name === 'HTTK')).toMatchObject({ result: 'add', prev: 0, next: 500_000, note: 'New employee' });
+  });
+
   it('kỳ này chưa nhập tính là 0', () => {
     expect(summarize([{ prev: 500_000, next: null }])).toEqual({ count: 1, prev: 500_000, next: 0, diff: -500_000 });
   });
