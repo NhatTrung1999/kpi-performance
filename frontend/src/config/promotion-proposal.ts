@@ -35,6 +35,32 @@ export const GROUP_VIEW: Record<AppRole, readonly ColumnGroup[]> = {
 
 export const canView = (role: AppRole, group: ColumnGroup) => GROUP_VIEW[role].includes(group);
 
+/**
+ * 40 cột A–AN theo đúng thứ tự file, chia theo nhóm. Key là khóa i18n `promotion:cols.*` (tiêu đề nguyên văn VI + 中文).
+ * Cột 24–26 và 30–32 trùng tên trong file → key khác nhau (`currentRating` / `newRating`…) và nằm dưới nhóm con.
+ */
+export const COLUMN_KEYS = {
+  hr: ['priority', 'unit', 'name', 'cardNo', 'joinDate', 'seniority', 'contract', 'position', 'promotionCount', 'abc', 'discipline', 'status', 'leave'],
+  cq: ['type', 'newTitle', 'reason', 'jobChange', 'raise'],
+  kpi: ['kpi'],
+  salary: [
+    'salaryAdjustments', 'salaryLevels', 'currentTitle', 'contractSalary', 'currentRating', 'currentAttendance', 'currentLiving', 'totalCurrent',
+    'newPosition', 'newContract', 'newRating', 'newAttendance', 'newLiving', 'totalNew', 'diffOldNew',
+  ],
+  hrOpinion: ['hrOpinion'],
+  board: ['boardType', 'boardTitle', 'boardAmount', 'boardDiff', 'boardDecision'],
+} as const satisfies Record<ColumnGroup, readonly string[]>;
+export type PromotionColumn = (typeof COLUMN_KEYS)[ColumnGroup][number];
+
+/** Các cột một vai trò được xem, theo thứ tự file (CQ 19, Admin 25, HR/KT/BLĐ 40). */
+export const visibleColumns = (role: AppRole): PromotionColumn[] => COLUMN_GROUPS.filter((g) => canView(role, g)).flatMap((g) => COLUMN_KEYS[g]);
+
+/** Nhóm con trong nhóm lương: "Hiện tại / 目前" trên X–Z, "Sau khi tăng / 調整後" trên AD–AF (key i18n `promotion:subgroups.*`). */
+export const SALARY_SUBGROUPS = [
+  { key: 'current', from: 'currentRating', span: 3 },
+  { key: 'after', from: 'newRating', span: 3 },
+] as const satisfies readonly { key: string; from: PromotionColumn; span: number }[];
+
 /** Trạng thái đề xuất của một nhóm xét duyệt. `returned` = BLĐ trả lại, CQ sửa và gửi lại như `draft`. */
 export type GroupStatus = 'draft' | 'submitted' | 'approved' | 'returned';
 

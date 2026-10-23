@@ -133,6 +133,19 @@
       "sub": "由高階管理層審核並做出決定"
     }
   },
+  "subgroups": {
+    "current": {
+      "label": "Hiện tại",
+      "sub": "目前"
+    },
+    "after": {
+      "label": "Sau khi tăng",
+      "sub": "調整後"
+    }
+  },
+  "collapsedCount_one": "{{count}} cột",
+  "collapsedCount_other": "{{count}} cột",
+  "cqFootnote": "Các cột 20–40 do HR, Kế toán, BLĐ xử lý",
   "cols": {
     "priority": {
       "label": "Thứ tự ưu tiên",
@@ -227,15 +240,15 @@
       "label": "Mức lương hiện tại theo HĐ",
       "sub": "目前合約薪資"
     },
-    "rating": {
+    "currentRating": {
       "label": "Tiền bình bầu",
       "sub": "評等獎金"
     },
-    "attendance": {
+    "currentAttendance": {
       "label": "Tiền chuyên cần",
       "sub": "全勤獎金"
     },
-    "living": {
+    "currentLiving": {
       "label": "Phí sinh hoạt",
       "sub": "生活費"
     },

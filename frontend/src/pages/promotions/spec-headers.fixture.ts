@@ -1,0 +1,56 @@
+/**
+ * Tiêu đề trích NGUYÊN VĂN từ docs/specs/Website_for_Promotion___Salary_proposal.xlsx, sheet 2026年07月名單:
+ * dòng 4 (40 cột A–AN, ô = '中文\nTiếng Việt') và dòng 3 (6 nhãn nhóm, ô = 'Tiếng Việt\n中文'); chỉ bỏ khoảng trắng thừa ở hai đầu.
+ * Không sửa tay — test so từng chữ với `promotion.json` (vi), sai một chữ là fail.
+ */
+export const SPEC_COLUMNS: readonly { cell: string; vi: string; cn: string }[] = [
+  { cell: 'A', vi: 'Thứ tự ưu tiên', cn: '提報優先順序' },
+  { cell: 'B', vi: 'Bộ phận', cn: '部門別' },
+  { cell: 'C', vi: 'Đề cử cán bộ', cn: '提名幹部' },
+  { cell: 'D', vi: 'Số thẻ', cn: '員工編號' },
+  { cell: 'E', vi: 'NGÀY VÀO', cn: '到職日' },
+  { cell: 'F', vi: 'Thâm niên làm việc', cn: '工作年資' },
+  { cell: 'G', vi: 'Loại hợp đồng', cn: '合約類型' },
+  { cell: 'H', vi: 'Chức vụ', cn: '職稱' },
+  { cell: 'I', vi: 'Số lần được đề xuất thăng chức từ lúc vào Cty', cn: '自入職以來的晉升提案次數' },
+  { cell: 'J', vi: 'Bình bầu ABC trong 12 tháng gần nhất', cn: '近 12 個月內的 ABC 評等' },
+  { cell: 'K', vi: 'Vi phạm Xử lý Kỷ luật', cn: '違反紀律處分規定' },
+  { cell: 'L', vi: 'Tình trạng nhân viên', cn: '員工狀態' },
+  { cell: 'M', vi: 'Thời gian nghỉ ỐM/ Thai sản/ THHĐ', cn: '病假／產假／停薪留職期間' },
+  { cell: 'N', vi: 'Thăng chức hoặc tăng lương', cn: '升職或調薪' },
+  { cell: 'O', vi: 'Chức danh mới', cn: '新職稱' },
+  { cell: 'P', vi: '(Lý do đề xuất/ bổ nhiệm)', cn: '提報原因說明' },
+  { cell: 'Q', vi: 'Sau khi thăng chức có thay đổi công việc gì không?', cn: '升職後工作上是否有任何調整與異動' },
+  { cell: 'R', vi: 'Đề xuất tăng lương', cn: '提議加薪' },
+  { cell: 'S', vi: 'KPI hiện tại', cn: '目前關鍵績效指標' },
+  { cell: 'T', vi: 'Số lần được điều chỉnh lương trong 3 năm gần nhất', cn: '近 3 年內的調薪提案次數' },
+  { cell: 'U', vi: 'Các mức lương đã được điều chỉnh', cn: '已調整的薪資項目' },
+  { cell: 'V', vi: 'Chức vụ hiện tại', cn: '目前職稱' },
+  { cell: 'W', vi: 'Mức lương hiện tại theo HĐ', cn: '目前合約薪資' },
+  { cell: 'X', vi: 'Tiền bình bầu', cn: '評等獎金' },
+  { cell: 'Y', vi: 'Tiền chuyên cần', cn: '全勤獎金' },
+  { cell: 'Z', vi: 'Phí sinh hoạt', cn: '生活費' },
+  { cell: 'AA', vi: 'Tổng lương hiện tại', cn: '目前薪資' },
+  { cell: 'AB', vi: 'Chức vụ mới', cn: '新職稱' },
+  { cell: 'AC', vi: 'Mức lương mới tạm tính theo HĐ', cn: '預估新合約薪資' },
+  { cell: 'AD', vi: 'Tiền bình bầu', cn: '評等獎金' },
+  { cell: 'AE', vi: 'Tiền chuyên cần', cn: '全勤獎金' },
+  { cell: 'AF', vi: 'Phí sinh hoạt', cn: '生活費' },
+  { cell: 'AG', vi: 'Tổng lương sau khi tăng', cn: '加薪後的總薪資' },
+  { cell: 'AH', vi: 'Mức chênh lệch giữa cũ & mới', cn: '新舊薪資差額' },
+  { cell: 'AI', vi: 'Ý kiến của nhân sự', cn: '人力資源的意見' },
+  { cell: 'AJ', vi: 'Thăng chức hoặc tăng lương', cn: '升職或調薪' },
+  { cell: 'AK', vi: 'Chức danh mới', cn: '新職稱' },
+  { cell: 'AL', vi: 'Mức lương được tăng', cn: '薪水已經上調了' },
+  { cell: 'AM', vi: 'Mức chênh lệch giữa đề xuất lương và thực tế', cn: '提議與實際調薪差異' },
+  { cell: 'AN', vi: 'Quyết định của BLĐ', cn: '管理委員會的決定' },
+];
+
+export const SPEC_GROUPS: readonly { cell: string; vi: string; cn: string }[] = [
+  { cell: 'A', vi: 'dữ liệu link từ hệ thống nhân sự', cn: '從人事系統自動連結資料' },
+  { cell: 'N', vi: 'thông tin chủ quản tự điền', cn: '由部門主管自行填寫資訊' },
+  { cell: 'S', vi: 'tự link từ HT đánh giá KPI', cn: '從 KPI 評核系統自動連結資料' },
+  { cell: 'T', vi: 'dữ liệu link từ hệ thống lương & gửi Kế toán tạm tính', cn: '從薪資系統自動連結資料，並發送給會計進行薪資預估' },
+  { cell: 'AI', vi: 'Gửi đến HR để lấy ý kiến', cn: '系統發送至 HR，徵詢意見' },
+  { cell: 'AJ', vi: 'BLĐ xét duyệt & quyết định', cn: '由高階管理層審核並做出決定' },
+];

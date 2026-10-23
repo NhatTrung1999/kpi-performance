@@ -69,6 +69,7 @@ Mọi token dưới đây là màu **đục** (hex đã pha sẵn trên `card`) 
 | `--grid-group-success` / `--grid-head-success` | `bg-grid-group-success` / `bg-grid-head-success` | `#E3F6EC` / `#F2FBF6` | `#142928` / `#151F22` | tông `success` (vd. ý kiến nhân sự) |
 | `--grid-locked` | `bg-grid-locked` | `#F5F6F8` | `#202027` | cột chỉ người khác cập nhật |
 | `--grid-row-alt` | `bg-grid-row-alt` | `#FBFCFC` | `#19191F` | dòng xen kẽ (`striped`) |
+| `--grid-row-hover` | `bg-grid-row-hover` | `#F3F6FF` | `#202133` | dòng đang rê chuột (`hoverRows`) |
 | `--grid-row-muted` | `bg-grid-row-muted` | `var(--muted)` | `#23232A` | dòng làm mờ |
 | `--grid-row-danger` | `bg-grid-row-danger` | `#FEF4F4` | `#2C1E24` | dòng bị từ chối |
 
@@ -120,7 +121,7 @@ Font: **Be Vietnam Pro** (400/500/600/700/800; subset vietnamese, latin-ext, lat
 | `AccountMenu` / `Avatar` | `name`, `title`, `email`, `initials`, `items [{label, icon, shortcut, tone, separatorBefore, onSelect}]` | menu tài khoản duy nhất, ở avatar góc trên phải |
 | `Tooltip` / `Kbd` | `content`, `shortcut`, `side`, `disabled` | Kbd = chip phím tắt |
 | `Dialog` / `ConfirmDialog` | `open`, `onOpenChange`, `title`, `description`; confirm: `onConfirm`, `tone`, `children`, `confirmDisabled` | ConfirmDialog = alert dialog (vd. thay đổi chưa lưu); `children` + `confirmDisabled` cho ô lý do bắt buộc |
-| `DataGrid` | `columns` (`header`, `sub`, `note`, `width`, `pinned`, `tone`, `cell`, `footer`, `filter`), `groups` (`span`, `label`, `tone`, `marker`, `collapse`), `striped`, `wrapHeaders`, `rowAccent`, `footerLabel` | bảng rộng: nhóm cột + tiêu đề dính trên, cột `pinned` dính trái (bóng mờ khi cuộn), dòng tổng dính dưới; nhóm vắt qua mép cố định tự tách đôi; `collapse` thu gọn nhóm thành cột 40px; `wrapHeaders` cho tiêu đề dài xuống dòng |
+| `DataGrid` | `columns` (`header`, `sub`, `note`, `width`, `pinned`, `tone`, `cell`, `footer`, `filter`), `groups` (`span`, `label`, `tone`, `marker`, `collapse` + `stub`, `subgroups`), `striped`, `wrapHeaders`, `rowAccent`, `footerLabel` | bảng rộng: nhóm cột + tiêu đề dính trên, cột `pinned` dính trái (bóng mờ khi cuộn), dòng tổng dính dưới; nhóm vắt qua mép cố định tự tách đôi; hàng nhóm 1 dòng 28px; `collapse` thu gọn nhóm thành cột 40px có nhãn dọc (`collapse.stub`); `subgroups` thêm tầng nhóm con 20px trên vài cột; `wrapHeaders` cho tiêu đề dài xuống dòng |
 | `AbcChip` | `count`, `grade`, `tone` | chip bình bầu A-B-C, màu theo mức, không theo màu dòng |
 | `MetricCard` / `Eyebrow` / `Pill` | `label`, `tag`, `value`, `unit`, `caption`, `footer` | thẻ số liệu trang Overview (`Card variant="raised"`) |
 | `TrendChart` / `Sparkline` | `points`, `min`, `max`, `ticks`, `target`, `callout`, `labelEvery` | đường cong mượt có vùng gradient, tooltip từng điểm, đường vẽ dần (tắt khi giảm chuyển động) |

@@ -19,6 +19,7 @@ import { useUnsavedChanges } from '@/lib/unsaved-changes';
 import { cn } from '@/lib/utils';
 import { applyEdit, type PromotionEdit, type PromotionRow } from '@/services/promotionProposal';
 import { fieldClass } from './cells';
+import { loadCollapsed, saveCollapsed } from './collapsed-groups';
 import { buildColumns } from './columns';
 import { boardIssue, boardTypeOf, headcountUsage, managerIssue, totalUsage, type RowIssue } from './logic';
 import { OrgChartCard } from './org-charts';
@@ -46,7 +47,10 @@ const Promotions = () => {
   const [unit, setUnit] = useState<string | null>(null);
   const [menu, setMenu] = useState<'group' | 'unit' | null>(null);
   const [query, setQuery] = useState('');
-  const [collapsed, setCollapsed] = useState<ReadonlySet<ColumnGroup>>(new Set());
+  // Nhóm cột thu gọn: nhớ theo người dùng (localStorage); đổi tài khoản thì đọc lại của người đó.
+  const userKey = user.email || user.name;
+  const [collapsedState, setCollapsedState] = useState(() => ({ user: userKey, groups: loadCollapsed(userKey) }));
+  const collapsed = collapsedState.user === userKey ? collapsedState.groups : loadCollapsed(userKey);
   const [confirm, setConfirm] = useState<ConfirmMode | null>(null);
   const [returnReason, setReturnReason] = useState('');
   /** Bấm "Trả lại CQ" khi chưa có lý do → báo lỗi dưới ô (nút không bị khóa, như layout 7b). */
@@ -81,12 +85,12 @@ const Promotions = () => {
   const clearSent = (id: string, sent: Record<string, PromotionEdit>) =>
     setDrafts((d) => ({ ...d, [id]: Object.fromEntries(Object.entries(d[id] ?? {}).filter(([k, v]) => sent[k] !== v)) }));
 
-  const toggle = (g: ColumnGroup) =>
-    setCollapsed((c) => {
-      const next = new Set(c);
-      if (!next.delete(g)) next.add(g);
-      return next;
-    });
+  const toggle = (g: ColumnGroup) => {
+    const next = new Set(collapsed);
+    if (!next.delete(g)) next.add(g);
+    saveCollapsed(userKey, next);
+    setCollapsedState({ user: userKey, groups: next });
+  };
 
   const q = query.trim().toLowerCase();
   const visible = rows.filter((r) => (!unit || r.unit === unit) && (!q || r.name.toLowerCase().includes(q) || r.cardNo.toLowerCase().includes(q)));
@@ -379,6 +383,13 @@ const Promotions = () => {
               />
             )}
           </TableCardBody>
+          {/* CQ chỉ thấy cột 1–19: chú thích phần còn lại do bộ phận khác xử lý. */}
+          {isManager && !isPending && (
+            <p className="flex flex-none items-center gap-1.5 border-t border-border px-3 py-2 text-[11px] text-muted-foreground">
+              <Lock aria-hidden="true" className="size-3" />
+              {t('cqFootnote')}
+            </p>
+          )}
         </TableCard>
       )}
 
