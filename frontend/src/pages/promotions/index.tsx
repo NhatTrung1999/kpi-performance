@@ -1,6 +1,6 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, ChevronDown, Info, Lock, Search, TrendingUp, TriangleAlert } from 'lucide-react';
+import { Check, ChevronDown, Lock, Search, TrendingUp, TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DataGrid } from '@/components/ui/data-grid';
 import { ConfirmDialog } from '@/components/ui/dialog';
@@ -13,16 +13,18 @@ import { PageShell, TableCard, TableCardBody } from '@/components/ui/table-page'
 import { toast } from '@/components/ui/toast';
 import { Tooltip } from '@/components/ui/tooltip';
 import { isEditor, type ColumnGroup, type GroupStatus } from '@/config/promotion-proposal';
-import { formatPercent, formatSlashDate, formatTime } from '@/lib/format';
+import { formatPercent, formatSlashDate, formatSlashMonth, formatTime } from '@/lib/format';
 import { useCurrentUser } from '@/lib/session';
 import { useUnsavedChanges } from '@/lib/unsaved-changes';
 import { cn } from '@/lib/utils';
 import { applyEdit, type PromotionEdit, type PromotionRow } from '@/services/promotionProposal';
+import { usePagePeriodStore } from '@/stores/page-period';
 import { fieldClass } from './cells';
 import { loadCollapsed, saveCollapsed } from './collapsed-groups';
 import { buildColumns } from './columns';
+import { GuideStrip } from './guide-strip';
 import { boardIssue, boardTypeOf, headcountUsage, managerIssue, totalUsage, type RowIssue } from './logic';
-import { OrgChartCard } from './org-charts';
+import { OrgChartButton } from './org-charts';
 import { useApprovePromotion, usePromotionProposal, useReturnPromotion, useSavePromotionDraft, useSubmitPromotion } from './use-promotion-proposal';
 
 const optionClass =
@@ -55,7 +57,6 @@ const Promotions = () => {
   const [returnReason, setReturnReason] = useState('');
   /** Bấm "Trả lại CQ" khi chưa có lý do → báo lỗi dưới ô (nút không bị khóa, như layout 7b). */
   const [returnError, setReturnError] = useState(false);
-  const [notesOpen, setNotesOpen] = useState(true);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const group = data?.group ?? null;
@@ -127,12 +128,28 @@ const Promotions = () => {
         { label: t(`status.${status}`), value: status === 'draft' && isManager ? t('banner.deadline', { date: formatSlashDate(data!.period.deadline) }) : group.name, dot: status !== 'approved' },
         { label: t('banner.proposed'), value: t('banner.proposedValue', { count: proposed, total: group.headcount }) },
       ];
-  const month = data ? data.period.month.split('-').reverse().join('/') : '';
+  const month = data ? formatSlashMonth(data.period.month) : '';
   const approvedGroups = data?.groups.filter((g) => g.status === 'approved').length ?? 0;
   const showGroupPicker = !!data && (!isManager || data.groups.length > 1);
   // Tổng toàn TTKT như dòng Grand Total của sheet SUM — chỉ vai trò thấy mọi nhóm (BLĐ, HR, KT, Admin).
   const total = data && !isManager ? totalUsage(data.groups) : null;
-  const issueText = user.role === 'BLD' ? t('rejectIssues', { count: issues.size }) : t('issues', { count: issues.size });
+  // BLĐ: chi tiết từng loại lỗi trong tooltip của nhãn "Còn N dòng cần xử lý" (thanh công cụ phải gọn 2 dòng ở 1366px).
+  const issueDetail = (() => {
+    if (user.role !== 'BLD') return null;
+    const of = (k: RowIssue) => [...issues.values()].filter((i) => i === k).length;
+    const rejects = of('rejectReason');
+    const granted = of('grantedRequired');
+    return [rejects && t('rejectIssues', { count: rejects }), granted && t('grantedIssues', { count: granted })].filter(Boolean).join(' · ');
+  })();
+  const issueText = t('issues', { count: issues.size });
+
+  // Thanh trên hiện đợt xét của màn này ("Đợt 10/2026") thay cho quý hiện tại; rời trang thì trả lại.
+  const setPeriodLabel = usePagePeriodStore((s) => s.setLabel);
+  const periodLabel = month ? t('common:roundLabel', { month }) : null;
+  useEffect(() => {
+    setPeriodLabel(periodLabel);
+    return () => setPeriodLabel(null);
+  }, [periodLabel, setPeriodLabel]);
 
   const submitButton = (
     <Button size="lg" className="px-3.5" onClick={() => setConfirm('submit')} disabled={!orgReady || issues.size > 0 || busy}>
@@ -142,45 +159,17 @@ const Promotions = () => {
   );
 
   return (
-    <PageShell className="gap-3 lg:flex-none lg:px-5 lg:pt-4 lg:pb-5">
+    <PageShell className="gap-3 lg:px-5 lg:pt-3 lg:pb-4">
       <PageBanner
         icon={<TrendingUp />}
         title={data ? t('banner.title', { month }) : ' '}
         subtitle={data && t('banner.subtitle', { date: formatSlashDate(data.period.effectiveDate) })}
         badges={badges}
         loadingLabel={t('common:loading')}
+        compact
       />
 
-      {/* Notes của file ("hiển thị ở trang đầu để các Chủ quản lưu ý"), thu gọn được. */}
-      <section className="flex flex-none flex-col gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 text-xs leading-normal">
-        <div className="flex items-center gap-2">
-          <span aria-hidden="true" className="flex size-5.5 flex-none items-center justify-center rounded-md bg-accent text-brand-text">
-            <Info className="size-3.5" />
-          </span>
-          <h2 className="text-[13px] font-semibold">{t('notes.title')}</h2>
-          <span className="text-[11px] text-muted-foreground">{t('notes.sub')}</span>
-          <button
-            type="button"
-            onClick={() => setNotesOpen((o) => !o)}
-            aria-expanded={notesOpen}
-            aria-controls="promotion-notes"
-            className="ml-auto flex h-6 items-center gap-1 rounded-md px-2 text-xs font-medium text-text-secondary outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/50"
-          >
-            {notesOpen ? t('notes.collapse') : t('notes.expand')}
-            <ChevronDown aria-hidden="true" className={cn('size-3 transition-transform', notesOpen && 'rotate-180')} />
-          </button>
-        </div>
-        {notesOpen && (
-          <ol id="promotion-notes" className="m-0 grid list-none gap-x-6 gap-y-1.5 p-0 pl-7.5 lg:grid-cols-2">
-            {(['n1', 'n2', 'n3', 'n4'] as const).map((k, i) => (
-              <li key={k} className="flex gap-2 text-text-secondary">
-                <span className="flex size-4.5 flex-none items-center justify-center rounded-full bg-muted text-[11px] font-semibold text-foreground tabular-nums">{i + 1}</span>
-                <span className="text-pretty">{t(`notes.${k}`)}</span>
-              </li>
-            ))}
-          </ol>
-        )}
-      </section>
+      <GuideStrip />
 
       <div className="flex flex-none flex-wrap items-center gap-2">
         {showGroupPicker && (
@@ -190,12 +179,14 @@ const Promotions = () => {
               <span className="text-[11px] text-muted-foreground">{t('groupPicker.sub')}</span>
             </span>
             <Popover open={menu === 'group'} onOpenChange={(o) => setMenu(o ? 'group' : null)}>
-              <PopoverTrigger aria-label={t('groupPicker.label')} className={cn(triggerClass, 'w-60 font-semibold')}>
+              <PopoverTrigger aria-label={t('groupPicker.label')} className={cn(triggerClass, 'max-w-72 min-w-48 font-semibold')}>
                 <span className="min-w-0 truncate">{group?.name}</span>
                 {group && <Pill tone={STATUS_TONE[status]} className="ml-auto">{t(`status.${status}`)}</Pill>}
                 <ChevronDown aria-hidden="true" className={cn('size-3.5 flex-none opacity-60', !group && 'ml-auto')} />
               </PopoverTrigger>
               <PopoverContent className="min-w-72 p-1" onKeyDown={onListKeyDown}>
+                {/* Số nhóm đã duyệt nằm trong menu (thanh công cụ phải gọn 2 dòng ở 1366px). */}
+                {!isManager && <p className="m-0 px-2.5 pt-1.5 pb-1 text-[11px] font-medium text-muted-foreground tabular-nums">{t('groupPicker.approvedCount', { approved: approvedGroups, total: data.groups.length })}</p>}
                 <div role="listbox" aria-label={t('groupPicker.label')} className="flex flex-col gap-0.5 overflow-y-auto">
                   {data.groups.map((g) => {
                     const sel = g.id === group?.id;
@@ -232,7 +223,6 @@ const Promotions = () => {
                 )}
               </PopoverContent>
             </Popover>
-            {!isManager && <span className="text-xs text-text-secondary tabular-nums">{t('groupPicker.approvedCount', { approved: approvedGroups, total: data.groups.length })}</span>}
           </div>
         )}
         {isManager && (
@@ -261,7 +251,7 @@ const Promotions = () => {
             </PopoverContent>
           </Popover>
         )}
-        <div className="w-full sm:w-55">
+        <div className="w-full sm:w-48">
           <Input ref={searchRef} type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('searchPlaceholder')} aria-label={t('search')} startIcon={<Search />} className="h-9 pl-9 text-[13px]" />
         </div>
         {/* Hạn mức theo nhóm, cập nhật mỗi lần chọn; vượt thì cảnh báo màu cam, không chặn gửi (HEADCOUNT_RULES.mode). */}
@@ -288,7 +278,7 @@ const Promotions = () => {
                 tabIndex={0}
                 aria-label={[`${t(`meters.${m.key}`)} ${value} ${t('meters.limit', { limit })}`, t('meters.budget.title'), budget, over].filter(Boolean).join('. ')}
                 className={cn(
-                  'flex h-9 flex-none cursor-help items-center gap-1.5 rounded-lg border px-2.5 text-xs whitespace-nowrap outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+                  'flex h-9 flex-none cursor-help items-center gap-1.5 rounded-lg border px-2 text-xs whitespace-nowrap outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
                   m.over ? 'border-warning-text bg-warning-soft' : 'border-border bg-card'
                 )}
               >
@@ -303,9 +293,21 @@ const Promotions = () => {
           );
         })}
 
+        {group && <OrgChartButton group={group} editable={isManager && editor} />}
+
         <div className="ml-auto flex flex-wrap items-center gap-2">
-          {issues.size > 0 && <span className="text-[13px] font-medium text-danger-text">{issueText}</span>}
-          {editor ? (
+          {issues.size > 0 &&
+            (issueDetail ? (
+              <Tooltip content={issueDetail} side="top" sideOffset={6}>
+                <span tabIndex={0} aria-label={`${issueText}: ${issueDetail}`} className="flex cursor-help items-center gap-1 rounded-sm text-[13px] font-medium text-danger-text outline-none focus-visible:ring-2 focus-visible:ring-ring/50">
+                  <TriangleAlert aria-hidden="true" className="size-3.5" strokeWidth={2.2} />
+                  {issueText}
+                </span>
+              </Tooltip>
+            ) : (
+              <span className="text-[13px] font-medium text-danger-text">{issueText}</span>
+            ))}
+          {editor && (
             <>
               {group?.savedAt && !Object.keys(edits).length && <span className="text-[13px] text-muted-foreground">{t('savedAt', { time: formatTime(group.savedAt) })}</span>}
               <Button variant="outline" size="lg" className="px-3.5" onClick={saveDraft} disabled={!Object.keys(edits).length || busy}>
@@ -332,8 +334,6 @@ const Promotions = () => {
                 </>
               )}
             </>
-          ) : (
-            group && <Pill tone={STATUS_TONE[status]}>{t(`status.${status}`)}</Pill>
           )}
         </div>
       </div>
@@ -352,8 +352,8 @@ const Promotions = () => {
           </Button>
         </FormAlert>
       ) : (
-        // Bảng cao gần bằng màn hình; các thẻ quy định / sơ đồ tổ chức nằm bên dưới (cuộn trang để xem).
-        <TableCard className="lg:h-[max(26rem,calc(100dvh-15rem))] lg:flex-none">
+        // Bảng cao vừa đủ số dòng, tối đa bằng phần còn lại của màn hình; chỉ bảng cuộn (trang không cuộn).
+        <TableCard fit>
           <TableCardBody className="flex flex-col">
             {isPending ? (
               <p role="status" className="p-6 text-center text-sm text-muted-foreground">
@@ -392,31 +392,6 @@ const Promotions = () => {
           )}
         </TableCard>
       )}
-
-      {/* Quy định Cty về 4C — câu nguyên văn file, mỗi trường hợp kèm kết quả trên hệ thống. */}
-      <section className="flex flex-none flex-col gap-2 rounded-xl border border-border bg-card px-3.5 py-3 text-xs leading-normal">
-        <h2 className="text-[13px] font-semibold">
-          {t('rules.title')} <span className="text-[11px] font-normal text-muted-foreground">{t('rules.sub')}</span>
-        </h2>
-        <div className="grid gap-3 lg:grid-cols-2">
-          {(
-            [
-              ['locked', 'danger'],
-              ['reason', 'warning'],
-            ] as const
-          ).map(([k, tone]) => (
-            <div key={k} className="flex flex-col gap-1.5 rounded-lg bg-muted/50 px-3 py-2.5">
-              <span className="text-pretty text-foreground">{t(`rules.${k}.text`)}</span>
-              <span className="flex flex-wrap items-center gap-2 pl-3.5 text-text-secondary">
-                {t(`rules.${k}.result`)}
-                <Pill tone={tone}>{t(`rules.${k}.pill`)}</Pill>
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {group && <OrgChartCard group={group} editable={isManager && editor} />}
 
       <ConfirmDialog
         open={confirm !== null}

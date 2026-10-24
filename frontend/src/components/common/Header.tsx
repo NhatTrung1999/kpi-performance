@@ -10,6 +10,7 @@ import { getQuarterInfo } from "@/lib/quarter";
 import { initialsOf, portalOf, useCurrentUser } from "@/lib/session";
 import { useTheme } from "@/lib/theme";
 import { canAccess, metaOf, ROLE_GATING } from "@/routes/config";
+import { usePagePeriodStore } from "@/stores/page-period";
 
 const iconButton = "relative size-10 rounded-lg text-text-secondary lg:size-9 lg:border-border [&_svg]:size-[18px] lg:[&_svg]:size-[18px]";
 
@@ -31,6 +32,9 @@ const Header = ({ withSidebar }: HeaderProps) => {
     const q = getQuarterInfo(new Date());
     return t("quarterLabel", { quarter: q.quarter, year: q.startDate.slice(0, 4) });
   }, [t]);
+  // Trang có kỳ riêng (vd. "Đợt 10/2026") tự đặt nhãn; chưa có dữ liệu thì chưa hiện Pill.
+  const pageLabel = usePagePeriodStore((s) => s.label);
+  const periodLabel = meta?.period === false ? null : meta?.period === "page" ? pageLabel : quarter;
 
   return (
     <header className="sticky top-0 z-20 flex h-14 flex-none items-center gap-2 border-b border-border bg-card pr-3 pl-4 lg:static lg:gap-4 lg:border-0 lg:bg-transparent lg:pr-4 lg:pl-6">
@@ -50,9 +54,11 @@ const Header = ({ withSidebar }: HeaderProps) => {
           <h1 className="sr-only">{title}</h1>
         </div>
       )}
-      <Pill tone="brand" className="flex-none">
-        {quarter}
-      </Pill>
+      {periodLabel && (
+        <Pill tone="brand" className="flex-none">
+          {periodLabel}
+        </Pill>
+      )}
       <div className="flex-1" />
       <Button variant="ghost" size="icon-lg" aria-label={isDark ? t("theme.toLight") : t("theme.toDark")} onClick={toggle} className={iconButton}>
         {isDark ? <Sun strokeWidth={1.8} /> : <Moon strokeWidth={1.8} />}

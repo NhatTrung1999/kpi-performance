@@ -25,17 +25,20 @@ type PageBannerProps = {
   }[]
   /** Nhãn đọc bởi trình đọc màn hình khi `loading`; ứng dụng truyền chuỗi đã dịch. */
   loadingLabel?: string
+  /** Gọn (trang bảng vừa khít màn hình): bỏ chiều cao tối thiểu, phụ đề nằm cùng dòng tiêu đề. */
+  compact?: boolean
   className?: string
 }
 
 type PageBannerBadge = NonNullable<PageBannerProps["badges"]>[number]
 
 /** Banner tiêu đề trang: nền gradient thương hiệu, gọn một dòng, kèm các huy hiệu thống kê. */
-function PageBanner({ icon, title, subtitle, badges, loadingLabel = "Loading", className }: PageBannerProps) {
+function PageBanner({ icon, title, subtitle, badges, loadingLabel = "Loading", compact = false, className }: PageBannerProps) {
   return (
     <section
       className={cn(
-        "relative flex min-h-17 flex-wrap items-center justify-between gap-x-6 gap-y-3 overflow-hidden rounded-2xl bg-brand-gradient px-5 py-3 text-white shadow-brand",
+        "relative flex flex-none flex-wrap items-center justify-between gap-x-6 overflow-hidden rounded-2xl bg-brand-gradient px-5 py-3 text-white shadow-brand",
+        compact ? "gap-y-2" : "min-h-17 gap-y-3",
         className
       )}
     >
@@ -52,11 +55,11 @@ function PageBanner({ icon, title, subtitle, badges, loadingLabel = "Loading", c
         <path d="M0 12 C160 2 300 26 440 14 S700 0 840 14 S940 22 1000 8" strokeOpacity=".07" />
       </svg>
       <div className="relative flex min-w-0 items-center gap-3">
-        <div className="flex size-9 flex-none items-center justify-center rounded-[10px] border border-white/20 bg-white/20 [&_svg]:size-[18px]">
+        <div className={cn("flex flex-none items-center justify-center rounded-[10px] border border-white/20 bg-white/20", compact ? "size-8 [&_svg]:size-4" : "size-9 [&_svg]:size-[18px]")}>
           {icon}
         </div>
-        <div className="flex min-w-0 flex-col gap-px">
-          <h2 className="text-lg leading-6 font-bold tracking-[.03em]">{title}</h2>
+        <div className={cn("flex min-w-0", compact ? "flex-wrap items-baseline gap-x-3 gap-y-px" : "flex-col gap-px")}>
+          <h2 className={cn("font-bold tracking-[.03em]", compact ? "text-base leading-6" : "text-lg leading-6")}>{title}</h2>
           {subtitle && <p className="text-xs leading-4 text-white/80">{subtitle}</p>}
         </div>
       </div>

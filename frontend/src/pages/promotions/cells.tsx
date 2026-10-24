@@ -223,6 +223,8 @@ export function MoneyInput({
   ariaLabel,
   disabled,
   danger,
+  invalid,
+  describedBy,
   className,
 }: {
   value: number | null;
@@ -230,6 +232,10 @@ export function MoneyInput({
   ariaLabel: string;
   disabled?: boolean;
   danger?: boolean;
+  /** Giá trị không hợp lệ (vd. Tăng lương mà = 0): viền đỏ, `aria-invalid`. */
+  invalid?: boolean;
+  /** id của dòng báo lỗi bên dưới ô. */
+  describedBy?: string;
   className?: string;
 }) {
   return (
@@ -243,7 +249,14 @@ export function MoneyInput({
         onChange(digits === '' ? null : Number(digits));
       }}
       aria-label={ariaLabel}
-      className={cn(fieldClass, 'h-8 px-2 text-right text-[12.5px] font-semibold tabular-nums', danger ? 'border-danger-border text-danger-text' : 'border-border', className)}
+      aria-invalid={invalid || undefined}
+      aria-describedby={describedBy}
+      className={cn(
+        fieldClass,
+        'h-8 px-2 text-right text-[12.5px] font-semibold tabular-nums',
+        invalid ? 'border-danger-text text-danger-text' : danger ? 'border-danger-border text-danger-text' : 'border-border',
+        className
+      )}
     />
   );
 }

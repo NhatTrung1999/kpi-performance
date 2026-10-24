@@ -227,6 +227,8 @@ const SEED: RowSeed[] = [
     reason: 'Kinh nghiệm 12 năm, đang kèm 3 NV mới; 4C do nghỉ chăm con ốm dài ngày, hiệu suất đã ổn định lại từ tháng 6.',
     salary: { history: [{ date: '2022-04-01', amount: 9_100_000 }, { date: '2024-04-01', amount: 9_600_000 }], contract: 9_600_000, rating: 500_000, attendance: 300_000, living: 1_000_000, newRating: 500_000, newAttendance: 300_000, newLiving: 1_000_000 },
     hrOpinion: '',
+    // CQ đề xuất "Theo bậc lương Cty" (chưa có số) → BLĐ nhập mức được tăng; Tăng lương thì phải > 0.
+    board: { type: 'raise', amount: 1_000_000 },
   },
   {
     group: 'transfer', psk: 'tr05', priority: 5, unit: 'YYY', name: 'CHEN WEI-LUN', cardNo: 'TW0815', joinDate: '2021-11-15', contract: 'permanent', position: 'TRP', expat: true,

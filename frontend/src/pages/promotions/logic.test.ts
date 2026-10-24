@@ -4,6 +4,7 @@ import { formatMoney } from '@/lib/format';
 import { SAMPLE_GROUP_OF, SAMPLE_ROWS, applyEdit, orgChartError, visibleRow, type PromotionRow } from '@/services/promotionProposal';
 import {
   boardIssue,
+  boardTypeOf,
   boardTypeChange,
   diffOldNew,
   diffProposedActual,
@@ -125,6 +126,27 @@ describe('BLĐ', () => {
     expect(boardIssue(applyEdit(C, { boardReason: 'Có 4C trong 12 tháng' }))).toBeNull();
     expect(boardTypeChange(C, 'promotion')).toEqual({ boardType: 'promotion', boardAmount: 0, boardTitle: 'TBP' });
     expect(boardTypeChange(C, 'both')).toMatchObject({ boardAmount: 1_000_000 });
+  });
+
+  it('Tăng lương / Thăng chức + tăng lương bắt buộc Mức lương được tăng > 0', () => {
+    expect(boardIssue(applyEdit(A, { boardType: 'raise', boardAmount: 0 }))).toBe('grantedRequired');
+    expect(boardIssue(applyEdit(A, { boardType: 'both', boardAmount: 0 }))).toBe('grantedRequired');
+    expect(boardIssue(applyEdit(A, { boardType: 'raise', boardAmount: 1 }))).toBeNull();
+    // Chỉ thăng chức: không tăng lương nên 0 là hợp lệ.
+    expect(boardIssue(applyEdit(A, { boardType: 'promotion', boardAmount: 0 }))).toBeNull();
+    // BLĐ chưa nhập: theo đề xuất CQ; "Theo bậc lương Cty" chưa có số → 0 → phải nhập.
+    const scale = applyEdit(A, { boardType: 'raise', boardAmount: null, raiseMode: 'scale' });
+    expect(grantedRaise(scale)).toBe(0);
+    expect(boardIssue(scale)).toBe('grantedRequired');
+  });
+
+  it('dữ liệu mẫu: PHẠM THỊ D được Tăng lương 1,000,000; TRANSFER TEAM chỉ còn dòng Từ chối chưa có lý do', () => {
+    const D = row('tr04');
+    expect(boardTypeOf(D)).toBe('raise');
+    expect(grantedRaise(D)).toBe(1_000_000);
+    expect(boardIssue(D)).toBeNull();
+    const issues = SAMPLE_ROWS.filter((r) => SAMPLE_GROUP_OF[r.psk] === 'transfer').map((r) => [r.psk, boardIssue(r)]).filter(([, i]) => i);
+    expect(issues).toEqual([['tr03', 'rejectReason']]);
   });
 });
 

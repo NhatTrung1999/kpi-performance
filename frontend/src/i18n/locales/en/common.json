@@ -71,6 +71,7 @@
   },
   "retry": "Retry",
   "quarterLabel": "Q{{quarter}} {{year}}",
+  "roundLabel": "Round {{month}}",
   "underConstruction": {
     "heading": "Under construction",
     "description": "This page is being built and will be available soon."

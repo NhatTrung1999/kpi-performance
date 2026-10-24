@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, FileCheck2, FileText, Upload, X } from 'lucide-react';
+import { Download, FileCheck2, FileText, Network, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/toast';
@@ -24,61 +24,81 @@ const download = (file: File) => {
 };
 
 /**
- * Sơ đồ tổ chức của nhóm (bắt buộc để hoàn tất): 2 file Trước / Sau đề bạt.
- * `editable` (CQ khi đang lập): kéo thả / chọn file PDF, PNG, JPG ≤ 10MB; vai trò khác chỉ Xem / Tải về.
+ * Sơ đồ tổ chức của nhóm (bắt buộc để hoàn tất): 2 file Trước / Sau đề bạt, mở từ nút trên thanh công cụ.
+ * `editable` (CQ khi đang lập): kéo thả / chọn file PDF, PNG, JPG ≤ 10MB — chưa đủ 2 file thì nút có chấm cam + "Thiếu N file";
+ * vai trò khác chỉ Xem / Tải về.
  */
-export function OrgChartCard({ group, editable }: { group: ReviewGroup; editable: boolean }) {
+export function OrgChartButton({ group, editable }: { group: ReviewGroup; editable: boolean }) {
   const { t } = useTranslation('promotion');
+  const [open, setOpen] = useState(false);
   const [viewing, setViewing] = useState<OrgChartSlot | null>(null);
   const files = group.orgCharts;
   const count = ORG_CHART.slots.filter((s) => files[s]).length;
+  const lacking = editable ? ORG_CHART.slots.length - count : 0;
   const viewFile = viewing && files[viewing];
   const viewBlob = viewing && orgChartBlob(group.id, viewing);
   const uploadedOn = files.before?.uploadedAt ?? files.after?.uploadedAt;
 
   return (
-    <section className="flex flex-none flex-col gap-2.5 rounded-xl border border-border bg-card px-3.5 py-3">
-      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <h2 className="text-[13px] font-semibold">
-          {t('orgChart.title')} {editable && t('orgChart.required')}
-        </h2>
-        <span className="text-[11px] text-muted-foreground">
-          {editable ? t('orgChart.uploadSub') : t('orgChart.viewSub', { group: group.name })}
-          {!editable && uploadedOn && ` · ${t('orgChart.uploadedOn', { date: formatSlashDate(uploadedOn) })}`}
+    <>
+      <Button variant="outline" size="lg" className="px-3" onClick={() => setOpen(true)} aria-haspopup="dialog">
+        <span className="relative flex">
+          <Network aria-hidden="true" />
+          {lacking > 0 && <span aria-hidden="true" className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-warning ring-2 ring-card" />}
         </span>
-        {editable && (
-          <span className={cn('ml-auto text-xs font-medium tabular-nums', count === 2 ? 'text-success-text' : 'text-warning-text')}>{t('orgChart.count', { count })}</span>
-        )}
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        {ORG_CHART.slots.map((slot) =>
-          editable ? (
-            <UploadSlot key={slot} group={group} slot={slot} file={files[slot]} />
-          ) : (
-            <ViewSlot key={slot} group={group} slot={slot} file={files[slot]} onView={() => setViewing(slot)} />
-          )
-        )}
-      </div>
+        <span className={cn(lacking > 0 && 'text-warning-text')}>{lacking > 0 ? t('orgChart.lacking', { count: lacking }) : t('orgChart.button', { count })}</span>
+      </Button>
 
       <Dialog
-        open={viewing !== null}
-        onOpenChange={(o) => !o && setViewing(null)}
-        title={t('orgChart.previewTitle', { group: group.name })}
-        description={viewFile?.name}
+        open={open}
+        onOpenChange={setOpen}
+        title={
+          <>
+            {t('orgChart.title')} {editable && t('orgChart.required')}
+          </>
+        }
+        description={
+          <>
+            {editable ? t('orgChart.uploadSub') : t('orgChart.viewSub', { group: group.name })}
+            {!editable && uploadedOn && ` · ${t('orgChart.uploadedOn', { date: formatSlashDate(uploadedOn) })}`}
+          </>
+        }
         closeLabel={t('confirm.cancel')}
-        className="w-[min(900px,90vw)]"
+        className="w-[min(760px,92vw)]"
       >
-        <OrgPreview file={viewBlob || null} />
-        {viewBlob && (
-          <div className="flex justify-end">
-            <Button variant="outline" size="lg" className="px-3.5" onClick={() => download(viewBlob)}>
-              <Download aria-hidden="true" />
-              {t('orgChart.download')}
-            </Button>
-          </div>
+        {editable && (
+          <span className={cn('-mt-2 text-xs font-medium tabular-nums', count === 2 ? 'text-success-text' : 'text-warning-text')}>{t('orgChart.count', { count })}</span>
         )}
+        <div className="grid gap-3 sm:grid-cols-2">
+          {ORG_CHART.slots.map((slot) =>
+            editable ? (
+              <UploadSlot key={slot} group={group} slot={slot} file={files[slot]} />
+            ) : (
+              <ViewSlot key={slot} group={group} slot={slot} file={files[slot]} onView={() => setViewing(slot)} />
+            )
+          )}
+        </div>
+
+        <Dialog
+          open={viewing !== null}
+          onOpenChange={(o) => !o && setViewing(null)}
+          title={t('orgChart.previewTitle', { group: group.name })}
+          description={viewFile?.name}
+          closeLabel={t('confirm.cancel')}
+          className="w-[min(900px,90vw)]"
+        >
+          <OrgPreview file={viewBlob || null} />
+          {viewBlob && (
+            <div className="flex justify-end">
+              <Button variant="outline" size="lg" className="px-3.5" onClick={() => download(viewBlob)}>
+                <Download aria-hidden="true" />
+                {t('orgChart.download')}
+              </Button>
+            </div>
+          )}
+        </Dialog>
       </Dialog>
-    </section>
+    </>
   );
 }
 

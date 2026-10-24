@@ -88,6 +88,9 @@ export const formatClockParts = (value: Date, timeZone: string) => {
 export const formatLongDate = (value: Date, timeZone: string) =>
   new Intl.DateTimeFormat(intlLocale(), { timeZone, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(value);
 
+/** Tháng ISO "YYYY-MM" dạng "MM/YYYY", vd. "2026-10" → "10/2026" (đợt xét Thăng chức & lương). */
+export const formatSlashMonth = (month: string) => month.split('-').reverse().join('/');
+
 /** Tháng + năm, vd. "Oct 2026". */
 export const formatMonthYear = (value: DateInput) =>
   new Intl.DateTimeFormat(intlLocale(), { month: 'short', year: 'numeric' }).format(toDate(value));

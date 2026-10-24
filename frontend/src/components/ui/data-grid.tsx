@@ -429,7 +429,7 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
         const rowCls = rowClassName?.(row, ri)
         const accent = rowAccent?.(row)
         return (
-          <div key={rowKey(row)} role="row" className={cn("contents", hoverRows && "group/row")}>
+          <div key={rowKey(row)} role="row" data-slot="data-grid-row" className={cn("contents", hoverRows && "group/row")}>
             {columns.map((c, i) => (
               <div
                 key={c.key}
@@ -472,7 +472,7 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
         <>
           {/* Hàng đệm co giãn: ít dòng thì khoảng trống dồn ở đây, dòng tổng nằm sát đáy khung. */}
           <div aria-hidden="true" className="col-span-full" />
-          <div role="row" className="contents">
+          <div role="row" data-slot="data-grid-footer" className="contents">
             {pinnedCount > 0 && (
               <div role="cell" style={{ gridColumn: `span ${pinnedCount}`, left: 0 }} className={cn(footerCell, "z-5 gap-1.5 border-r border-r-border-strong pl-3", scrolledX && !covered && "shadow-grid-pin")}>
                 {footerLabel}

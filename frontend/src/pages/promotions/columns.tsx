@@ -298,14 +298,26 @@ export function buildColumns({ t, role, status, issues, edit, collapsed, toggle 
         const rejected = type === 'reject';
         if (!type) return <Dash />;
         if (!can('boardAmount')) return <Money value={grantedRaise(r)} strong />;
+        // Tăng lương mà mức được tăng = 0: viền đỏ + nhãn, chặn "Phê duyệt nhóm" (boardIssue).
+        const missing = issues.get(r.psk) === 'grantedRequired';
+        const errorId = `granted-${r.psk}`;
         return (
-          <MoneyInput
-            value={rejected ? 0 : (r.board?.amount ?? grantedRaise(r))}
-            onChange={(v) => edit(r, { boardAmount: v })}
-            ariaLabel={t('fields.boardAmount', { name: r.name })}
-            disabled={rejected || !hasRaise(type)}
-            danger={rejected}
-          />
+          <span className="flex w-full flex-col items-end gap-1">
+            <MoneyInput
+              value={rejected ? 0 : (r.board?.amount ?? grantedRaise(r))}
+              onChange={(v) => edit(r, { boardAmount: v })}
+              ariaLabel={t('fields.boardAmount', { name: r.name })}
+              disabled={rejected || !hasRaise(type)}
+              danger={rejected}
+              invalid={missing}
+              describedBy={missing ? errorId : undefined}
+            />
+            {missing && (
+              <span id={errorId} className="text-[11px] leading-tight font-medium text-danger-text">
+                {t('issue.grantedRequired')}
+              </span>
+            )}
+          </span>
         );
       },
     }),

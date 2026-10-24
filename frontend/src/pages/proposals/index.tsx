@@ -325,13 +325,14 @@ const Proposals = () => {
   const units = data?.units.join(', ') ?? '';
 
   return (
-    <PageShell className="gap-3 lg:px-5 lg:pt-4 lg:pb-5">
+    <PageShell className="gap-3 lg:px-5 lg:pt-3 lg:pb-4">
       <PageBanner
         icon={<FileText />}
         title={period ? t('banner.title', { round: period.round }) : ' '}
         subtitle={period && t('banner.subtitle', { range: formatPeriodShort(period.next.from, period.next.to) })}
         badges={badges}
         loadingLabel={t('common:loading')}
+        compact
       />
 
       <div className="flex flex-none flex-wrap items-center gap-2">
@@ -413,7 +414,8 @@ const Proposals = () => {
           </Button>
         </FormAlert>
       ) : (
-        <TableCard>
+        // Bảng cao vừa đủ số dòng, tối đa bằng phần còn lại của màn hình; dòng tổng dính đáy khi cuộn.
+        <TableCard fit>
           {/* flex-col: DataGrid (flex-1) cao ít nhất bằng khung để dòng tổng nằm ở đáy. */}
           <TableCardBody className="flex flex-col">
             {isPending ? (

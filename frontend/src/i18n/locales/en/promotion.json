@@ -55,10 +55,13 @@
   "issues_other": "{{count}} rows need attention",
   "rejectIssues_one": "{{count}} rejected row has no reason",
   "rejectIssues_other": "{{count}} rejected rows have no reason",
+  "grantedIssues_one": "{{count}} row has no granted raise",
+  "grantedIssues_other": "{{count}} rows have no granted raise",
   "issue": {
     "locked": "No permanent contract and 4C in 12 months → cannot be proposed",
     "reasonRequired": "Permanent contract but 4C in 12 months → a specific reason is required",
-    "rejectReason": "A reason is required for a rejection"
+    "rejectReason": "A reason is required for a rejection",
+    "grantedRequired": "Enter the granted raise"
   },
   "lockedShort": "Not eligible",
   "returnedAlert": "The board returned this proposal: {{reason}}",
@@ -445,7 +448,11 @@
       "type": "Only PDF, PNG or JPG files are accepted",
       "size": "The file is larger than 10MB",
       "upload": "Couldn't upload the file. Please try again."
-    }
+    },
+    "button_one": "Org chart · {{count}} file",
+    "button_other": "Org chart · {{count}} files",
+    "lacking_one": "Org chart · {{count}} file missing",
+    "lacking_other": "Org chart · {{count}} files missing"
   },
   "rules": {
     "title": "Company rules:",
@@ -470,5 +477,10 @@
     "n4": "If the job scale stays the same after a promotion, explain clearly why the promotion is needed.",
     "collapse": "Collapse",
     "expand": "Expand"
+  },
+  "guide": {
+    "title": "Notes & rules",
+    "sub": "注意事項",
+    "summary": "{{notes}} notes · {{rules}} 4C rules"
   }
 }

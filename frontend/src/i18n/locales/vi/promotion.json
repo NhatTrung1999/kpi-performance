@@ -55,10 +55,13 @@
   "issues_other": "Còn {{count}} dòng cần xử lý",
   "rejectIssues_one": "Còn {{count}} dòng Từ chối chưa có lý do",
   "rejectIssues_other": "Còn {{count}} dòng Từ chối chưa có lý do",
+  "grantedIssues_one": "Còn {{count}} dòng chưa nhập mức lương được tăng",
+  "grantedIssues_other": "Còn {{count}} dòng chưa nhập mức lương được tăng",
   "issue": {
     "locked": "Chưa ký HĐ vô thời hạn và có 4C trong 12 tháng → không được đề xuất",
     "reasonRequired": "Đã ký HĐ vô thời hạn nhưng có 4C trong 12 tháng → bắt buộc ghi lý do cụ thể",
-    "rejectReason": "Bắt buộc nhập lý do từ chối"
+    "rejectReason": "Bắt buộc nhập lý do từ chối",
+    "grantedRequired": "Nhập mức lương được tăng"
   },
   "lockedShort": "Không được đề xuất",
   "returnedAlert": "BLĐ đã trả lại đề xuất: {{reason}}",
@@ -445,7 +448,11 @@
       "type": "Chỉ nhận file PDF, PNG hoặc JPG",
       "size": "File vượt quá 10MB",
       "upload": "Không tải lên được. Vui lòng thử lại."
-    }
+    },
+    "button_one": "Sơ đồ tổ chức · {{count}} file",
+    "button_other": "Sơ đồ tổ chức · {{count}} file",
+    "lacking_one": "Sơ đồ tổ chức · Thiếu {{count}} file",
+    "lacking_other": "Sơ đồ tổ chức · Thiếu {{count}} file"
   },
   "rules": {
     "title": "Theo quy định Cty:",
@@ -470,5 +477,10 @@
     "n4": "Promotion but the job scale remains the same, please provide clear explanation why promotion needed.",
     "collapse": "Thu gọn",
     "expand": "Mở rộng"
+  },
+  "guide": {
+    "title": "Lưu ý & quy định",
+    "sub": "注意事項",
+    "summary": "{{notes}} lưu ý · {{rules}} quy định 4C"
   }
 }

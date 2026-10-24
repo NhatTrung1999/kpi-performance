@@ -71,6 +71,7 @@
   },
   "retry": "Thử lại",
   "quarterLabel": "Q{{quarter}} {{year}}",
+  "roundLabel": "Đợt {{month}}",
   "underConstruction": {
     "heading": "Đang xây dựng",
     "description": "Trang này đang được xây dựng và sẽ sớm ra mắt."

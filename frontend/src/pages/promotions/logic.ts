@@ -63,7 +63,7 @@ export function proposalLock(r: Pick<PromotionRow, 'contract' | 'abc'>): Proposa
 }
 
 /** Lỗi của một dòng chặn việc gửi / phê duyệt. */
-export type RowIssue = 'locked' | 'reasonRequired' | 'rejectReason';
+export type RowIssue = 'locked' | 'reasonRequired' | 'rejectReason' | 'grantedRequired';
 
 /** Kiểm tra phần CQ tự điền (khi CQ đang lập đề xuất). */
 export function managerIssue(r: Pick<PromotionRow, 'contract' | 'abc' | 'type' | 'reason'>): RowIssue | null {
@@ -87,9 +87,16 @@ export const grantedRaise = (r: Pick<PromotionRow, 'type' | 'raiseMode' | 'raise
   return r.board?.amount ?? proposedRaise(r) ?? 0;
 };
 
-/** Dòng Từ chối mà chưa có lý do (bắt buộc, chữ đỏ). */
-export const boardIssue = (r: Pick<PromotionRow, 'type' | 'board'>): RowIssue | null =>
-  boardTypeOf(r) === 'reject' && !r.board?.reason.trim() ? 'rejectReason' : null;
+/**
+ * Lỗi chặn "Phê duyệt nhóm" của một dòng:
+ * - Từ chối mà chưa có lý do (bắt buộc, chữ đỏ);
+ * - "Tăng lương" / "Thăng chức + tăng lương" mà Mức lương được tăng không > 0.
+ */
+export function boardIssue(r: Pick<PromotionRow, 'type' | 'raiseMode' | 'raiseAmount' | 'board'>): RowIssue | null {
+  const type = boardTypeOf(r);
+  if (type === 'reject') return r.board?.reason.trim() ? null : 'rejectReason';
+  return hasRaise(type) && grantedRaise(r) <= 0 ? 'grantedRequired' : null;
+}
 
 /** Chức danh mới được chọn: chỉ bậc kế tiếp, đúng khối VP/SX. */
 export const titleOptions = (r: Pick<PromotionRow, 'position' | 'division'>) => nextPositions(r.position, r.division);

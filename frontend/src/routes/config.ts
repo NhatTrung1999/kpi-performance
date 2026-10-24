@@ -12,6 +12,11 @@ export type RouteMeta = {
   /** Vai trò được phép truy cập; bỏ trống = mọi vai trò. */
   roles?: AppRole[];
   nav?: { icon: LucideIcon; group: NavGroup; badge?: number };
+  /**
+   * Pill kỳ trên thanh trên: mặc định quý hiện tại; `false` = ẩn (trang không gắn với kỳ, vd. Phân quyền);
+   * `'page'` = trang tự đặt nhãn kỳ của mình qua `usePagePeriodStore` (vd. "Đợt 10/2026" của Thăng chức & lương).
+   */
+  period?: false | 'page';
 };
 
 /**
@@ -24,9 +29,9 @@ export const ROUTE_META: Record<string, RouteMeta> = {
   // CQ: lập đề xuất cho các bộ phận được gán; BLD: tạm thời chỉ xem; AD: xem/sửa mọi bộ phận.
   '/proposals': { title: 'proposals', roles: ['AD', 'CQ', 'BLD'], nav: { icon: FileText, group: 'proposal' } },
   // Quyền xem/sửa theo nhóm cột: config/promotion-proposal.ts.
-  '/promotions': { title: 'promotions', roles: ['AD', 'CQ', 'BLD', 'HR', 'KT'], nav: { icon: TrendingUp, group: 'proposal' } },
+  '/promotions': { title: 'promotions', roles: ['AD', 'CQ', 'BLD', 'HR', 'KT'], nav: { icon: TrendingUp, group: 'proposal' }, period: 'page' },
   '/history': { title: 'history', roles: ['AD'], nav: { icon: History, group: 'proposal' } },
-  '/roles': { title: 'roles', roles: ['AD'], nav: { icon: ShieldCheck, group: 'admin' } },
+  '/roles': { title: 'roles', roles: ['AD'], nav: { icon: ShieldCheck, group: 'admin' }, period: false },
 };
 
 /** Trang chủ mặc định sau đăng nhập. */
