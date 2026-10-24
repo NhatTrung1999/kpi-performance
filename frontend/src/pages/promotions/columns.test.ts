@@ -71,7 +71,9 @@ describe('số cột theo vai trò (GROUP_VIEW)', () => {
     expect(visibleColumns('CQ')).toEqual(ALL.slice(0, 19));
     const { columns, groups } = build('CQ');
     expect(columns.map((c) => c.key)).toEqual(ALL.slice(0, 19));
-    expect(groups.map((g) => g.key)).toEqual(['hr', 'cq', 'kpi']);
+    // Nhóm lương bị ẩn theo quyền: giữ vị trí nhưng không có cột dữ liệu (span 0, DataGrid vẽ cột hẹp có khóa).
+    expect(groups.map((g) => g.key)).toEqual(['hr', 'cq', 'kpi', 'salary']);
+    expect(groups[3]).toMatchObject({ span: 0, hidden: { label: 'salaryHidden.label' } });
     expect(SPEC_COLUMNS[18].cell).toBe('S');
   });
 
@@ -81,10 +83,24 @@ describe('số cột theo vai trò (GROUP_VIEW)', () => {
     expect(cols).toEqual(visibleColumns('AD'));
     expect(cols.filter((k) => SALARY.has(k))).toEqual([]);
     expect(ALL.slice(19, 34)).toEqual([...COLUMN_KEYS.salary]);
+    // Cột hẹp "15 cột lương" đúng vị trí nhóm lương (giữa KPI và ý kiến HR), không có cột dữ liệu.
+    const { groups } = build('AD');
+    expect(groups.map((g) => g.key)).toEqual(['hr', 'cq', 'kpi', 'salary', 'hrOpinion', 'board']);
+    expect(groups.find((g) => g.key === 'salary')).toMatchObject({ span: 0, hidden: { label: 'salaryHidden.label' } });
+  });
+
+  it('số cột dữ liệu theo vai trò: CQ 19, Admin 25, HR / Kế toán / BLĐ 40 (không có nhóm bị ẩn)', () => {
+    const expected = { CQ: 19, AD: 25, HR: 40, KT: 40, BLD: 40 } as const;
+    for (const [role, count] of Object.entries(expected) as [AppRole, number][]) {
+      const { columns, groups } = build(role);
+      expect(columns, role).toHaveLength(count);
+      expect(visibleColumns(role), role).toHaveLength(count);
+      if (count === 40) expect(groups.filter((g) => g.hidden), role).toEqual([]);
+    }
   });
 
   it('tổng span các nhóm bằng số cột (DataGrid yêu cầu)', () => {
-    for (const role of ['CQ', 'AD', 'BLD'] as const) {
+    for (const role of ['CQ', 'AD', 'BLD', 'HR', 'KT'] as const) {
       const { columns, groups } = build(role);
       expect(groups.reduce((s, g) => s + g.span, 0)).toBe(columns.length);
     }

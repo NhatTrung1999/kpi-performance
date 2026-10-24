@@ -108,6 +108,10 @@
     "text": "những thông tin này chỉ có BLĐ, Kế toán & Nhân sự nhìn thấy để xét duyệt => file approval gửi về cho các chủ quản sẽ ko hiển thị những thông tin này",
     "sub": "以上資訊僅供高階管理層、會計及人資部門查看與審核，因此發送給各部門主管的核准文件中，不會顯示這些資訊。"
   },
+  "salaryHidden": {
+    "stub": "{{n}} cột lương · chỉ BLĐ, HR, Kế toán",
+    "label": "Nhóm lương bị ẩn theo quyền: {{n}} cột lương chỉ BLĐ, HR và Kế toán xem được"
+  },
   "collapse": "Thu gọn nhóm: {{name}}",
   "expand": "Mở rộng nhóm: {{name}}",
   "groups": {

@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Funnel, Minus, Plus } from "lucide-react"
+import { Funnel, Lock, Minus, Plus } from "lucide-react"
 import { Tooltip } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils"
  * - `wrapHeaders`: tiêu đề cột xuống dòng (không cắt chữ).
  * - Nhóm có `collapse` thu gọn được thành một cột hẹp (giữ lại các cột cố định của nhóm), như group cột của Excel;
  *   tiêu đề cột hẹp là nhãn dọc `collapse.stub` (vd. tên nhóm + số cột ẩn).
+ * - Nhóm `hidden` (bị ẩn theo quyền, `span: 0`): một cột hẹp có icon khóa và nhãn dọc `hidden.stub` đúng vị trí nhóm,
+ *   không có dữ liệu và không mở ra được — người xem biết cột bị ẩn chứ không mất.
  * - Nhóm con (`subgroups`, tầng 2): một hàng 20px giữa hàng nhóm và tiêu đề, chỉ phủ các cột của nhóm con; tiêu đề các cột
  *   khác cao hết 2 hàng. Không có nhóm con thì đầu bảng giữ nguyên 1–2 hàng như trước.
  * - `density="comfortable"`: bảng ít cột, lấp đủ chiều ngang (vd. Phân quyền) — tiêu đề 48px, dòng 56px, chữ 13px, padding 16px.
@@ -85,6 +87,11 @@ type DataGridGroup = {
    * `stub` là nhãn dọc trên cột hẹp khi đã thu gọn (vd. tên nhóm + "15 cột").
    */
   collapse?: { collapsed: boolean; onToggle: () => void; label: string; stub?: React.ReactNode }
+  /**
+   * Nhóm bị ẩn theo quyền: truyền `span: 0` (không có cột dữ liệu nào); DataGrid hiện một cột hẹp 40px, icon khóa,
+   * nhãn dọc `stub`, ô thân bảng trống, không có nút mở. `label` = mô tả đầy đủ cho trình đọc màn hình / tooltip.
+   */
+  hidden?: { label: string; stub?: React.ReactNode }
   /** Nhóm con (tầng 2) — vd. "Hiện tại" / "Sau khi tăng" trên các cột trùng tên. */
   subgroups?: DataGridSubgroup[]
 }
@@ -178,6 +185,13 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
     for (const g of allGroups) {
       const own = allColumns.slice(i, i + g.span)
       i += g.span
+      if (g.hidden) {
+        const key = `__hidden-${g.key}`
+        stubs.set(key, g)
+        columns.push({ key, header: null, width: COLLAPSED_W, tone: g.tone, divider: "end", cell: () => null })
+        groups.push({ ...g, span: 1 })
+        continue
+      }
       if (!g.collapse?.collapsed) {
         columns.push(...own)
         groups.push(g)
@@ -291,7 +305,7 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
             const marker = g.marker ?? (g.tone === "input" ? "brand" : "muted")
             const collapsed = !!g.collapse?.collapsed
             // Nhóm cuộn đã thu gọn chỉ còn cột hẹp: chỉ hiện nút mở rộng.
-            const stubOnly = collapsed && !gc.pinned
+            const stubOnly = (collapsed || !!g.hidden) && !gc.pinned
             const showLabel = gc.head && !!g.label && !stubOnly
             const ends = gc.start + gc.span === pinnedCount
             return (
@@ -322,7 +336,12 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
                     </Label>
                   </span>
                 )}
-                {gc.last && g.collapse && (
+                {g.hidden && (
+                  <span title={g.hidden.label} className="flex text-muted-foreground">
+                    <Lock aria-hidden="true" className="size-3" strokeWidth={2.2} />
+                  </span>
+                )}
+                {gc.last && g.collapse && !g.hidden && (
                   <button
                     type="button"
                     onClick={g.collapse.onToggle}
@@ -367,22 +386,26 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
       <div role="row" className="contents">
         {columns.map((c, i) => {
           const stub = stubs.get(c.key)
-          if (stub)
+          if (stub) {
+            const label = stub.hidden ? stub.hidden.stub : stub.collapse?.stub
             return (
               <div
                 key={c.key}
                 role="columnheader"
+                aria-label={stub.hidden?.label}
+                title={stub.hidden?.label}
                 style={headPlace(i)}
                 className={cn("sticky z-4 min-w-0 border-b border-border", GROUP_BG[stub.tone ?? "plain"], divider(c))}
               >
                 {/* Nhãn dọc đặt tuyệt đối: không làm hàng tiêu đề cao lên, phần dài chạy xuống trên cột hẹp (ô thân bảng trống). */}
-                {stub.collapse?.stub && (
-                  <span className="pointer-events-none absolute top-2.5 left-0 flex w-full justify-center">
-                    <span className="flex items-center gap-2 text-[11px] leading-[1.3] whitespace-nowrap [writing-mode:vertical-rl]">{stub.collapse.stub}</span>
+                {label && (
+                  <span aria-hidden={stub.hidden ? true : undefined} className="pointer-events-none absolute top-2.5 left-0 flex w-full justify-center">
+                    <span className="flex items-center gap-2 text-[11px] leading-[1.3] whitespace-nowrap [writing-mode:vertical-rl]">{label}</span>
                   </span>
                 )}
               </div>
             )
+          }
           return (
             <div
               key={c.key}

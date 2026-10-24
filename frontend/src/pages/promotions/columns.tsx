@@ -360,7 +360,29 @@ export function buildColumns({ t, role, status, issues, edit, collapsed, toggle 
   const shown = COLUMN_GROUPS.filter((g) => canView(role, g));
   const columns: DataGridColumn<PromotionRow>[] = [];
   const groups: DataGridGroup[] = [];
-  shown.forEach((g, gi) => {
+  COLUMN_GROUPS.forEach((g) => {
+    // Nhóm lương bị ẩn theo quyền (CQ, Admin): cột hẹp có khóa đúng vị trí nhóm, không có dữ liệu, không mở được.
+    if (!canView(role, g)) {
+      if (g === 'salary' && shown.length > 0) {
+        const count = COLUMN_KEYS.salary.length;
+        groups.push({
+          key: g,
+          span: 0,
+          tone: 'locked',
+          hidden: {
+            label: t('salaryHidden.label', { n: count }),
+            stub: (
+              <>
+                <Lock aria-hidden="true" className="size-3 flex-none text-muted-foreground" />
+                <span className="font-semibold text-text-secondary">{t('salaryHidden.stub', { n: count })}</span>
+              </>
+            ),
+          },
+        });
+      }
+      return;
+    }
+    const gi = shown.indexOf(g);
     const { tone, marker } = GROUP_STYLE[g];
     const cols = COLUMN_KEYS[g].map((k, ci) => ({ ...defs[k], tone, divider: gi > 0 && ci === 0 ? ('start' as const) : undefined }));
     columns.push(...cols);

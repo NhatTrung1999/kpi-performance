@@ -108,6 +108,10 @@
     "text": "Only the board, Accounting and HR see this information for review; the approval file sent back to managers does not show it.",
     "sub": "以上資訊僅供高階管理層、會計及人資部門查看與審核，因此發送給各部門主管的核准文件中，不會顯示這些資訊。"
   },
+  "salaryHidden": {
+    "stub": "{{n}} salary columns · Board, HR, Accounting only",
+    "label": "Salary group hidden by permission: {{n}} salary columns visible only to the Board, HR and Accounting"
+  },
   "collapse": "Collapse group: {{name}}",
   "expand": "Expand group: {{name}}",
   "groups": {
