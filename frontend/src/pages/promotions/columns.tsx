@@ -9,6 +9,7 @@ import {
   BOARD_TYPES,
   canEdit,
   canView,
+  HIDE_GROUPS_BY_ROLE,
   COLUMN_GROUPS,
   COLUMN_KEYS,
   hasPromotion,
@@ -66,12 +67,14 @@ export type ColumnContext = {
   edit: (row: PromotionRow, patch: PromotionEdit) => void;
   collapsed: ReadonlySet<ColumnGroup>;
   toggle: (group: ColumnGroup) => void;
+  /** Ẩn nhóm cột theo quyền; mặc định `HIDE_GROUPS_BY_ROLE` (test truyền `true` để kiểm tra GROUP_VIEW). */
+  hiding?: boolean;
 };
 
 /** Chip bình bầu: C ≥ ngưỡng khóa (4C) đỏ, 2–3C cam, còn lại trung tính — theo mức, không theo màu dòng. */
 const abcTone = (r: AbcRating) => (r.grade !== 'C' ? 'neutral' : r.count >= ABC_LOCK.cCount ? 'danger' : r.count >= 2 ? 'warning' : 'neutral');
 
-export function buildColumns({ t, role, status, issues, edit, collapsed, toggle }: ColumnContext) {
+export function buildColumns({ t, role, status, issues, edit, collapsed, toggle, hiding = HIDE_GROUPS_BY_ROLE }: ColumnContext) {
   const can = (field: PromotionField) => canEdit(role, status, field);
   // Tiêu đề và ghi chú nguyên văn theo file (tiếng Việt + tiếng Trung), trong namespace `promotion`; tiêu đề dài thì xuống dòng.
   const col = (key: PromotionColumn, width: number, rest: Partial<DataGridColumn<PromotionRow>> & Pick<DataGridColumn<PromotionRow>, 'cell'>): DataGridColumn<PromotionRow> => {
@@ -357,12 +360,12 @@ export function buildColumns({ t, role, status, issues, edit, collapsed, toggle 
   };
 
   // Chỉ các nhóm vai trò được xem — nhóm khác hoàn toàn không render (dữ liệu cũng không có).
-  const shown = COLUMN_GROUPS.filter((g) => canView(role, g));
+  const shown = COLUMN_GROUPS.filter((g) => canView(role, g, hiding));
   const columns: DataGridColumn<PromotionRow>[] = [];
   const groups: DataGridGroup[] = [];
   COLUMN_GROUPS.forEach((g) => {
     // Nhóm lương bị ẩn theo quyền (CQ, Admin): cột hẹp có khóa đúng vị trí nhóm, không có dữ liệu, không mở được.
-    if (!canView(role, g)) {
+    if (!canView(role, g, hiding)) {
       if (g === 'salary' && shown.length > 0) {
         const count = COLUMN_KEYS.salary.length;
         groups.push({

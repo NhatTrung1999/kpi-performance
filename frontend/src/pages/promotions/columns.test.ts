@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { COLUMN_GROUPS, COLUMN_KEYS, SALARY_SUBGROUPS, visibleColumns } from '@/config/promotion-proposal';
+import { COLUMN_GROUPS, COLUMN_KEYS, HIDE_GROUPS_BY_ROLE, SALARY_SUBGROUPS, visibleColumns } from '@/config/promotion-proposal';
 import en from '@/i18n/locales/en/promotion.json';
 import viLocale from '@/i18n/locales/vi/promotion.json';
 import type { AppRole } from '@/lib/session';
@@ -59,17 +59,40 @@ describe('tiêu đề nguyên văn sheet 2026年07月名單', () => {
   });
 });
 
-describe('số cột theo vai trò (GROUP_VIEW)', () => {
+describe('số cột theo vai trò — hiện tại chưa ẩn (HIDE_GROUPS_BY_ROLE = false)', () => {
+  it('mọi vai trò thấy đủ 40 cột, không có cột hẹp bị ẩn', () => {
+    expect(HIDE_GROUPS_BY_ROLE).toBe(false);
+    for (const role of ['CQ', 'AD', 'HR', 'KT', 'BLD'] as const) {
+      const { columns, groups } = build(role);
+      expect(columns.map((c) => c.key), role).toEqual(ALL);
+      expect(visibleColumns(role), role).toEqual(ALL);
+      expect(groups.filter((g) => g.hidden), role).toEqual([]);
+    }
+  });
+
+  it('service mẫu trả đủ dữ liệu cả 6 nhóm cho Chủ quản và Admin', async () => {
+    const cq = await getPromotionProposal({ role: 'CQ', email: 'chuquan.dev@example.com' });
+    const admin = await getPromotionProposal({ role: 'AD', email: 'admin.dev@example.com' }, 'transfer');
+    expect(cq.rows.length).toBeGreaterThan(0);
+    expect(admin.rows.length).toBeGreaterThan(0);
+    for (const r of [...cq.rows, ...admin.rows]) expect(r).toHaveProperty('salary');
+  });
+});
+
+// Khi bật lại ẩn theo quyền (GROUP_VIEW): kiểm tra bằng `hiding: true`.
+const hidden = (role: AppRole) => buildColumns({ t, role, status: 'draft', issues: new Map(), edit: () => {}, collapsed: new Set(), toggle: () => {}, hiding: true });
+
+describe('số cột theo vai trò khi bật ẩn theo quyền (GROUP_VIEW)', () => {
   it('BLĐ, HR, Kế toán thấy đủ 40 cột', () => {
     for (const role of ['BLD', 'HR', 'KT'] as const) {
-      expect(visibleColumns(role)).toEqual(ALL);
-      expect(build(role).columns.map((c) => c.key)).toEqual(ALL);
+      expect(visibleColumns(role, true)).toEqual(ALL);
+      expect(hidden(role).columns.map((c) => c.key)).toEqual(ALL);
     }
   });
 
   it('Chủ quản thấy đúng 19 cột 1–19 (A–S)', () => {
-    expect(visibleColumns('CQ')).toEqual(ALL.slice(0, 19));
-    const { columns, groups } = build('CQ');
+    expect(visibleColumns('CQ', true)).toEqual(ALL.slice(0, 19));
+    const { columns, groups } = hidden('CQ');
     expect(columns.map((c) => c.key)).toEqual(ALL.slice(0, 19));
     // Nhóm lương bị ẩn theo quyền: giữ vị trí nhưng không có cột dữ liệu (span 0, DataGrid vẽ cột hẹp có khóa).
     expect(groups.map((g) => g.key)).toEqual(['hr', 'cq', 'kpi', 'salary']);
@@ -78,13 +101,13 @@ describe('số cột theo vai trò (GROUP_VIEW)', () => {
   });
 
   it('Admin thấy 25 cột: 40 trừ 15 cột lương 20–34 (TODO chị Kitty: xác nhận)', () => {
-    const cols = build('AD').columns.map((c) => c.key);
+    const cols = hidden('AD').columns.map((c) => c.key);
     expect(cols).toHaveLength(25);
-    expect(cols).toEqual(visibleColumns('AD'));
+    expect(cols).toEqual(visibleColumns('AD', true));
     expect(cols.filter((k) => SALARY.has(k))).toEqual([]);
     expect(ALL.slice(19, 34)).toEqual([...COLUMN_KEYS.salary]);
     // Cột hẹp "15 cột lương" đúng vị trí nhóm lương (giữa KPI và ý kiến HR), không có cột dữ liệu.
-    const { groups } = build('AD');
+    const { groups } = hidden('AD');
     expect(groups.map((g) => g.key)).toEqual(['hr', 'cq', 'kpi', 'salary', 'hrOpinion', 'board']);
     expect(groups.find((g) => g.key === 'salary')).toMatchObject({ span: 0, hidden: { label: 'salaryHidden.label' } });
   });
@@ -92,30 +115,17 @@ describe('số cột theo vai trò (GROUP_VIEW)', () => {
   it('số cột dữ liệu theo vai trò: CQ 19, Admin 25, HR / Kế toán / BLĐ 40 (không có nhóm bị ẩn)', () => {
     const expected = { CQ: 19, AD: 25, HR: 40, KT: 40, BLD: 40 } as const;
     for (const [role, count] of Object.entries(expected) as [AppRole, number][]) {
-      const { columns, groups } = build(role);
+      const { columns, groups } = hidden(role);
       expect(columns, role).toHaveLength(count);
-      expect(visibleColumns(role), role).toHaveLength(count);
+      expect(visibleColumns(role, true), role).toHaveLength(count);
       if (count === 40) expect(groups.filter((g) => g.hidden), role).toEqual([]);
     }
   });
 
-  it('tổng span các nhóm bằng số cột (DataGrid yêu cầu)', () => {
+  it('tổng span các nhóm bằng số cột (DataGrid yêu cầu), cả khi bật lẫn tắt', () => {
     for (const role of ['CQ', 'AD', 'BLD', 'HR', 'KT'] as const) {
-      const { columns, groups } = build(role);
-      expect(groups.reduce((s, g) => s + g.span, 0)).toBe(columns.length);
+      for (const { columns, groups } of [build(role), hidden(role)]) expect(groups.reduce((s, g) => s + g.span, 0)).toBe(columns.length);
     }
-  });
-});
-
-describe('service mẫu không trả trường lương cho Chủ quản và Admin', () => {
-  it('getPromotionProposal: CQ và Admin không có `salary`, Kế toán có', async () => {
-    const cq = await getPromotionProposal({ role: 'CQ', email: 'chuquan.dev@example.com' });
-    const admin = await getPromotionProposal({ role: 'AD', email: 'admin.dev@example.com' }, 'transfer');
-    const kt = await getPromotionProposal({ role: 'KT', email: 'ketoan.dev@example.com' }, 'transfer');
-    expect(cq.rows.length).toBeGreaterThan(0);
-    expect(admin.rows.length).toBeGreaterThan(0);
-    for (const r of [...cq.rows, ...admin.rows]) expect(r).not.toHaveProperty('salary');
-    for (const r of kt.rows) expect(r).toHaveProperty('salary');
   });
 });
 

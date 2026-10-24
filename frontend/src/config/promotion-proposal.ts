@@ -33,7 +33,16 @@ export const GROUP_VIEW: Record<AppRole, readonly ColumnGroup[]> = {
   NV: [],
 };
 
-export const canView = (role: AppRole, group: ColumnGroup) => GROUP_VIEW[role].includes(group);
+/**
+ * Bật ẩn nhóm cột theo `GROUP_VIEW`. Hiện TẮT theo yêu cầu (2026-10-24: "hiện tại show hết tất cả các cột, chưa cần ẩn"):
+ * mọi vai trò thấy đủ 40 cột và dữ liệu cả 6 nhóm — kể cả lương với CQ / Admin (dữ liệu mẫu).
+ * Quyền SỬA từng cột (`ROLE_EDIT`) không đổi. Bật lại = đổi thành `true` (cột hẹp "15 cột lương" sẽ tự hiện cho CQ, Admin).
+ * TODO: khi nối API, server phải lọc dữ liệu theo quyền thật — cờ này chỉ quyết định giao diện / service mẫu.
+ */
+export const HIDE_GROUPS_BY_ROLE = false;
+
+/** Vai trò có được xem nhóm cột không. `hiding` mặc định theo `HIDE_GROUPS_BY_ROLE`; test truyền `true` để kiểm tra `GROUP_VIEW`. */
+export const canView = (role: AppRole, group: ColumnGroup, hiding = HIDE_GROUPS_BY_ROLE) => !hiding || GROUP_VIEW[role].includes(group);
 
 /**
  * 40 cột A–AN theo đúng thứ tự file, chia theo nhóm. Key là khóa i18n `promotion:cols.*` (tiêu đề nguyên văn VI + 中文).
@@ -53,7 +62,8 @@ export const COLUMN_KEYS = {
 export type PromotionColumn = (typeof COLUMN_KEYS)[ColumnGroup][number];
 
 /** Các cột một vai trò được xem, theo thứ tự file (CQ 19, Admin 25, HR/KT/BLĐ 40). */
-export const visibleColumns = (role: AppRole): PromotionColumn[] => COLUMN_GROUPS.filter((g) => canView(role, g)).flatMap((g) => COLUMN_KEYS[g]);
+export const visibleColumns = (role: AppRole, hiding = HIDE_GROUPS_BY_ROLE): PromotionColumn[] =>
+  COLUMN_GROUPS.filter((g) => canView(role, g, hiding)).flatMap((g) => COLUMN_KEYS[g]);
 
 /** Nhóm con trong nhóm lương: "Hiện tại / 目前" trên X–Z, "Sau khi tăng / 調整後" trên AD–AF (key i18n `promotion:subgroups.*`). */
 export const SALARY_SUBGROUPS = [

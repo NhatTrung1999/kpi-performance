@@ -198,8 +198,10 @@ describe('tổng toàn TTKT (sheet SUM)', () => {
 describe('quyền theo nhóm cột', () => {
   it('CQ chỉ thấy 3 nhóm; Admin thấy tất cả trừ lương; HR, KT, BLĐ thấy tất cả', () => {
     expect(GROUP_VIEW.CQ).toEqual(['hr', 'cq', 'kpi']);
-    expect(canView('AD', 'salary')).toBe(false);
-    expect(canView('AD', 'board')).toBe(true);
+    expect(canView('AD', 'salary', true)).toBe(false);
+    expect(canView('AD', 'board', true)).toBe(true);
+    // Hiện tại chưa ẩn (HIDE_GROUPS_BY_ROLE = false): mọi vai trò xem được mọi nhóm.
+    expect(canView('CQ', 'salary')).toBe(true);
     for (const role of ['HR', 'KT', 'BLD'] as const) expect(GROUP_VIEW[role]).toHaveLength(6);
   });
 
@@ -217,15 +219,17 @@ describe('quyền theo nhóm cột', () => {
   });
 
   it('service bỏ hẳn trường lương (và nhóm không được xem) khỏi dữ liệu trả về', () => {
-    const cq = visibleRow(A, 'CQ');
+    const cq = visibleRow(A, 'CQ', true);
     expect(cq).not.toHaveProperty('salary');
     expect(cq).not.toHaveProperty('hrOpinion');
     expect(cq).not.toHaveProperty('board');
     expect(JSON.stringify(cq)).not.toContain('10120000');
-    const admin = visibleRow(A, 'AD');
+    const admin = visibleRow(A, 'AD', true);
     expect(admin).not.toHaveProperty('salary');
     expect(admin).toHaveProperty('board');
-    expect(visibleRow(A, 'KT')).toHaveProperty('salary');
+    expect(visibleRow(A, 'KT', true)).toHaveProperty('salary');
+    // Chưa bật ẩn: trả đủ.
+    expect(visibleRow(A, 'CQ')).toHaveProperty('salary');
   });
 });
 

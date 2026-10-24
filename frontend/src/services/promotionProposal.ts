@@ -315,13 +315,13 @@ const groupIdsOf = (viewer: PromotionViewer) =>
  * Bỏ khỏi dòng các nhóm cột vai trò không được xem (lương, ý kiến HR, quyết định BLĐ) — không chỉ ẩn trên giao diện.
  * TODO: server BẮT BUỘC làm việc này; dữ liệu lương không bao giờ được gửi tới CQ/Admin.
  */
-export function visibleRow(row: PromotionRow, role: AppRole): PromotionRow {
+export function visibleRow(row: PromotionRow, role: AppRole, hiding?: boolean): PromotionRow {
   const { salary, hrOpinion, board, ...rest } = row;
   return {
     ...rest,
-    ...(canView(role, 'salary') && salary ? { salary } : null),
-    ...(canView(role, 'hrOpinion') && hrOpinion !== undefined ? { hrOpinion } : null),
-    ...(canView(role, 'board') && board ? { board } : null),
+    ...(canView(role, 'salary', hiding) && salary ? { salary } : null),
+    ...(canView(role, 'hrOpinion', hiding) && hrOpinion !== undefined ? { hrOpinion } : null),
+    ...(canView(role, 'board', hiding) && board ? { board } : null),
   };
 }
 
