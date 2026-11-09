@@ -1,0 +1,9 @@
+{
+  "proposals": "Đề xuất KPI",
+  "promotions": "Thăng chức & lương",
+  "roles": "Phân quyền",
+  "groups": {
+    "proposal": "ĐỀ XUẤT",
+    "admin": "QUẢN TRỊ"
+  }
+}

@@ -1,74 +1,104 @@
 {
-  "periodLine": "Review period Q4 2026 · {{from}} – {{to}}",
-  "heroTitle": "Completed <1>{{value}}</1> of Q4 KPIs",
-  "heroProgress": "Q4 KPI progress",
-  "left": "Left",
-  "daysLeft_one": "{{count}} day",
-  "daysLeft_other": "{{count}} days",
-  "selfReviewBy": "Self-review due {{date}}",
-  "updateProgress": "Update progress",
+  "greeting": {
+    "morning": "Good morning, {{name}}",
+    "afternoon": "Good afternoon, {{name}}",
+    "evening": "Good evening, {{name}}"
+  },
+  "banner": {
+    "onTrack": "You're on track",
+    "atRisk": "Some goals are at risk",
+    "behind": "You're behind on this quarter",
+    "attention_one": "{{count}} goal needs attention",
+    "attention_other": "{{count}} goals need attention",
+    "allClear": "All goals on track",
+    "quarterBadge": "<1>{{value}}</1> Q{{quarter}}",
+    "daysBadge_one": "<1>{{count}}</1> day left",
+    "daysBadge_other": "<1>{{count}}</1> days left"
+  },
   "stats": {
-    "completion": "KPI completion",
-    "goalsMet": "Goals achieved",
-    "goalsUnit": "goals",
-    "avgScore": "Average review score",
-    "avgCaption": "vs. Q3 ({{value}})",
-    "change": "Change vs. Q3",
-    "changeUnit": "({{from}} → {{to}})"
+    "completion": "Completion",
+    "completionUnit": "% of Q{{quarter}} target",
+    "progress": "Progress",
+    "target": "Target {{value}}",
+    "goals": "Goals achieved",
+    "goalsUnit": "/ {{total}} goals",
+    "onTrack": "{{count}} on track",
+    "needAttention": "{{count}} need attention",
+    "score": "Avg. score",
+    "reviews_one": "{{count}} review",
+    "reviews_other": "{{count}} reviews",
+    "self": "Self {{value}}",
+    "manager": "Manager {{value}}",
+    "change": "Change vs Q{{quarter}}",
+    "changeUnit": "pts",
+    "improving": "Improving",
+    "declining": "Declining",
+    "steady": "Steady",
+    "changeCaption": "Q{{from}} {{prev}} → Q{{to}} {{curr}}",
+    "quarterTag": "Q{{quarter}}"
+  },
+  "mobileStats": {
+    "completion": "Completion",
+    "goals": "Goals",
+    "score": "Avg. score",
+    "change": "vs Q{{quarter}}"
   },
   "monthly": {
-    "title": "Monthly KPI progress",
-    "desc": "2026 · % of monthly target completed",
-    "actual": "Actual",
+    "title": "Monthly progress · {{year}}",
+    "titleShort": "Monthly progress",
+    "summary": "in {{month}} · {{gap}} pts to target",
+    "summaryMet": "in {{month}} · target met",
+    "completion": "Completion",
     "target": "Target {{value}}",
-    "chartLabel": "Monthly KPI progress chart for 2026; December at {{value}} as of {{date}}, target {{target}}",
-    "tooltip": "Dec (as of {{date}})"
+    "calloutCaption": "completion",
+    "chartLabel": "Monthly KPI completion for {{year}}: {{month}} at {{value}}, target {{target}}",
+    "empty": "No monthly progress recorded yet."
   },
   "myKpi": {
-    "title": "My KPI",
-    "desc": "{{done}}/{{total}} Q4 goals · sorted by due date",
+    "title": "My KPIs",
+    "countTag": "{{shown}} of {{total}}",
     "viewAll": "View all",
     "goal": "Goal",
     "progress": "Progress",
-    "due": "Due date",
+    "due": "Due",
     "status": "Status",
-    "dueShort": "Due"
+    "empty": "No KPIs assigned for this quarter yet."
   },
   "status": {
-    "dat": "On track",
-    "canh-bao": "At risk",
-    "chua-dat": "Off track",
-    "nhap": "Draft",
-    "cho-duyet": "Pending review",
-    "da-duyet": "Approved"
+    "onTrack": "On track",
+    "atRisk": "At risk",
+    "behind": "Behind"
   },
-  "goals": {
-    "revenue": { "name": "Northern region sales revenue", "meta": "Weight {{weight}} · {{actual}}/{{target}} billion VND" },
-    "renewal": { "name": "Contract renewal rate", "meta": "Weight {{weight}} · {{actual}} / target {{target}}" },
-    "newClients": { "name": "New enterprise customers", "meta": "Weight {{weight}} · {{actual}}/{{target}} customers" },
-    "response": { "name": "Customer requests answered within 4 hours", "meta": "Weight {{weight}} · achieved {{actual}} / target {{target}}" },
-    "report": { "name": "Q4 market analysis report", "meta": "Weight {{weight}} · submitted {{date}}" }
-  },
-  "deadlines": {
-    "title": "Upcoming deadlines",
-    "desc": "{{count}} tasks in the next 30 days",
-    "evidence": "Submit evidence for the response-time goal",
-    "managerReview": "Manager reviews the market report",
-    "closeData": "Finalize response-time data",
-    "updateClients": "Update new enterprise customers",
-    "selfReview": "Submit Q4 self-review form",
-    "left_one": "{{count}} day left",
-    "left_other": "{{count}} days left"
+  "upcoming": {
+    "title": "Upcoming",
+    "daysLeft_one": "{{count}} day left in Q{{quarter}}",
+    "daysLeft_other": "{{count}} days left in Q{{quarter}}",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "inDays_one": "In {{count}} day",
+    "inDays_other": "In {{count}} days",
+    "allDay": "all day",
+    "endOfDay": "end of day",
+    "meta": "{{weekday}} · {{time}}",
+    "empty": "Nothing scheduled in the next weeks."
   },
   "activity": {
     "title": "Recent activity",
-    "you": "You",
-    "approved": "approved the update of “Contract renewal rate” to {{value}}",
-    "commented": "commented: “Please add evidence for the 4-hour response goal.”",
-    "updated": "updated “Northern region revenue”: {{from}} → {{to}} billion VND",
-    "submitted": "submitted “Q4 market analysis report” for review",
+    "updated": "You updated {{goal}} to {{value}}",
+    "approved": "Your manager approved the {{goal}} target",
+    "achieved": "Goal achieved: {{goal}}",
+    "comment": "New comment on {{goal}}",
+    "justNow": "Just now",
+    "minutesAgo_one": "{{count}} minute ago",
+    "minutesAgo_other": "{{count}} minutes ago",
     "hoursAgo_one": "{{count}} hour ago",
     "hoursAgo_other": "{{count}} hours ago",
-    "yesterday": "Yesterday, {{time}}"
-  }
+    "yesterday": "Yesterday · {{time}}",
+    "empty": "No recent activity."
+  },
+  "error": {
+    "title": "Couldn't load your overview",
+    "description": "Something went wrong while loading your KPI data. Please try again."
+  },
+  "loading": "Loading overview"
 }

@@ -1,0 +1,485 @@
+{
+  "grid": "Bảng đề xuất thăng chức & tăng lương",
+  "banner": {
+    "title": "LYV's Promotion & Salary Proposal · Đợt {{month}}",
+    "subtitle": "Ngày hiệu lực {{date}}",
+    "proposed": "Đề xuất",
+    "proposedValue": "{{count}}/{{total}} NV",
+    "deadline": "Hạn {{date}}"
+  },
+  "status": {
+    "draft": "Đang lập",
+    "submitted": "Chờ duyệt",
+    "approved": "Đã duyệt",
+    "returned": "Đã trả lại"
+  },
+  "groupPicker": {
+    "label": "Nhóm xét duyệt",
+    "sub": "審核組別 · BLĐ duyệt từng nhóm",
+    "option": "{{headcount}} NV · {{proposed}} đề xuất",
+    "approvedCount": "Đã duyệt {{approved}}/{{total}} nhóm",
+    "total": {
+      "label": "Toàn TTKT",
+      "sub": "Grand Total · theo sheet SUM",
+      "promotion": "Thăng chức {{count}}/{{base}} · {{percent}}",
+      "raise": "Tăng lương {{count}}/{{base}} · {{percent}}"
+    }
+  },
+  "unitLabel": "Bộ phận:",
+  "allUnits": "Tất cả",
+  "unitFilter": "Lọc theo bộ phận",
+  "search": "Tìm nhân viên",
+  "searchPlaceholder": "Tìm tên hoặc số thẻ",
+  "meters": {
+    "promotion": "Thăng chức",
+    "raiseLocal": "Tăng lương",
+    "raiseExpat": "Tăng lương expat",
+    "value": "{{count}}/{{base}} · {{percent}}",
+    "limit": "/ {{limit}}",
+    "over": "Vượt hạn mức {{limit}} — chỉ cảnh báo, không chặn gửi",
+    "budget": {
+      "title": "Headcount budget: (only for High Performing Individuals)",
+      "promotion": "* Promotion headcount: 5% for local and expats;",
+      "raise": "* Salary adjustment headcount: 10% for local; 5% for expats."
+    }
+  },
+  "saveDraft": "Lưu nháp",
+  "save": "Lưu",
+  "saving": "Đang lưu…",
+  "savedAt": "Đã lưu lúc {{time}}",
+  "submit": "Gửi đề xuất",
+  "return": "Trả lại CQ",
+  "approve": "Phê duyệt nhóm",
+  "submitBlocked": "Cần tải lên đủ 2 sơ đồ tổ chức (Trước & Sau đề bạt) trước khi gửi",
+  "issues_one": "Còn {{count}} dòng cần xử lý",
+  "issues_other": "Còn {{count}} dòng cần xử lý",
+  "rejectIssues_one": "Còn {{count}} dòng Từ chối chưa có lý do",
+  "rejectIssues_other": "Còn {{count}} dòng Từ chối chưa có lý do",
+  "grantedIssues_one": "Còn {{count}} dòng chưa nhập mức lương được tăng",
+  "grantedIssues_other": "Còn {{count}} dòng chưa nhập mức lương được tăng",
+  "issue": {
+    "locked": "Chưa ký HĐ vô thời hạn và có 4C trong 12 tháng → không được đề xuất",
+    "reasonRequired": "Đã ký HĐ vô thời hạn nhưng có 4C trong 12 tháng → bắt buộc ghi lý do cụ thể",
+    "rejectReason": "Bắt buộc nhập lý do từ chối",
+    "grantedRequired": "Nhập mức lương được tăng"
+  },
+  "lockedShort": "Không được đề xuất",
+  "returnedAlert": "BLĐ đã trả lại đề xuất: {{reason}}",
+  "confirm": {
+    "cancel": "Hủy",
+    "submit": {
+      "title": "Gửi đề xuất của {{group}}?",
+      "description": "Admin sẽ kiểm tra dữ liệu, sau đó HR và Kế toán bổ sung trước khi BLĐ xét duyệt. Bạn sẽ không sửa được nữa.",
+      "confirm": "Gửi đề xuất"
+    },
+    "approve": {
+      "title": "Phê duyệt đề xuất của {{group}}?",
+      "description": "CQ và Admin sẽ nhận thông báo kết quả cuối cùng.",
+      "confirm": "Phê duyệt"
+    },
+    "return": {
+      "title": "Trả lại đề xuất cho CQ · {{group}}?",
+      "description": "Đề xuất của nhóm sẽ chuyển về trạng thái nháp để CQ chỉnh sửa và gửi lại. CQ và Admin nhận email kèm lý do.",
+      "confirm": "Trả lại CQ",
+      "reasonLabel": "Lý do trả lại",
+      "reasonPlaceholder": "Ghi rõ nội dung CQ cần bổ sung hoặc điều chỉnh...",
+      "reasonRequired": "Bắt buộc nhập lý do trả lại."
+    }
+  },
+  "done": {
+    "save": "Đã lưu",
+    "submit": "Đã gửi đề xuất",
+    "approve": "Đã phê duyệt nhóm",
+    "return": "Đã trả lại CQ"
+  },
+  "saveError": "Không lưu được. Vui lòng thử lại.",
+  "actionError": "Không thực hiện được. Vui lòng thử lại.",
+  "loadError": "Không tải được đề xuất.",
+  "noScopeTitle": "Chưa được gán nhóm xét duyệt",
+  "noScopeHint": "Liên hệ Admin để được gán các nhóm bạn phụ trách.",
+  "noMatch": "Không có nhân viên phù hợp.",
+  "none": "—",
+  "choose": "Chọn...",
+  "placeholder": "Bấm để nhập...",
+  "typing": "Nhập...",
+  "expat": "Expat",
+  "salaryLock": {
+    "label": "Quyền xem thông tin lương",
+    "text": "những thông tin này chỉ có BLĐ, Kế toán & Nhân sự nhìn thấy để xét duyệt => file approval gửi về cho các chủ quản sẽ ko hiển thị những thông tin này",
+    "sub": "以上資訊僅供高階管理層、會計及人資部門查看與審核，因此發送給各部門主管的核准文件中，不會顯示這些資訊。"
+  },
+  "salaryHidden": {
+    "stub": "{{n}} cột lương · chỉ BLĐ, HR, Kế toán",
+    "label": "Nhóm lương bị ẩn theo quyền: {{n}} cột lương chỉ BLĐ, HR và Kế toán xem được"
+  },
+  "collapse": "Thu gọn nhóm: {{name}}",
+  "expand": "Mở rộng nhóm: {{name}}",
+  "groups": {
+    "hr": {
+      "label": "dữ liệu link từ hệ thống nhân sự",
+      "sub": "從人事系統自動連結資料"
+    },
+    "cq": {
+      "label": "thông tin chủ quản tự điền",
+      "sub": "由部門主管自行填寫資訊"
+    },
+    "kpi": {
+      "label": "tự link từ HT đánh giá KPI",
+      "sub": "從 KPI 評核系統自動連結資料"
+    },
+    "salary": {
+      "label": "dữ liệu link từ hệ thống lương & gửi Kế toán tạm tính",
+      "sub": "從薪資系統自動連結資料，並發送給會計進行薪資預估"
+    },
+    "hrOpinion": {
+      "label": "Gửi đến HR để lấy ý kiến",
+      "sub": "系統發送至 HR，徵詢意見"
+    },
+    "board": {
+      "label": "BLĐ xét duyệt & quyết định",
+      "sub": "由高階管理層審核並做出決定"
+    }
+  },
+  "subgroups": {
+    "current": {
+      "label": "Hiện tại",
+      "sub": "目前"
+    },
+    "after": {
+      "label": "Sau khi tăng",
+      "sub": "調整後"
+    }
+  },
+  "collapsedCount_one": "{{count}} cột",
+  "collapsedCount_other": "{{count}} cột",
+  "cqFootnote": "Các cột 20–40 do HR, Kế toán, BLĐ xử lý",
+  "cols": {
+    "priority": {
+      "label": "Thứ tự ưu tiên",
+      "sub": "提報優先順序"
+    },
+    "unit": {
+      "label": "Bộ phận",
+      "sub": "部門別"
+    },
+    "name": {
+      "label": "Đề cử cán bộ",
+      "sub": "提名幹部"
+    },
+    "cardNo": {
+      "label": "Số thẻ",
+      "sub": "員工編號"
+    },
+    "joinDate": {
+      "label": "NGÀY VÀO",
+      "sub": "到職日"
+    },
+    "seniority": {
+      "label": "Thâm niên làm việc",
+      "sub": "工作年資"
+    },
+    "contract": {
+      "label": "Loại hợp đồng",
+      "sub": "合約類型"
+    },
+    "position": {
+      "label": "Chức vụ",
+      "sub": "職稱"
+    },
+    "promotionCount": {
+      "label": "Số lần được đề xuất thăng chức từ lúc vào Cty",
+      "sub": "自入職以來的晉升提案次數"
+    },
+    "abc": {
+      "label": "Bình bầu ABC trong 12 tháng gần nhất",
+      "sub": "近 12 個月內的 ABC 評等"
+    },
+    "discipline": {
+      "label": "Vi phạm Xử lý Kỷ luật",
+      "sub": "違反紀律處分規定"
+    },
+    "status": {
+      "label": "Tình trạng nhân viên",
+      "sub": "員工狀態"
+    },
+    "leave": {
+      "label": "Thời gian nghỉ ỐM/ Thai sản/ THHĐ",
+      "sub": "病假／產假／停薪留職期間"
+    },
+    "type": {
+      "label": "Thăng chức hoặc tăng lương",
+      "sub": "升職或調薪"
+    },
+    "newTitle": {
+      "label": "Chức danh mới",
+      "sub": "新職稱"
+    },
+    "reason": {
+      "label": "(Lý do đề xuất/ bổ nhiệm)",
+      "sub": "提報原因說明"
+    },
+    "jobChange": {
+      "label": "Sau khi thăng chức có thay đổi công việc gì không?",
+      "sub": "升職後工作上是否有任何調整與異動"
+    },
+    "raise": {
+      "label": "Đề xuất tăng lương",
+      "sub": "提議加薪",
+      "note": "Có thể chọn \"Theo bậc lương Cty (Follow salary's scale)\" hoặc tự điền con số mình muốn"
+    },
+    "kpi": {
+      "label": "KPI hiện tại",
+      "sub": "目前關鍵績效指標"
+    },
+    "salaryAdjustments": {
+      "label": "Số lần được điều chỉnh lương trong 3 năm gần nhất",
+      "sub": "近 3 年內的調薪提案次數"
+    },
+    "salaryLevels": {
+      "label": "Các mức lương đã được điều chỉnh",
+      "sub": "已調整的薪資項目"
+    },
+    "currentTitle": {
+      "label": "Chức vụ hiện tại",
+      "sub": "目前職稱"
+    },
+    "contractSalary": {
+      "label": "Mức lương hiện tại theo HĐ",
+      "sub": "目前合約薪資"
+    },
+    "currentRating": {
+      "label": "Tiền bình bầu",
+      "sub": "評等獎金"
+    },
+    "currentAttendance": {
+      "label": "Tiền chuyên cần",
+      "sub": "全勤獎金"
+    },
+    "currentLiving": {
+      "label": "Phí sinh hoạt",
+      "sub": "生活費"
+    },
+    "totalCurrent": {
+      "label": "Tổng lương hiện tại",
+      "sub": "目前薪資"
+    },
+    "newPosition": {
+      "label": "Chức vụ mới",
+      "sub": "新職稱"
+    },
+    "newContract": {
+      "label": "Mức lương mới tạm tính theo HĐ",
+      "sub": "預估新合約薪資"
+    },
+    "newRating": {
+      "label": "Tiền bình bầu",
+      "sub": "評等獎金"
+    },
+    "newAttendance": {
+      "label": "Tiền chuyên cần",
+      "sub": "全勤獎金"
+    },
+    "newLiving": {
+      "label": "Phí sinh hoạt",
+      "sub": "生活費"
+    },
+    "totalNew": {
+      "label": "Tổng lương sau khi tăng",
+      "sub": "加薪後的總薪資"
+    },
+    "diffOldNew": {
+      "label": "Mức chênh lệch giữa cũ & mới",
+      "sub": "新舊薪資差額"
+    },
+    "hrOpinion": {
+      "label": "Ý kiến của nhân sự",
+      "sub": "人力資源的意見"
+    },
+    "boardType": {
+      "label": "Thăng chức hoặc tăng lương",
+      "sub": "升職或調薪",
+      "note": "link theo đề xuất của CQ, nhưng có thể chỉnh sửa"
+    },
+    "boardTitle": {
+      "label": "Chức danh mới",
+      "sub": "新職稱"
+    },
+    "boardAmount": {
+      "label": "Mức lương được tăng",
+      "sub": "薪水已經上調了",
+      "note": "BLĐ tự điền"
+    },
+    "boardDiff": {
+      "label": "Mức chênh lệch giữa đề xuất lương và thực tế",
+      "sub": "提議與實際調薪差異",
+      "note": "HT tự tính"
+    },
+    "boardDecision": {
+      "label": "Quyết định của BLĐ",
+      "sub": "管理委員會的決定",
+      "note": "HT tự hiển thị thông tin theo dữ liệu BLĐ xác nhận"
+    }
+  },
+  "types": {
+    "none": {
+      "label": "Không đề xuất",
+      "hint": "—"
+    },
+    "promotion": {
+      "label": "Thăng chức",
+      "hint": "promotion · kèm tăng lương"
+    },
+    "raise": {
+      "label": "Tăng lương",
+      "hint": "raise salary"
+    },
+    "reject": {
+      "label": "Từ chối",
+      "hint": "Rejected"
+    }
+  },
+  "decision": {
+    "promotion": {
+      "label": "Thăng chức + tăng lương",
+      "hint": "Promoted & increased salary"
+    },
+    "raise": {
+      "label": "Tăng lương",
+      "hint": "Increased salary"
+    },
+    "reject": {
+      "label": "Từ chối",
+      "hint": "Rejected"
+    }
+  },
+  "rejectReasonPlaceholder": "* Bắt buộc nhập lý do từ chối",
+  "boardRejected": "Đã chọn Từ chối — không áp dụng chức danh mới",
+  "raiseMode": {
+    "scale": {
+      "label": "Theo bậc lương Cty",
+      "hint": "Follow salary's scale"
+    },
+    "amount": {
+      "label": "Tự nhập số tiền",
+      "hint": "Nhập mức tăng mong muốn"
+    },
+    "short": {
+      "scale": "Theo bậc lương Cty",
+      "amount": "Tự nhập"
+    }
+  },
+  "contract": {
+    "permanent": {
+      "label": "Vô thời hạn",
+      "sub": "無固定期限"
+    },
+    "fixed": {
+      "label": "Có thời hạn",
+      "sub": "固定期限"
+    }
+  },
+  "empStatus": {
+    "active": "Đang làm việc",
+    "maternity": "Nghỉ thai sản",
+    "sickLeave": "Nghỉ ốm",
+    "contractSuspended": "Tạm hoãn HĐ",
+    "resigned": "Đã thôi việc"
+  },
+  "leaveRange": "{{from}} → {{to}}",
+  "titleHint": "Thăng từng bậc theo quy định — bậc kế tiếp được chọn sẵn",
+  "titleLevel": "Bậc {{level}} · {{name}}",
+  "noNextTitle": "Chưa có chức danh kế tiếp cho khối này",
+  "history": {
+    "promotionTitle": "Các lần đề xuất thăng chức",
+    "salaryTitle": "Lịch sử điều chỉnh lương",
+    "date": "Ngày",
+    "amount": "Mức lương",
+    "more": "Xem đủ {{count}} lần",
+    "contractOnly": "Chỉ tính lương HĐ"
+  },
+  "fields": {
+    "position": "Chức vụ — {{name}}",
+    "type": "Thăng chức hoặc tăng lương — {{name}}",
+    "newTitle": "Chức danh mới — {{name}}",
+    "reason": "Lý do đề xuất",
+    "jobChange": "Thay đổi công việc sau thăng chức",
+    "raiseMode": "Cách đề xuất tăng lương — {{name}}",
+    "raiseAmount": "Số tiền đề xuất tăng — {{name}}",
+    "hrOpinion": "Ý kiến của nhân sự",
+    "newContract": "Lương HĐ mới tạm tính — {{name}}",
+    "newRating": "Tiền bình bầu mới — {{name}}",
+    "newAttendance": "Tiền chuyên cần mới — {{name}}",
+    "newLiving": "Phí sinh hoạt mới — {{name}}",
+    "boardType": "Quyết định của BLĐ — {{name}}",
+    "boardTitle": "Chức danh mới BLĐ duyệt — {{name}}",
+    "boardAmount": "Mức lương được tăng — {{name}}",
+    "boardReason": "Lý do từ chối — {{name}}"
+  },
+  "orgChart": {
+    "title": "Sơ đồ tổ chức",
+    "required": "(bắt buộc)",
+    "uploadSub": "Organization chart 組織圖 · PDF, PNG, JPG ≤ 10MB · cần đủ 2 file để gửi đề xuất",
+    "viewSub": "Organization chart 組織圖 · {{group}}",
+    "uploadedOn": "CQ tải lên {{date}}",
+    "count": "{{count}}/2 file",
+    "slots": {
+      "before": {
+        "label": "Trước đề bạt",
+        "sub": "提報前"
+      },
+      "after": {
+        "label": "Sau đề bạt",
+        "sub": "提報後"
+      }
+    },
+    "drop": "Kéo thả file vào đây hoặc bấm để chọn",
+    "choose": "Chọn file",
+    "replace": "Thay file",
+    "remove": "Gỡ file",
+    "view": "Xem",
+    "download": "Tải về",
+    "missing": "Chưa tải lên",
+    "previewTitle": "Sơ đồ tổ chức · {{group}}",
+    "noPreview": "Chưa có bản xem trước — đây là file mẫu, hệ thống thử không lưu nội dung file.",
+    "errors": {
+      "type": "Chỉ nhận file PDF, PNG hoặc JPG",
+      "size": "File vượt quá 10MB",
+      "upload": "Không tải lên được. Vui lòng thử lại."
+    },
+    "button_one": "Sơ đồ tổ chức · {{count}} file",
+    "button_other": "Sơ đồ tổ chức · {{count}} file",
+    "lacking_one": "Sơ đồ tổ chức · Thiếu {{count}} file",
+    "lacking_other": "Sơ đồ tổ chức · Thiếu {{count}} file"
+  },
+  "rules": {
+    "title": "Theo quy định Cty",
+    "sub": "公司規定",
+    "when": "Khi NV có 4C trong 1 năm",
+    "locked": {
+      "who": "NV chưa ký HĐLĐ vô thời hạn",
+      "effect": "Không được tái ký HĐLĐ → không được đề xuất thăng chức / tăng lương",
+      "result": "CQ KHÔNG thể chọn đề xuất"
+    },
+    "reason": {
+      "who": "NV đã ký HĐ vô thời hạn",
+      "effect": "CQ cần cân nhắc kỹ khi đề xuất thăng chức / tăng lương",
+      "result": "CQ chọn được nhưng phải có lý do cụ thể"
+    }
+  },
+  "notes": {
+    "title": "Notes",
+    "sub": "注意事項 · lưu ý trước khi đề xuất",
+    "n1": "Proposal is only applied for high performance indivisual only;",
+    "n2": "Frequency is every Apr/Oct and finalize the evaluation about 1month earlier.",
+    "n3": "Promotion level by level, don't jump over levels;",
+    "n4": "Promotion but the job scale remains the same, please provide clear explanation why promotion needed.",
+    "collapse": "Thu gọn",
+    "expand": "Mở rộng"
+  },
+  "guide": {
+    "title": "Lưu ý & quy định",
+    "sub": "注意事項",
+    "summary": "{{notes}} lưu ý · {{rules}} quy định 4C"
+  },
+  "titleNext": "Bậc kế tiếp theo quy định"
+}

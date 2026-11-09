@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
@@ -24,38 +24,37 @@ type Props = {
   onToggle: () => void;
   /** Phần đặt giữa nút mở rộng và tên (vd. checkbox). */
   lead?: ReactNode;
-  className?: string;
 };
 
-export const TreeRowView = ({ row, query, onToggle, lead, className }: Props) => {
+/** Một dòng cây đơn vị: thụt 20px mỗi cấp, nút mở/đóng, tên + dòng chữ Hán. Phần đuôi (số người, chip) do nơi gọi thêm sau. */
+export const TreeRowView = ({ row, query, onToggle, lead }: Props) => {
   const { t } = useTranslation('roles');
   return (
-  <>
-    {Array.from({ length: row.level }, (_, i) => (
-      <span key={i} className="w-3.5 flex-none" />
-    ))}
-    {row.hasKids ? (
+    <>
+      {row.level > 0 && <span style={{ width: row.level * 20 }} className="flex-none" />}
       <button
         type="button"
         aria-label={row.open ? t('collapse') : t('expand')}
+        tabIndex={row.hasKids ? 0 : -1}
         onClick={(e) => {
           e.stopPropagation();
           onToggle();
         }}
-        className="flex size-6 flex-none items-center justify-center rounded-md text-text-secondary hover:bg-border"
+        className={cn(
+          'flex size-5.5 flex-none items-center justify-center rounded-md text-muted-foreground transition-transform duration-150 hover:bg-border',
+          row.open && 'rotate-90',
+          !row.hasKids && 'invisible'
+        )}
       >
-        {row.open ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
+        <ChevronRight className="size-3" strokeWidth={2.4} />
       </button>
-    ) : (
-      <span className="w-6 flex-none" />
-    )}
-    {lead}
-    <span className={cn("flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2 leading-snug", className)}>
-      <span className={cn("[overflow-wrap:anywhere]", row.hasKids && "font-semibold")}>
-        <Highlight text={row.name} query={query} />
+      {lead}
+      <span className="flex min-w-0 flex-1 flex-col gap-px">
+        <span className={cn('truncate text-[13px]', row.hasKids ? 'font-semibold' : 'font-medium')}>
+          <Highlight text={row.name} query={query} />
+        </span>
+        {row.zh && <span className="truncate text-[11px] text-muted-foreground">{row.zh}</span>}
       </span>
-    </span>
-    <span className="flex-none text-xs whitespace-nowrap text-muted-foreground tabular-nums">{t('peopleCount', { count: row.count })}</span>
-  </>
+    </>
   );
 };

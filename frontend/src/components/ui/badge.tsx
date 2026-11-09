@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 const BADGE_STATUS = {
   dat: { label: "On track", icon: CircleCheck },
   "canh-bao": { label: "At risk", icon: TriangleAlert },
-  "chua-dat": { label: "Off track", icon: CircleX },
+  "chua-dat": { label: "Behind", icon: CircleX },
   nhap: { label: "Draft", icon: PencilLine },
   "cho-duyet": { label: "Pending review", icon: Clock },
   "da-duyet": { label: "Approved", icon: BadgeCheck },

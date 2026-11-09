@@ -1,256 +1,537 @@
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import Header, { MobileToolbar } from '@/components/common/Header';
+import { Link } from 'react-router';
+import { ArrowRight, ArrowUp, ArrowDown, Check, CircleAlert, CircleCheck, MessageSquare, Pencil, Sun } from 'lucide-react';
+import { MobileToolbar } from '@/components/common/Toolbar';
 import { Badge, type BadgeStatus } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import { Eyebrow, MetricCard, Pill } from '@/components/ui/metric-card';
+import { PageBanner } from '@/components/ui/page-banner';
 import { ProgressBar } from '@/components/ui/progress-bar';
-import { StatCard } from '@/components/ui/stat-card';
-import { formatDate, formatMonthShort, formatNumber, formatPercent } from '@/lib/format';
+import { Sparkline, TrendChart } from '@/components/ui/trend-chart';
+import { getKpiTone, type KpiTone } from '@/config/kpi';
+import { useCountUp } from '@/hooks/use-count-up';
+import { formatDate, formatMonthShort, formatMonthYear, formatNumber, formatPercent, formatTime, formatWeekdayShort } from '@/lib/format';
+import { getQuarterInfo } from '@/lib/quarter';
+import { shortNameOf, useCurrentUser } from '@/lib/session';
 import { cn } from '@/lib/utils';
+import { getOverview, type OverviewActivityKind, type OverviewData, type OverviewEvent } from '@/services/dashboard';
 
-type GoalKey = 'revenue' | 'renewal' | 'newClients' | 'response' | 'report';
+const TIME_ZONE = 'Asia/Ho_Chi_Minh';
 
-// Dữ liệu mẫu: số liệu thô, chữ lấy từ i18n (namespace `dashboard`), số/ngày định dạng qua lib/format.
-const GOALS: { key: GoalKey; meta: { weight: string; actual?: string; target?: string; date?: string }; progress: number; due: string; status: BadgeStatus }[] = [
-  { key: 'revenue', meta: { weight: formatPercent(30), actual: formatNumber(4.6, { minimumFractionDigits: 1 }), target: formatNumber(5, { minimumFractionDigits: 1 }) }, progress: 92, due: '2026-12-31', status: 'dat' },
-  { key: 'renewal', meta: { weight: formatPercent(15), actual: formatPercent(86.4, 1), target: formatPercent(90) }, progress: 96, due: '2026-12-31', status: 'dat' },
-  { key: 'newClients', meta: { weight: formatPercent(20), actual: formatNumber(17), target: formatNumber(23) }, progress: 74, due: '2026-12-20', status: 'canh-bao' },
-  { key: 'response', meta: { weight: formatPercent(15), actual: formatPercent(52.2, 1), target: formatPercent(90) }, progress: 58, due: '2026-12-15', status: 'chua-dat' },
-  { key: 'report', meta: { weight: formatPercent(10), date: formatDate('2026-12-04', false) }, progress: 100, due: '2026-12-12', status: 'cho-duyet' },
-];
+// Trạng thái suy ra từ ngưỡng trong config/kpi.ts — không viết cứng theo từng dòng dữ liệu.
+const STATUS: Record<KpiTone, { key: 'onTrack' | 'atRisk' | 'behind'; badge: BadgeStatus }> = {
+  success: { key: 'onTrack', badge: 'dat' },
+  warning: { key: 'atRisk', badge: 'canh-bao' },
+  danger: { key: 'behind', badge: 'chua-dat' },
+};
 
-const DEADLINES: { day: string; key: 'evidence' | 'managerReview' | 'closeData' | 'updateClients' | 'selfReview'; left: number; tone: 'danger' | 'warning' | 'neutral' }[] = [
-  { day: '2026-12-10', key: 'evidence', left: 2, tone: 'danger' },
-  { day: '2026-12-12', key: 'managerReview', left: 4, tone: 'warning' },
-  { day: '2026-12-15', key: 'closeData', left: 7, tone: 'neutral' },
-  { day: '2026-12-20', key: 'updateClients', left: 12, tone: 'neutral' },
-  { day: '2026-12-26', key: 'selfReview', left: 18, tone: 'neutral' },
-];
+const ACTIVITY_STYLE: Record<OverviewActivityKind, { icon: React.ReactNode; className: string }> = {
+  updated: { icon: <Pencil />, className: 'bg-accent text-accent-foreground' },
+  approved: { icon: <CircleCheck />, className: 'bg-success-soft text-success-text' },
+  achieved: { icon: <Check />, className: 'bg-success-soft text-success-text' },
+  comment: { icon: <MessageSquare />, className: 'bg-warning-soft text-warning-text' },
+};
 
-const ACTIVITIES: { who: string; name: string | null; text: 'approved' | 'commented' | 'updated' | 'submitted'; params?: { value?: string; from?: string; to?: string }; time: 'hoursAgo' | 'yesterday' | 'date'; timeParams?: Record<string, string | number>; self: boolean }[] = [
-  { who: 'TH', name: 'Phạm Thu Hà', text: 'approved', params: { value: formatPercent(96) }, time: 'hoursAgo', timeParams: { count: 2 }, self: false },
-  { who: 'TH', name: 'Phạm Thu Hà', text: 'commented', time: 'yesterday', timeParams: { time: '4:40 PM' }, self: false },
-  { who: 'MA', name: null, text: 'updated', params: { from: formatNumber(4.1, { minimumFractionDigits: 1 }), to: formatNumber(4.6, { minimumFractionDigits: 1 }) }, time: 'yesterday', timeParams: { time: '9:12 AM' }, self: true },
-  { who: 'MA', name: null, text: 'submitted', time: 'date', timeParams: { date: formatDate('2026-12-04') }, self: true },
-];
+const DAY_MS = 86_400_000;
+const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+const daysUntil = (iso: string, now: Date) => Math.round((startOfDay(new Date(`${iso}T00:00`)) - startOfDay(now)) / DAY_MS);
+/** Số có 1 chữ số thập phân nếu cần (72.1%), ngược lại số nguyên (78%). */
+const pct = (v: number) => formatPercent(v, Number.isInteger(v) ? 0 : 1);
+const num = (v: number, decimals = 0) => formatNumber(v, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 
-// Tiến độ theo tháng (% hoàn thành); tháng 12 là số tạm tính đến 08/12.
-const MONTHLY = [62, 68, 71, 66, 76, 83, 78, 86, 89, 92, 90, 80];
-const CHART = { w: 720, h: 236, left: 48, right: 700, top: 16, bottom: 208, min: 50, max: 100 };
-const x = (i: number) => CHART.left + (i * (CHART.right - CHART.left)) / (MONTHLY.length - 1);
-const y = (v: number) => CHART.bottom - ((v - CHART.min) / (CHART.max - CHART.min)) * (CHART.bottom - CHART.top);
-const pt = (i: number) => `${x(i).toFixed(1)} ${y(MONTHLY[i]).toFixed(1)}`;
+const narrowQuery = '(max-width: 639px)';
+const subscribeNarrow = (cb: () => void) => {
+  const mq = window.matchMedia(narrowQuery);
+  mq.addEventListener('change', cb);
+  return () => mq.removeEventListener('change', cb);
+};
+const useNarrow = () => useSyncExternalStore(subscribeNarrow, () => window.matchMedia(narrowQuery).matches, () => false);
 
-function ProgressChart() {
+/** Số đếm tăng dần khi xuất hiện (hiện ngay số cuối nếu giảm chuyển động). */
+function CountUp({ value, decimals = 0 }: { value: number; decimals?: number }) {
+  return <>{num(useCountUp(value, 900, 200, decimals), decimals)}</>;
+}
+
+/** Hiệu ứng xuất hiện lần lượt của thẻ. */
+const rise = (i: number) => ({ className: 'animate-rise-in', style: { animationDelay: `${i * 60}ms` } });
+
+function Skeleton({ className }: { className?: string }) {
+  return <div aria-hidden="true" className={cn('animate-pulse rounded-lg bg-muted', className)} />;
+}
+
+function OverviewSkeleton() {
   const { t } = useTranslation('dashboard');
-  const last = MONTHLY.length - 1;
-  const solid = MONTHLY.slice(0, last).map((_, i) => `${i === 0 ? 'M' : 'L'}${pt(i)}`).join('');
-  const area = `${MONTHLY.map((_, i) => `${i === 0 ? 'M' : 'L'}${pt(i)}`).join('')}L${CHART.right} ${CHART.bottom}L${CHART.left} ${CHART.bottom}Z`;
-  const ticks = [100, 90, 80, 70, 60, 50];
   return (
-    <svg
-      viewBox={`0 0 ${CHART.w} ${CHART.h}`}
-      role="img"
-      aria-label={t('monthly.chartLabel', { value: formatPercent(MONTHLY[last]), date: formatDate('2026-12-08', false), target: formatPercent(90) })}
-      className="block w-full overflow-visible"
-    >
-      <defs>
-        <linearGradient id="kpiArea" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="var(--brand)" stopOpacity=".18" />
-          <stop offset="1" stopColor="var(--brand)" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      {ticks.map((tick) => (
-        <g key={tick}>
-          <line x1={CHART.left} x2={CHART.right} y1={y(tick)} y2={y(tick)} className="stroke-border" />
-          <text x={36} y={y(tick) + 4} textAnchor="end" fontSize={12} className="fill-muted-foreground">{formatPercent(tick)}</text>
-        </g>
-      ))}
-      <line x1={CHART.left} x2={CHART.right} y1={y(90)} y2={y(90)} strokeWidth={1.5} strokeDasharray="6 5" className="stroke-muted-foreground" />
-      <path d={area} fill="url(#kpiArea)" />
-      <path d={solid} fill="none" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" className="stroke-brand" />
-      <path d={`M${pt(last - 1)}L${pt(last)}`} fill="none" strokeWidth={2.5} strokeDasharray="4 4" strokeLinecap="round" className="stroke-brand" />
-      {MONTHLY.map((v, i) => (
-        <circle key={i} cx={x(i)} cy={y(v)} r={i === last ? 5 : 3.5} strokeWidth={2} className="fill-card stroke-brand" />
-      ))}
-      <g transform={`translate(${x(last)} ${y(MONTHLY[last])})`}>
-        <rect x={-108} y={-46} width={108} height={34} rx={8} className="fill-foreground" />
-        <text x={-54} y={-31} textAnchor="middle" fontSize={11} className="fill-card">{t('monthly.tooltip', { date: formatDate('2026-12-08', false) })}</text>
-        <text x={-54} y={-17} textAnchor="middle" fontSize={12} fontWeight={600} className="fill-card">{formatPercent(MONTHLY[last])}</text>
-      </g>
-      {MONTHLY.map((_, i) => (
-        <text key={i} x={x(i)} y={230} textAnchor="middle" fontSize={12} className="fill-muted-foreground">{formatMonthShort(i + 1)}</text>
-      ))}
-    </svg>
+    <div role="status" aria-label={t('loading')} className="flex flex-col gap-3 lg:gap-5">
+      <div className="grid grid-cols-2 gap-3 lg:gap-5 xl:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <Card key={i} variant="raised" className="gap-4 p-4 sm:p-5">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-9 w-20" />
+            <Skeleton className="hidden h-1.5 w-full sm:block" />
+          </Card>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 items-start gap-3 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_352px]">
+        <div className="flex flex-col gap-3 lg:gap-5">
+          <Card variant="raised" className="gap-4 p-5">
+            <Skeleton className="h-3 w-40" />
+            <Skeleton className="h-52 w-full" />
+          </Card>
+          <Card variant="raised" className="gap-3 p-5">
+            {[0, 1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-9 w-full" />)}
+          </Card>
+        </div>
+        <div className="flex flex-col gap-3 lg:gap-5">
+          <Card variant="raised" className="gap-3 p-5">
+            {[0, 1, 2].map((i) => <Skeleton key={i} className="h-11 w-full" />)}
+          </Card>
+          <Card variant="raised" className="gap-3 p-5">
+            {[0, 1, 2].map((i) => <Skeleton key={i} className="h-9 w-full" />)}
+          </Card>
+        </div>
+      </div>
+    </div>
   );
 }
 
-const TONE: Record<'danger' | 'warning' | 'neutral', { box: string; text: string }> = {
-  danger: { box: 'bg-danger-soft text-danger-text', text: 'text-danger-text font-medium' },
-  warning: { box: 'bg-warning-soft text-warning-text', text: 'text-warning-text font-medium' },
-  neutral: { box: 'bg-muted text-text-secondary', text: 'text-muted-foreground' },
-};
+function EmptyNote({ children }: { children: React.ReactNode }) {
+  return <p className="py-6 text-center text-sm text-muted-foreground">{children}</p>;
+}
+
+function StatCards({ data, quarter }: { data: OverviewData; quarter: number }) {
+  const { t } = useTranslation('dashboard');
+  const { completion, goals, score, change } = data;
+  const prevQuarter = quarter === 1 ? 4 : quarter - 1;
+  const delta = +(change.current - change.previous).toFixed(1);
+  const sign = delta > 0 ? '+' : delta < 0 ? '−' : '';
+  const trend = delta > 0 ? 'improving' : delta < 0 ? 'declining' : 'steady';
+  const needAttention = goals.total - goals.achieved;
+
+  return (
+    <>
+      {/* Từ sm: thẻ đầy đủ; mobile: lưới 2×2 rút gọn như thiết kế. */}
+      <section className="hidden gap-5 sm:grid sm:grid-cols-2 xl:grid-cols-4">
+        <MetricCard
+          {...rise(1)}
+          label={t('stats.completion')}
+          tag={<Pill>{t('stats.quarterTag', { quarter })}</Pill>}
+          value={<CountUp value={completion.value} />}
+          unit={t('stats.completionUnit', { quarter })}
+          footer={
+            <>
+              <div className="flex justify-between text-xs leading-none text-muted-foreground">
+                <span>{t('stats.progress')}</span>
+                <span>{t('stats.target', { value: formatPercent(completion.target) })}</span>
+              </div>
+              <div className="relative h-1.5 rounded-full bg-muted">
+                <div className="h-full origin-left animate-bar-in rounded-full bg-brand-gradient" style={{ width: `${Math.min(100, completion.value)}%` }} />
+                <div aria-hidden="true" className="absolute -top-[3px] h-3 w-0.5 rounded-xs bg-muted-foreground" style={{ left: `${completion.target}%` }} />
+              </div>
+            </>
+          }
+        />
+        <MetricCard
+          {...rise(2)}
+          label={t('stats.goals')}
+          tag={<Pill>{t('stats.quarterTag', { quarter })}</Pill>}
+          value={<CountUp value={goals.achieved} />}
+          unit={t('stats.goalsUnit', { total: goals.total })}
+          footer={
+            <>
+              <div className="flex justify-between text-xs leading-none text-muted-foreground">
+                <span>{t('stats.onTrack', { count: goals.achieved })}</span>
+                {needAttention > 0 && <span>{t('stats.needAttention', { count: needAttention })}</span>}
+              </div>
+              <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${Math.max(goals.total, 1)}, minmax(0, 1fr))` }}>
+                {Array.from({ length: Math.max(goals.total, 1) }, (_, i) =>
+                  i < goals.achieved ? (
+                    <div key={i} className="h-1.5 origin-left animate-bar-in rounded-full bg-brand" style={{ animationDelay: `${250 + i * 40}ms` }} />
+                  ) : (
+                    <div key={i} className="h-1.5 rounded-full bg-muted" />
+                  )
+                )}
+              </div>
+            </>
+          }
+        />
+        <MetricCard
+          {...rise(3)}
+          label={t('stats.score')}
+          tag={<Pill>{t('stats.reviews', { count: score.reviews })}</Pill>}
+          value={<CountUp value={score.value} decimals={1} />}
+          unit={`/ ${num(score.max)}`}
+          footer={
+            <>
+              <div className="flex justify-between text-xs leading-none text-muted-foreground">
+                <span>{t('stats.self', { value: num(score.self, 1) })}</span>
+                <span>{t('stats.manager', { value: num(score.manager, 1) })}</span>
+              </div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                <div className="h-full origin-left animate-bar-in rounded-full bg-brand" style={{ width: `${score.max ? (score.value / score.max) * 100 : 0}%` }} />
+              </div>
+            </>
+          }
+        />
+        <MetricCard
+          {...rise(4)}
+          label={t('stats.change', { quarter: prevQuarter })}
+          tag={
+            <Pill tone={delta > 0 ? 'success' : delta < 0 ? 'danger' : 'neutral'}>
+              {delta > 0 && <ArrowUp aria-hidden="true" strokeWidth={3} />}
+              {delta < 0 && <ArrowDown aria-hidden="true" strokeWidth={3} />}
+              {t(`stats.${trend}`)}
+            </Pill>
+          }
+          value={
+            <>
+              {sign}
+              <CountUp value={Math.abs(delta)} decimals={1} />
+            </>
+          }
+          unit={t('stats.changeUnit')}
+          caption={t('stats.changeCaption', { from: prevQuarter, to: quarter, prev: pct(change.previous), curr: pct(change.current) })}
+          footer={change.trend.length > 1 ? <Sparkline values={change.trend} tone={delta < 0 ? 'danger' : 'success'} /> : undefined}
+        />
+      </section>
+
+      <section className="grid grid-cols-2 gap-3 sm:hidden">
+        {[
+          { label: t('mobileStats.completion'), value: <CountUp value={completion.value} />, unit: '%' },
+          { label: t('mobileStats.goals'), value: <CountUp value={goals.achieved} />, unit: `/ ${num(goals.total)}` },
+          { label: t('mobileStats.score'), value: <CountUp value={score.value} decimals={1} />, unit: `/ ${num(score.max)}` },
+          { label: t('mobileStats.change', { quarter: prevQuarter }), value: <>{sign}<CountUp value={Math.abs(delta)} decimals={1} /></>, unit: t('stats.changeUnit') },
+        ].map((s, i) => (
+          <Card key={i} variant="raised" {...rise(i + 1)} className={cn('animate-rise-in gap-2.5 p-4')}>
+            <Eyebrow>{s.label}</Eyebrow>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl leading-none font-bold tracking-[-0.03em] tabular-nums">{s.value}</span>
+              <span className="text-[13px] font-medium text-muted-foreground">{s.unit}</span>
+            </div>
+          </Card>
+        ))}
+      </section>
+    </>
+  );
+}
+
+function MonthlyCard({ data, index }: { data: OverviewData; index: number }) {
+  const { t } = useTranslation('dashboard');
+  const narrow = useNarrow();
+  const { year, values } = data.monthly;
+  const target = data.completion.target;
+  const last = values.length - 1;
+  const lastValue = values[last];
+  const gap = lastValue !== undefined ? +(target - lastValue).toFixed(1) : 0;
+  const monthLabel = formatMonthShort(last + 1);
+
+  return (
+    <Card variant="raised" {...rise(index)} className="animate-rise-in gap-3 p-4 sm:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+        <div className="flex flex-col gap-2">
+          <Eyebrow>{narrow ? t('monthly.titleShort') : t('monthly.title', { year })}</Eyebrow>
+          {lastValue !== undefined && (
+            <div className="hidden items-baseline gap-1.5 sm:flex">
+              <span className="text-[28px] leading-none font-bold tracking-[-0.03em] tabular-nums">{pct(lastValue)}</span>
+              <span className="text-[13px] text-muted-foreground">
+                {gap > 0 ? t('monthly.summary', { month: monthLabel, gap: num(gap, Number.isInteger(gap) ? 0 : 1) }) : t('monthly.summaryMet', { month: monthLabel })}
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <span className="hidden items-center gap-1.5 sm:flex">
+            <span aria-hidden="true" className="h-0.5 w-4 rounded-xs bg-brand" />
+            {t('monthly.completion')}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span aria-hidden="true" className="w-4 border-t-2 border-dashed border-muted-foreground" />
+            {t('monthly.target', { value: formatPercent(target) })}
+          </span>
+        </div>
+      </div>
+      {values.length === 0 ? (
+        <EmptyNote>{t('monthly.empty')}</EmptyNote>
+      ) : (
+        <TrendChart
+          ariaLabel={t('monthly.chartLabel', { year, month: monthLabel, value: pct(lastValue), target: formatPercent(target) })}
+          min={40}
+          max={100}
+          target={target}
+          ticks={[100, 80, 60, 40].map((v) => ({ value: v, label: formatPercent(v) }))}
+          labelEvery={narrow ? 3 : 1}
+          points={values.map((v, i) => ({ label: formatMonthShort(i + 1), value: v, tooltip: `${formatMonthShort(i + 1)} · ${pct(v)}` }))}
+          callout={{
+            title: narrow ? undefined : formatMonthYear(new Date(year, last, 1)),
+            value: pct(lastValue),
+            caption: narrow ? monthLabel : t('monthly.calloutCaption'),
+          }}
+        />
+      )}
+    </Card>
+  );
+}
+
+const KPI_COLS = 'grid-cols-[minmax(0,1fr)_200px_84px_96px_16px]';
+
+function KpiCard({ data, index }: { data: OverviewData; index: number }) {
+  const { t } = useTranslation('dashboard');
+  const { items, total } = data.kpis;
+  return (
+    <Card variant="raised" {...rise(index)} className="animate-rise-in gap-0 py-0">
+      <div className="flex h-14 items-center justify-between px-4 sm:px-5">
+        <div className="flex items-center gap-2">
+          <Eyebrow>{t('myKpi.title')}</Eyebrow>
+          {total > 0 && <Pill>{t('myKpi.countTag', { shown: items.length, total })}</Pill>}
+        </div>
+        <Link to="/kpi" className="flex items-center gap-1 rounded-md text-[13px] font-semibold text-brand-text outline-none hover:text-brand-text-hover focus-visible:ring-3 focus-visible:ring-ring/50">
+          {t('myKpi.viewAll')}
+          <ArrowRight aria-hidden="true" className="size-3.5" strokeWidth={2} />
+        </Link>
+      </div>
+      {items.length === 0 ? (
+        <EmptyNote>{t('myKpi.empty')}</EmptyNote>
+      ) : (
+        <>
+          {/* Desktop: bảng lưới */}
+          <div role="table" aria-label={t('myKpi.title')} className="hidden pb-2 md:block">
+            <div role="row" className={cn('grid h-7 items-center gap-4 px-5 text-[11px] font-semibold tracking-[.06em] text-placeholder uppercase', KPI_COLS)}>
+              <span role="columnheader">{t('myKpi.goal')}</span>
+              <span role="columnheader">{t('myKpi.progress')}</span>
+              <span role="columnheader">{t('myKpi.due')}</span>
+              <span role="columnheader">{t('myKpi.status')}</span>
+              <span />
+            </div>
+            <div role="rowgroup" className="flex flex-col px-2">
+              {items.map((k, i) => {
+                const status = STATUS[getKpiTone(k.progress)];
+                return (
+                  <div
+                    key={k.id}
+                    role="row"
+                    className={cn('group grid h-13 items-center gap-4 rounded-[10px] px-3 transition-colors duration-150 hover:bg-brand/5', KPI_COLS)}
+                  >
+                    <span role="cell" className="truncate text-sm font-medium">{k.name}</span>
+                    <span role="cell">
+                      <ProgressBar value={k.progress} label={k.name} showValue size="sm" animated style={{ animationDelay: `${i * 40}ms` }} />
+                    </span>
+                    <span role="cell" className="text-[13px] text-text-secondary tabular-nums">{formatDate(k.due, false)}</span>
+                    <span role="cell"><Badge status={status.badge}>{t(`status.${status.key}`)}</Badge></span>
+                    <ArrowRight aria-hidden="true" className="size-4 justify-self-end text-brand-text opacity-0 transition-opacity group-hover:opacity-100" strokeWidth={2} />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          {/* Mobile: danh sách thẻ */}
+          <ul className="flex flex-col px-4 pb-2 md:hidden">
+            {items.map((k) => {
+              const status = STATUS[getKpiTone(k.progress)];
+              return (
+                <li key={k.id} className="flex flex-col gap-2 border-t border-border py-3 first:border-t-0">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="text-sm leading-snug font-medium">{k.name}</span>
+                    <Badge status={status.badge}>{t(`status.${status.key}`)}</Badge>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ProgressBar value={k.progress} label={k.name} showValue size="sm" animated className="flex-1" />
+                    <span className="text-xs whitespace-nowrap text-muted-foreground tabular-nums">· {formatDate(k.due, false)}</span>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+    </Card>
+  );
+}
+
+function eventMeta(e: OverviewEvent, t: ReturnType<typeof useTranslation<'dashboard'>>['t']) {
+  const time = 'time' in e.when ? formatTime(`${e.date}T${e.when.time}`) : 'allDay' in e.when ? t('upcoming.allDay') : t('upcoming.endOfDay');
+  return t('upcoming.meta', { weekday: formatWeekdayShort(e.date), time });
+}
+
+function UpcomingCard({ data, index, daysLeft, quarter }: { data: OverviewData; index: number; daysLeft: number; quarter: number }) {
+  const { t } = useTranslation('dashboard');
+  const now = new Date();
+  return (
+    <Card variant="raised" {...rise(index)} className="animate-rise-in gap-1 p-4 sm:p-5">
+      <div className="flex items-center justify-between pb-2">
+        <Eyebrow>{t('upcoming.title')}</Eyebrow>
+        <Pill>{t('upcoming.daysLeft', { count: daysLeft, quarter })}</Pill>
+      </div>
+      {data.upcoming.length === 0 ? (
+        <EmptyNote>{t('upcoming.empty')}</EmptyNote>
+      ) : (
+        <ul className="flex flex-col gap-1">
+          {data.upcoming.map((e) => {
+            const days = daysUntil(e.date, now);
+            const soon = days >= 0 && days <= 3;
+            const soonLabel = days === 0 ? t('upcoming.today') : days === 1 ? t('upcoming.tomorrow') : t('upcoming.inDays', { count: days });
+            return (
+              <li key={e.id} className={cn('-mx-2.5 flex items-center gap-3 rounded-xl px-2.5 py-2', soon && 'bg-brand/7')}>
+                <div
+                  className={cn(
+                    'flex size-11 flex-none flex-col items-center justify-center gap-0.5 rounded-[10px] border',
+                    soon ? 'border-brand/25 bg-card' : 'border-border'
+                  )}
+                >
+                  <span className={cn('text-[10px] leading-none font-semibold tracking-[.06em] uppercase', soon ? 'text-accent-foreground' : 'text-muted-foreground')}>
+                    {formatMonthShort(Number(e.date.slice(5, 7)))}
+                  </span>
+                  <span className="text-base leading-none font-bold tabular-nums">{formatDate(e.date, false).split(' ')[0]}</span>
+                </div>
+                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span className="truncate text-sm font-medium">{e.title}</span>
+                  <span className="text-xs text-muted-foreground">{eventMeta(e, t)}</span>
+                </div>
+                {soon && <Pill tone="warning">{soonLabel}</Pill>}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </Card>
+  );
+}
+
+function activityTime(iso: string, now: Date, t: ReturnType<typeof useTranslation<'dashboard'>>['t']) {
+  const d = new Date(iso);
+  const minutes = Math.floor((now.getTime() - d.getTime()) / 60_000);
+  const dayDiff = Math.round((startOfDay(now) - startOfDay(d)) / DAY_MS);
+  if (minutes < 1) return t('activity.justNow');
+  if (minutes < 60) return t('activity.minutesAgo', { count: minutes });
+  if (dayDiff === 0) return t('activity.hoursAgo', { count: Math.floor(minutes / 60) });
+  if (dayDiff === 1) return t('activity.yesterday', { time: formatTime(d) });
+  return formatDate(d, false);
+}
+
+function ActivityCard({ data, index }: { data: OverviewData; index: number }) {
+  const { t } = useTranslation('dashboard');
+  const now = new Date();
+  return (
+    <Card variant="raised" {...rise(index)} className="animate-rise-in gap-3 p-4 sm:p-5">
+      <Eyebrow>{t('activity.title')}</Eyebrow>
+      {data.activity.length === 0 ? (
+        <EmptyNote>{t('activity.empty')}</EmptyNote>
+      ) : (
+        <ul className="flex flex-col gap-3.5">
+          {data.activity.map((a) => {
+            const style = ACTIVITY_STYLE[a.kind];
+            return (
+              <li key={a.id} className="flex gap-3">
+                <div aria-hidden="true" className={cn('flex size-8 flex-none items-center justify-center rounded-full [&>svg]:size-[15px]', style.className)}>
+                  {style.icon}
+                </div>
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <span className="text-[13px] leading-[1.4] text-pretty">{t(`activity.${a.kind}`, { goal: a.goal, value: a.value !== undefined ? pct(a.value) : '' })}</span>
+                  <span className="text-xs text-muted-foreground">{activityTime(a.at, now, t)}</span>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </Card>
+  );
+}
+
+type LoadState = { status: 'loading' } | { status: 'error' } | { status: 'ready'; data: OverviewData };
 
 const Dashboard = () => {
   const { t } = useTranslation('dashboard');
   const { t: tc } = useTranslation();
-  const trendLabels = { flat: tc('trend.flat'), up: tc('trend.up'), down: tc('trend.down') };
+  const [state, setState] = useState<LoadState>({ status: 'loading' });
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    let alive = true;
+    getOverview()
+      .then((data) => alive && setState({ status: 'ready', data }))
+      .catch(() => alive && setState({ status: 'error' }));
+    return () => {
+      alive = false;
+    };
+  }, [attempt]);
+
+  const retry = () => {
+    setState({ status: 'loading' });
+    setAttempt((n) => n + 1);
+  };
+
+  const now = new Date();
+  const quarter = getQuarterInfo(now, TIME_ZONE);
+  const user = useCurrentUser();
+  const hour = now.getHours();
+  const greeting = t(hour < 12 ? 'greeting.morning' : hour < 18 ? 'greeting.afternoon' : 'greeting.evening', { name: shortNameOf(user.name) });
+  const data = state.status === 'ready' ? state.data : null;
+
+  let subtitle: string | undefined;
+  if (data && data.goals.total > 0) {
+    const attention = data.goals.total - data.goals.achieved;
+    subtitle = `${t(`banner.${STATUS[getKpiTone(data.completion.value)].key}`)} · ${attention > 0 ? t('banner.attention', { count: attention }) : t('banner.allClear')}`;
+  }
+  const bold = { 1: <b className="font-bold tabular-nums" /> };
+
   return (
-    <>
-      <Header />
-      <main className="flex flex-col gap-4 p-4 sm:p-6 lg:gap-6 lg:p-8">
-        <MobileToolbar />
-        {/* Hero */}
-        <section className="relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-border bg-card p-5 lg:min-h-40 lg:flex-row lg:items-center lg:gap-8 lg:px-8 lg:py-7">
-          <div aria-hidden="true" className="pointer-events-none absolute -top-40 -right-15 size-105 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--brand)_24%,transparent),transparent_68%)]" />
-          <div aria-hidden="true" className="pointer-events-none absolute right-65 -bottom-55 size-95 rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--info)_16%,transparent),transparent_68%)]" />
-          <div className="relative flex min-w-0 flex-1 flex-col gap-3">
-            <span className="text-[13px] text-muted-foreground">{t('periodLine', { from: formatDate('2026-10-01', false), to: formatDate('2026-12-31') })}</span>
-            <h2 className="text-2xl leading-tight font-bold tracking-tight lg:text-[32px]">
-              <Trans t={t} i18nKey="heroTitle" values={{ value: formatPercent(78) }} components={{ 1: <span className="text-brand-text tabular-nums" /> }} />
-            </h2>
-            <ProgressBar value={78} label={t('heroProgress')} showValue className="max-w-130" />
+    <main className="flex flex-col gap-3 p-4 lg:gap-5 lg:p-6">
+      <div {...rise(0)}>
+        <PageBanner
+          icon={<Sun />}
+          title={greeting}
+          subtitle={subtitle}
+          loadingLabel={tc('loading')}
+          badges={[
+            {
+              label: data && data.kpis.total > 0 ? <span><Trans t={t} i18nKey="banner.quarterBadge" values={{ value: formatPercent(data.completion.value), quarter: quarter.quarter }} components={bold} /></span> : null,
+              value: '',
+              loading: !data && state.status === 'loading',
+            },
+            {
+              label: <span><Trans t={t} i18nKey="banner.daysBadge" count={quarter.daysLeft} values={{ count: quarter.daysLeft }} components={bold} /></span>,
+              value: '',
+            },
+          ].filter((b) => b.label !== null || b.loading)}
+        />
+      </div>
+
+      <MobileToolbar />
+
+      {state.status === 'loading' && <OverviewSkeleton />}
+
+      {state.status === 'error' && (
+        <Card variant="raised" role="alert" className="items-center gap-3 px-6 py-10 text-center">
+          <div aria-hidden="true" className="flex size-12 items-center justify-center rounded-full bg-danger-soft text-danger-text">
+            <CircleAlert className="size-6" strokeWidth={1.8} />
           </div>
-          <div className="relative flex items-center justify-between gap-4 lg:gap-7">
-            <div className="flex flex-col leading-tight lg:items-end">
-              <span className="hidden text-[13px] text-muted-foreground lg:block">{t('left')}</span>
-              <span className="text-xl font-bold tabular-nums lg:text-3xl"><span className="lg:hidden">{t('left')} </span>{t('daysLeft', { count: 23 })}</span>
-              <span className="text-[13px] text-muted-foreground">{t('selfReviewBy', { date: formatDate('2026-12-26', false) })}</span>
+          <h2 className="text-base font-semibold">{t('error.title')}</h2>
+          <p className="max-w-sm text-sm text-muted-foreground">{t('error.description')}</p>
+          <Button variant="outline" size="lg" className="mt-1 px-4" onClick={retry}>
+            {tc('retry')}
+          </Button>
+        </Card>
+      )}
+
+      {data && (
+        <>
+          {/* Chưa có KPI nào trong quý thì bỏ các thẻ số liệu (toàn số 0, không có nghĩa). */}
+          {data.kpis.total > 0 && <StatCards data={data} quarter={quarter.quarter} />}
+          <div className="grid grid-cols-1 items-start gap-3 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_352px]">
+            <div className="flex min-w-0 flex-col gap-3 lg:gap-5">
+              <MonthlyCard data={data} index={5} />
+              <KpiCard data={data} index={6} />
             </div>
-            <Button size="lg">{t('updateProgress')}</Button>
+            <div className="flex min-w-0 flex-col gap-3 lg:gap-5">
+              <UpcomingCard data={data} index={7} daysLeft={quarter.daysLeft} quarter={quarter.quarter} />
+              <ActivityCard data={data} index={8} />
+            </div>
           </div>
-        </section>
-
-        {/* Stats */}
-        <section className="grid grid-cols-2 gap-3 lg:gap-4 xl:grid-cols-4">
-          <StatCard label={t('stats.completion')} value={formatNumber(78)} unit="%" progress={78} />
-          <StatCard label={t('stats.goalsMet')} value={`${formatNumber(5)}/${formatNumber(8)}`} unit={t('stats.goalsUnit')} progress={63} />
-          <StatCard label={t('stats.avgScore')} value={formatNumber(4.3, { minimumFractionDigits: 1 })} unit={`/ ${formatNumber(5)}`} trend={{ value: 5, labels: trendLabels, caption: t('stats.avgCaption', { value: formatNumber(4.1, { minimumFractionDigits: 1 }) }) }} />
-          <StatCard label={t('stats.change')} value={`+${formatNumber(8.2, { minimumFractionDigits: 1 })}`} unit={`% ${t('stats.changeUnit', { from: formatPercent(72.1, 1), to: formatPercent(78) })}`} />
-        </section>
-
-        <div className="grid grid-cols-1 items-start gap-4 lg:gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="flex min-w-0 flex-col gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('monthly.title')}</CardTitle>
-                <CardDescription>{t('monthly.desc')}</CardDescription>
-                <CardAction>
-                  <div className="flex gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded bg-brand" />{t('monthly.actual')}</span>
-                    <span className="flex items-center gap-1.5"><span className="w-4 border-t-2 border-dashed border-muted-foreground" />{t('monthly.target', { value: formatPercent(90) })}</span>
-                  </div>
-                </CardAction>
-              </CardHeader>
-              <CardContent>
-                <ProgressChart />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('myKpi.title')}</CardTitle>
-                <CardDescription>{t('myKpi.desc', { done: 5, total: 8 })}</CardDescription>
-                <CardAction>
-                  <Button variant="ghost" size="sm">{t('myKpi.viewAll')}</Button>
-                </CardAction>
-              </CardHeader>
-              <CardContent>
-                <table className="hidden w-full border-collapse text-left md:table">
-                  <thead>
-                    <tr className="text-xs font-medium text-muted-foreground">
-                      <th scope="col" className="pb-2.5 font-medium">{t('myKpi.goal')}</th>
-                      <th scope="col" className="w-50 px-3 pb-2.5 font-medium">{t('myKpi.progress')}</th>
-                      <th scope="col" className="w-24 px-3 pb-2.5 font-medium">{t('myKpi.due')}</th>
-                      <th scope="col" className="w-30 pb-2.5 font-medium">{t('myKpi.status')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {GOALS.map((g) => {
-                      const name = t(`goals.${g.key}.name`);
-                      return (
-                      <tr key={g.key} className="border-t border-border">
-                        <td className="py-3 pr-3">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="font-medium">{name}</span>
-                            <span className="text-xs text-muted-foreground">{t(`goals.${g.key}.meta`, g.meta)}</span>
-                          </div>
-                        </td>
-                        <td className="px-3 py-3"><ProgressBar value={g.progress} label={name} showValue /></td>
-                        <td className="px-3 py-3 whitespace-nowrap text-text-secondary tabular-nums">{formatDate(g.due)}</td>
-                        <td className="py-3"><Badge status={g.status}>{t(`status.${g.status}`)}</Badge></td>
-                      </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-                <ul className="flex flex-col md:hidden">
-                  {GOALS.map((g) => {
-                    const name = t(`goals.${g.key}.name`);
-                    return (
-                    <li key={g.key} className="flex flex-col gap-2 border-t border-border py-3 first:border-t-0">
-                      <div className="flex items-start justify-between gap-3">
-                        <span className="leading-snug font-medium">{name}</span>
-                        <Badge status={g.status}>{t(`status.${g.status}`)}</Badge>
-                      </div>
-                      <ProgressBar value={g.progress} label={name} showValue />
-                      <span className="text-xs text-muted-foreground">{t('myKpi.dueShort')} <span className="tabular-nums">{formatDate(g.due)}</span> · {t(`goals.${g.key}.meta`, g.meta)}</span>
-                    </li>
-                    );
-                  })}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="flex flex-col gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('deadlines.title')}</CardTitle>
-                <CardDescription>{t('deadlines.desc', { count: DEADLINES.length })}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="flex flex-col">
-                  {DEADLINES.map((d, i) => (
-                    <li key={d.key} className={cn('flex items-center gap-3 py-2.5', i > 0 && 'border-t border-border')}>
-                      <div className={cn('flex size-11 flex-none flex-col items-center justify-center rounded-[10px] leading-tight', TONE[d.tone].box)}>
-                        <span className="text-[15px] font-bold tabular-nums">{formatDate(d.day, false).split(' ')[0]}</span>
-                        <span className="text-[11px]">{formatMonthShort(12)}</span>
-                      </div>
-                      <div className="flex min-w-0 flex-col gap-0.5">
-                        <span className="font-medium">{t(`deadlines.${d.key}`)}</span>
-                        <span className={cn('text-xs', TONE[d.tone].text)}>{t('deadlines.left', { count: d.left })}</span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('activity.title')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="flex flex-col gap-4">
-                  {ACTIVITIES.map((a) => (
-                    <li key={a.text + a.time} className="flex gap-3">
-                      <div className={cn('flex size-8 flex-none items-center justify-center rounded-full text-xs font-semibold', a.self ? 'bg-muted text-text-secondary' : 'bg-accent text-accent-foreground')}>
-                        {a.who}
-                      </div>
-                      <div className="flex min-w-0 flex-col gap-0.5">
-                        <span className="leading-snug text-pretty"><b className="font-semibold">{a.name ?? t('activity.you')}</b> {t(`activity.${a.text}`, a.params)}</span>
-                        <span className="text-xs text-muted-foreground">{a.time === 'date' ? a.timeParams!.date : t(`activity.${a.time}`, a.timeParams)}</span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </main>
-    </>
+        </>
+      )}
+    </main>
   );
 };
 

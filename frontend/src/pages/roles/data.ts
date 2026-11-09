@@ -1,53 +1,37 @@
-import type { AppRole } from '@/lib/session';
-
 export type Unit = { id: string; n: string; c?: number; k?: Unit[] };
-export type Role = AppRole | 'NONE';
-export type Person = { name: string; id: string; dept: string; /** Ngày vào công ty, ISO `YYYY-MM-DD`; hiển thị qua `formatDate`. */ join: string };
+/** CQ = chủ quản (được vào hệ thống, thấy nhân viên trong phạm vi); NONE = không được vào. Admin cấu hình ở backend (.env). */
+export type Role = 'CQ' | 'NONE';
+/** Nhân viên lấy từ API (GET /api/employees, HRIS 0.117) qua useEmployees() — xem use-employees.ts. */
+export type Person = {
+  /** Person_Serial_Key — khoá cho vai trò/phạm vi (khớp tài khoản đăng nhập). */
+  psk: string;
+  /** Mã nhân viên (Person_ID). */
+  id: string;
+  name: string;
+  /** Tên tiếng Trung (dòng phụ dưới họ tên); API chưa trả nên hiện để trống. */
+  zh?: string;
+  /** Department_Serial_Key của đơn vị gốc. */
+  deptKey: string;
+  /** Mã ngắn của đơn vị (Department_ID), hiện ở cột "Unit". */
+  unit: string;
+  /** Mã team; null = chưa có team. */
+  teamKey: string | null;
+  /** Tên team, hiện ở cột "Department". */
+  dept: string;
+  /** Ngày vào công ty, ISO `YYYY-MM-DD`; hiển thị qua `formatDate`. */
+  join: string | null;
+  position: string;
+};
 
-/** Tên đơn vị lấy từ hệ thống, có thể ở dạng "Tên-中文"; giao diện chỉ hiển thị phần trước dấu "-" (xem `unitLabel`). */
-export const UNITS: Unit[] = [
-  {
-    id: 'kt',
-    n: 'TRUNG TAM KHAI THAC MAU-樣品開發中心',
-    k: [
-      { id: 'bb', n: 'BASKETBALL', c: 9 },
-      { id: 'pbb', n: 'PATTERN_BB', c: 6 },
-      { id: 'tbb', n: 'TECH_BB', c: 4 },
-      { id: 'ast', n: 'AST', c: 3 },
-    ],
-  },
-  { id: 'it', n: 'IT SOFTWARE', c: 7 },
-  { id: 'svtt', n: 'SINH VIEN THUC TAP', c: 5 },
-];
+// Danh sách đơn vị lấy từ API (GET /api/departments, HRIS 0.117) qua useUnits() — xem use-units.ts.
+// Tên đơn vị có thể ở dạng "Tên-中文"; giao diện chỉ hiển thị phần trước dấu "-" (xem `unitLabel`).
 
-const NAMES: [string, string][] = [
-  ['NGUYỄN THỊ LAN', '10234'], ['TRẦN VĂN HÙNG', '10567'], ['LÊ THỊ HỒNG NHUNG', '11082'],
-  ['PHẠM MINH TUẤN', '09815'], ['HOÀNG THỊ THU TRANG', '12406'], ['VÕ VĂN PHÚC', '12931'],
-  ['ĐẶNG THỊ MAI', '10778'], ['BÙI QUANG HUY', '11564'], ['ĐỖ THỊ NGỌC ÁNH', '13047'],
-  ['HUỲNH VĂN LỢI', '09952'], ['NGÔ THỊ KIM YẾN', '13310'], ['DƯƠNG MINH KHANG', '12089'],
-  ['LÝ THỊ BÍCH HẠNH', '11736'], ['PHAN VĂN TÀI', '13582'], ['TRƯƠNG THỊ THANH HÀ', '10419'],
-  ['LÂM QUỐC BẢO', '09687'], ['MAI THỊ DIỄM', '13865'], ['CHÂU VĂN NAM', '12254'],
-  ['TẠ THỊ HOÀI', '11903'], ['HỒ MINH TRÍ', '08946'], ['KIỀU THỊ NGÂN', '14127'],
-  ['LA VĂN ĐẠT', '13698'],
-];
-
-const deptOf = (i: number) => (i < 9 ? 'BASKETBALL' : i < 15 ? 'PATTERN_BB' : i < 19 ? 'TECH_BB' : 'AST');
-const pad = (n: number) => String(n).padStart(2, '0');
-
-export const PEOPLE: Person[] = NAMES.map(([name, id], i) => ({
-  name,
-  id,
-  dept: deptOf(i),
-  join: `${2015 + ((i * 7) % 11)}-${pad(1 + ((i * 5) % 12))}-${pad(1 + ((i * 11) % 28))}`,
-}));
-
-/** Vai trò và phạm vi đã lưu (mặc định mọi người là Nhân viên). */
-export const INITIAL_ROLES: Record<number, Role> = { 3: 'CQ', 6: 'CQ', 12: 'CQ', 15: 'CQ', 19: 'AD', 10: 'NONE', 17: 'NONE', 20: 'NONE', 21: 'NONE', 7: 'CQ' };
-export const INITIAL_SCOPES: Record<number, string[]> = { 3: ['bb', 'pbb', 'tbb'], 6: ['bb'], 12: ['it'], 15: [], 7: ['ast'] };
+// Vai trò/phạm vi đã lưu lấy từ API phân quyền (GET/PUT /api/permissions/managers) — xem use-permissions.ts.
 
 /** Thứ tự vai trò trong menu chọn / bộ lọc; nhãn và mô tả lấy từ i18n (namespace `roles`). */
-export const ROLE_OPTION_KEYS = ['NV', 'CQ', 'AD'] as const;
-export const ROLE_FILTER_KEYS = ['all', 'NV', 'CQ', 'AD'] as const;
+export const ROLE_OPTION_KEYS = ['CQ', 'NONE'] as const;
+export const ROLE_FILTER_KEYS = ['all', 'CQ', 'NONE'] as const;
+export type RoleFilter = (typeof ROLE_FILTER_KEYS)[number];
 
 /** Tên đơn vị hiển thị: bỏ phần chữ Hán sau dấu "-". */
 export const unitLabel = (n: string) => {
@@ -55,11 +39,35 @@ export const unitLabel = (n: string) => {
   return d > 0 && /[一-鿿]/.test(n.slice(d)) ? n.slice(0, d) : n;
 };
 
+/** Phần chữ Hán sau dấu "-" của tên đơn vị (dòng phụ dưới tên); không có thì chuỗi rỗng. */
+export const unitZh = (n: string) => {
+  const d = n.indexOf('-');
+  return d > 0 && /[一-鿿]/.test(n.slice(d)) ? n.slice(d + 1).trim() : '';
+};
+
 export const norm = (t: string) =>
   t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase();
 
 export const leavesOf = (u: Unit): Unit[] => (u.k ? u.k.flatMap(leavesOf) : [u]);
-export const ALL_LEAVES = UNITS.flatMap(leavesOf);
-export const LEAF_BY_ID = Object.fromEntries(ALL_LEAVES.map((l) => [l.id, l]));
+export const leafMapOf = (units: Unit[]): Record<string, Unit> =>
+  Object.fromEntries(units.flatMap(leavesOf).map((l) => [l.id, l]));
 export const countOf = (u: Unit) => leavesOf(u).reduce((a, l) => a + (l.c ?? 0), 0);
-export const findUnit = (id: string) => UNITS.find((u) => u.id === id) ?? UNITS.flatMap((u) => u.k ?? []).find((u) => u.id === id);
+export const findUnit = (units: Unit[], id: string) =>
+  units.find((u) => u.id === id) ?? units.flatMap((u) => u.k ?? []).find((u) => u.id === id);
+
+/** Mã giả cho nhóm "chưa có team" của một đơn vị (backend trả id = null). */
+export const noTeamId = (deptId: string) => `${deptId}::no-team`;
+
+/** Nhân viên thuộc đơn vị/team đang chọn; không chọn = tất cả. */
+export const peopleInUnit = (all: Person[], units: Unit[], fu: Unit | undefined): Person[] => {
+  if (!fu) return all;
+  if (units.some((u) => u.id === fu.id)) return all.filter((p) => p.deptKey === fu.id);
+  const parent = units.find((u) => u.k?.some((c) => c.id === fu.id));
+  if (!parent) return [];
+  if (fu.id === noTeamId(parent.id)) {
+    // "No team": chưa có team, hoặc team đã ngưng dùng (không có trong danh sách team đang hoạt động).
+    const active = new Set(leavesOf(parent).map((l) => l.id));
+    return all.filter((p) => p.deptKey === parent.id && (p.teamKey === null || !active.has(p.teamKey)));
+  }
+  return all.filter((p) => p.teamKey === fu.id);
+};

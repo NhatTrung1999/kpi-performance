@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "sqlserver"
+}
+
+// Phiên đăng nhập (refresh token) của web KPI. Mỗi dòng = một thiết bị/trình duyệt đã đăng nhập.
+// Chỉ lưu hash SHA-256 của refresh token, không lưu token gốc.
+// userId/accountId tham chiếu LYV_HRIS.dbo.users (khác database nên không có khoá ngoại).
+model AuthSession {
+  id           String    @id @default(uuid()) @db.UniqueIdentifier
+  userId       String    @db.VarChar(10)
+  accountId    String    @db.VarChar(15)
+  tokenHash    Bytes     @db.VarBinary(32)
+  remember     Boolean   @default(false)
+  userAgent    String?   @db.NVarChar(255)
+  ip           String?   @db.VarChar(45)
+  createdAt    DateTime  @default(now())
+  lastUsedAt   DateTime  @default(now())
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  revokeReason String?   @db.NVarChar(50)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("auth_sessions")
+}
+
+// ───────── Phân quyền (xem memory/permission-model): 1 admin (.env ADMIN_ACCOUNT) cấp quyền cho chủ quản ─────────
+// Chỉ admin và chủ quản đang hoạt động mới đăng nhập được. Chủ quản chỉ thấy nhân viên thuộc các team được gán.
+// personSerialKey = Person_Serial_Key — có ở cả LYV_HRIS.users (0.63, đăng nhập) và HRIS.Data_Person (0.117, nhân viên);
+// khác server nên không có khoá ngoại sang hai nơi đó.
+
+// Chủ quản được cấp quyền truy cập. Thu hồi = isActive false (giữ dòng để còn dấu vết, phạm vi giữ nguyên để cấp lại).
+model Manager {
+  personSerialKey String         @id @db.VarChar(20)
+  personId        String         @db.VarChar(20) // ảnh chụp mã nhân viên, để hiển thị/tra cứu
+  isActive        Boolean        @default(true)
+  grantedAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  scopes          ManagerScope[]
+
+  @@map("managers")
+}
+
+// Phạm vi của chủ quản — chỉ thấy đúng những gì được gán, team mở sau này không tự thêm.
+// unitType: TEAM (unitKey = mã team DS...), NO_TEAM (unitKey = mã đơn vị DP..., nhóm chưa xếp team),
+//           DEPARTMENT (unitKey = DP..., chỉ dùng cho đơn vị không có team nào). Ràng buộc CHECK nằm trong migration.
+model ManagerScope {
+  personSerialKey String   @db.VarChar(20)
+  unitType        String   @db.VarChar(12)
+  unitKey         String   @db.VarChar(20)
+  createdAt       DateTime @default(now())
+  manager         Manager  @relation(fields: [personSerialKey], references: [personSerialKey], onDelete: Cascade)
+
+  @@id([personSerialKey, unitType, unitKey])
+  @@index([unitKey])
+  @@map("manager_scopes")
+}
+
+// Lịch sử thay đổi quyền — chỉ thêm, code không sửa/xoá. personId/personName là ảnh chụp lúc đổi.
+// action: GRANT | REVOKE | SCOPE; oldScopes/newScopes: JSON [{"type":"TEAM","key":"DS..."}].
+model PermissionChange {
+  id              BigInt   @id @default(autoincrement())
+  personSerialKey String   @db.VarChar(20)
+  personId        String?  @db.VarChar(20)
+  personName      String?  @db.NVarChar(100)
+  action          String   @db.VarChar(10)
+  oldScopes       String?  @db.NVarChar(Max)
+  newScopes       String?  @db.NVarChar(Max)
+  changedBy       String   @db.VarChar(20) // AccountID của admin
+  changedAt       DateTime @default(now())
+
+  @@index([personSerialKey, changedAt])
+  @@index([changedAt])
+  @@map("permission_changes")
+}

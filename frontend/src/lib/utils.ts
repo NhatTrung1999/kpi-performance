@@ -8,7 +8,7 @@ const twMerge = extendTailwindMerge({
     theme: {
       text: ['label', 'body', 'title'],
       radius: ['control', 'hero'],
-      shadow: ['glass', 'glass-sm', 'brand', 'brand-hover', 'field', 'toast'],
+      shadow: ['glass', 'glass-sm', 'brand', 'brand-hover', 'field', 'toast', 'grid-footer'],
     },
   },
 });

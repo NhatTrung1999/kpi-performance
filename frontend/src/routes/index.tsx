@@ -1,12 +1,14 @@
 import AuthLayout from '@/layouts/AuthLayout';
 import MainLayout from '@/layouts/MainLayout';
 import Login from '@/pages/auth/Login';
-import { createBrowserRouter, Navigate } from 'react-router';
+import { createBrowserRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import ProtectedRoute from './ProtectedRoute';
 import RequireRole from './RequireRole';
-import Dashboard from '@/pages/dashboard';
+import HomeRedirect from './HomeRedirect';
 import NotFound from '@/pages/NotFound';
+import Proposals from '@/pages/proposals';
+import Promotions from '@/pages/promotions';
 import Roles from '@/pages/roles';
 
 const router = createBrowserRouter([
@@ -22,12 +24,16 @@ const router = createBrowserRouter([
         children: [
           {
             path: '/',
-            element: <Navigate to="dashboard" replace />,
+            element: <HomeRedirect />,
           },
-          { path: 'dashboard', element: <Dashboard /> },
           {
+            // Mọi trang đều giới hạn vai trò theo ROUTE_META.
             element: <RequireRole />,
-            children: [{ path: 'roles', element: <Roles /> }],
+            children: [
+              { path: 'proposals', element: <Proposals /> },
+              { path: 'promotions', element: <Promotions /> },
+              { path: 'roles', element: <Roles /> },
+            ],
           },
         ],
       },

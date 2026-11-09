@@ -1,22 +1,29 @@
 import { Moon, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useTheme } from "@/lib/theme";
+import { cn } from "@/lib/utils";
 
-export function ThemeToggle() {
+/** Nút sáng/tối (thanh trên trang trong + trang đăng nhập, cạnh nút ngôn ngữ). Icon là chế độ sẽ chuyển sang. */
+export function ThemeToggle({ className }: { className?: string }) {
   const { t } = useTranslation();
   const { theme, toggle } = useTheme();
   const isDark = theme === "dark";
+  const label = isDark ? t("theme.toLight") : t("theme.toDark");
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon"
-      onClick={toggle}
-      aria-label={isDark ? t("theme.toLight") : t("theme.toDark")}
-      className="h-10 w-10 rounded-control text-gray-600 hover:bg-white/60 hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand dark:text-muted-foreground dark:hover:bg-white/10 dark:hover:text-white"
-    >
-      {isDark ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
-    </Button>
+    <Tooltip content={label}>
+      <button
+        type="button"
+        aria-label={label}
+        onClick={toggle}
+        className={cn(
+          "liquid-glass flex size-9 flex-none items-center justify-center rounded-full border border-border bg-card text-text-secondary outline-none transition-[color,transform] duration-150 ease-out",
+          "hover:text-foreground active:scale-95 focus-visible:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50",
+          className
+        )}
+      >
+        {isDark ? <Sun aria-hidden="true" className="size-4" strokeWidth={1.8} /> : <Moon aria-hidden="true" className="size-4" strokeWidth={1.8} />}
+      </button>
+    </Tooltip>
   );
 }

@@ -1,11 +1,9 @@
 {
-  "dashboard": "Overview",
-  "kpi": "My KPI",
-  "evaluations": "Evaluations",
-  "notifications": "Notifications",
-  "profile": "Profile & settings",
+  "proposals": "KPI proposal",
+  "promotions": "Promotion & salary",
   "roles": "Permissions",
   "groups": {
+    "proposal": "PROPOSALS",
     "admin": "ADMINISTRATION"
   }
 }

@@ -1,0 +1,24 @@
+{
+  "retry": "重試",
+  "invalidCredentials": "帳號或密碼錯誤。",
+  "attemptsLeft_one": "還剩 {{count}} 次機會。",
+  "attemptsLeft_other": "還剩 {{count}} 次機會。",
+  "invalidTitle": "登入失敗",
+  "lockedTitle": "帳號暫時鎖定",
+  "lockedMinutes_one": "請於 {{count}} 分鐘後再試或聯絡 IT。",
+  "lockedMinutes_other": "請於 {{count}} 分鐘後再試或聯絡 IT。",
+  "lockedNoTime": "請聯絡 IT 協助。",
+  "rateLimited": "操作過於頻繁，請幾分鐘後再試。",
+  "unavailableTitle": "無法連線至伺服器",
+  "unavailableDescription": "請檢查網路連線後再試。",
+  "unknown": "發生錯誤，請再試一次。",
+  "lastAttempts_one": "僅剩 {{count}} 次機會",
+  "lastAttempts_other": "僅剩 {{count}} 次機會",
+  "lastAttemptsHint": "若再輸入錯誤一次，帳號將暫時被鎖定。",
+  "mock": {
+    "invalid": "登入資訊錯誤（mock）。",
+    "token": "mock token 無效。"
+  },
+  "noAccessTitle": "您沒有存取權限",
+  "noAccessDescription": "您的帳號尚未取得本系統的權限。請聯絡管理員。"
+}

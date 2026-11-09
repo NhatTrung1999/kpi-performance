@@ -10,6 +10,9 @@
   "portal": {
     "AD": "Admin portal",
     "CQ": "Manager portal",
+    "BLD": "Board of directors",
+    "HR": "Human resources",
+    "KT": "Accounting",
     "NV": "Employee portal"
   },
   "period": {
@@ -20,10 +23,6 @@
   },
   "search": "Search",
   "searchPlaceholder": "Search goals, reviews…",
-  "theme": {
-    "toLight": "Switch to light theme",
-    "toDark": "Switch to dark theme"
-  },
   "toaster": {
     "label": "Notifications",
     "close": "Dismiss notification"
@@ -32,12 +31,57 @@
     "title": "Access denied",
     "heading": "You don't have access",
     "description": "This page is only available to authorized roles. If you need access, please contact an administrator.",
-    "back": "Back to Overview"
+    "back": "Back to home"
   },
   "notFound": "Page not found",
+  "notFoundDescription": "This address does not exist or has moved. Check the link or go back to the home page.",
   "trend": {
     "flat": "No change",
     "up": "Up",
     "down": "Down"
+  },
+  "shell": {
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
+    "accountMenu": "Account menu",
+    "profile": "Profile & settings",
+    "shortcuts": "Keyboard shortcuts",
+    "logout": "Log out",
+    "unsavedTitle": "You have unsaved changes",
+    "unsavedDescription": "Log out anyway? Changes you haven't saved will be lost.",
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "description": "Shortcuts work anywhere except while typing in a field.",
+    "toggleSidebar": "Collapse or expand the sidebar",
+    "focusSearch": "Search goals and reviews",
+    "showShortcuts": "Show keyboard shortcuts",
+    "closeDialog": "Close menus and dialogs",
+    "keys": {
+      "toggleSidebar": "Ctrl B",
+      "search": "Ctrl K",
+      "showShortcuts": "?",
+      "close": "Esc"
+    }
+  },
+  "retry": "Retry",
+  "quarterLabel": "Q{{quarter}} {{year}}",
+  "roundLabel": "Round {{month}}",
+  "underConstruction": {
+    "heading": "Under construction",
+    "description": "This page is being built and will be available soon."
+  },
+  "language": {
+    "label": "Language",
+    "switch": "Change language",
+    "vi": "Tiếng Việt",
+    "zh": "中文（繁體）",
+    "en": "English"
+  },
+  "theme": {
+    "toLight": "Switch to light theme",
+    "toDark": "Switch to dark theme"
   }
 }

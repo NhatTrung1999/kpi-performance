@@ -1,0 +1,485 @@
+{
+  "grid": "Promotion & salary proposal table",
+  "banner": {
+    "title": "LYV's Promotion & Salary Proposal · Round {{month}}",
+    "subtitle": "Effective date {{date}}",
+    "proposed": "Proposed",
+    "proposedValue": "{{count}}/{{total}} employees",
+    "deadline": "Due {{date}}"
+  },
+  "status": {
+    "draft": "Drafting",
+    "submitted": "Awaiting approval",
+    "approved": "Approved",
+    "returned": "Returned"
+  },
+  "groupPicker": {
+    "label": "Review group",
+    "sub": "審核組別 · approved group by group",
+    "option": "{{headcount}} employees · {{proposed}} proposed",
+    "approvedCount": "Approved {{approved}}/{{total}} groups",
+    "total": {
+      "label": "All groups",
+      "sub": "Grand Total · as in sheet SUM",
+      "promotion": "Promotion {{count}}/{{base}} · {{percent}}",
+      "raise": "Raise {{count}}/{{base}} · {{percent}}"
+    }
+  },
+  "unitLabel": "Department:",
+  "allUnits": "All",
+  "unitFilter": "Filter by department",
+  "search": "Search employees",
+  "searchPlaceholder": "Search name or card no.",
+  "meters": {
+    "promotion": "Promotion",
+    "raiseLocal": "Raise",
+    "raiseExpat": "Raise (expat)",
+    "value": "{{count}}/{{base}} · {{percent}}",
+    "limit": "/ {{limit}}",
+    "over": "Over the {{limit}} budget — warning only, submitting is not blocked",
+    "budget": {
+      "title": "Headcount budget: (only for High Performing Individuals)",
+      "promotion": "* Promotion headcount: 5% for local and expats;",
+      "raise": "* Salary adjustment headcount: 10% for local; 5% for expats."
+    }
+  },
+  "saveDraft": "Save draft",
+  "save": "Save",
+  "saving": "Saving…",
+  "savedAt": "Saved at {{time}}",
+  "submit": "Submit proposal",
+  "return": "Return to manager",
+  "approve": "Approve group",
+  "submitBlocked": "Upload both organization charts (before & after) before submitting",
+  "issues_one": "{{count}} row needs attention",
+  "issues_other": "{{count}} rows need attention",
+  "rejectIssues_one": "{{count}} rejected row has no reason",
+  "rejectIssues_other": "{{count}} rejected rows have no reason",
+  "grantedIssues_one": "{{count}} row has no granted raise",
+  "grantedIssues_other": "{{count}} rows have no granted raise",
+  "issue": {
+    "locked": "No permanent contract and 4C in 12 months → cannot be proposed",
+    "reasonRequired": "Permanent contract but 4C in 12 months → a specific reason is required",
+    "rejectReason": "A reason is required for a rejection",
+    "grantedRequired": "Enter the granted raise"
+  },
+  "lockedShort": "Not eligible",
+  "returnedAlert": "The board returned this proposal: {{reason}}",
+  "confirm": {
+    "cancel": "Cancel",
+    "submit": {
+      "title": "Submit the proposal of {{group}}?",
+      "description": "Admin will check the data, then HR and Accounting add their part before the board reviews it. You can no longer edit it.",
+      "confirm": "Submit"
+    },
+    "approve": {
+      "title": "Approve the proposal of {{group}}?",
+      "description": "The manager and Admin will be notified of the final decision.",
+      "confirm": "Approve"
+    },
+    "return": {
+      "title": "Return the proposal to the manager of {{group}}?",
+      "description": "The group's proposal goes back to draft so the manager can edit and resubmit it. The manager and Admin receive the reason by email.",
+      "confirm": "Return to manager",
+      "reasonLabel": "Reason",
+      "reasonPlaceholder": "What should the manager add or change…",
+      "reasonRequired": "A reason is required."
+    }
+  },
+  "done": {
+    "save": "Saved",
+    "submit": "Proposal submitted",
+    "approve": "Group approved",
+    "return": "Returned to the manager"
+  },
+  "saveError": "Couldn't save. Please try again.",
+  "actionError": "Couldn't complete the action. Please try again.",
+  "loadError": "Couldn't load the proposal.",
+  "noScopeTitle": "No review group assigned",
+  "noScopeHint": "Ask Admin to assign the groups you manage.",
+  "noMatch": "No matching employees.",
+  "none": "—",
+  "choose": "Choose…",
+  "placeholder": "Click to enter…",
+  "typing": "Enter…",
+  "expat": "Expat",
+  "salaryLock": {
+    "label": "Who can see salary information",
+    "text": "Only the board, Accounting and HR see this information for review; the approval file sent back to managers does not show it.",
+    "sub": "以上資訊僅供高階管理層、會計及人資部門查看與審核，因此發送給各部門主管的核准文件中，不會顯示這些資訊。"
+  },
+  "salaryHidden": {
+    "stub": "{{n}} salary columns · Board, HR, Accounting only",
+    "label": "Salary group hidden by permission: {{n}} salary columns visible only to the Board, HR and Accounting"
+  },
+  "collapse": "Collapse group: {{name}}",
+  "expand": "Expand group: {{name}}",
+  "groups": {
+    "hr": {
+      "label": "Linked from the HR system",
+      "sub": "從人事系統自動連結資料"
+    },
+    "cq": {
+      "label": "Filled in by the manager",
+      "sub": "由部門主管自行填寫資訊"
+    },
+    "kpi": {
+      "label": "Linked from the KPI evaluation system",
+      "sub": "從 KPI 評核系統自動連結資料"
+    },
+    "salary": {
+      "label": "Linked from the payroll system & sent to Accounting for estimates",
+      "sub": "從薪資系統自動連結資料，並發送給會計進行薪資預估"
+    },
+    "hrOpinion": {
+      "label": "Sent to HR for opinion",
+      "sub": "系統發送至 HR，徵詢意見"
+    },
+    "board": {
+      "label": "Board review & decision",
+      "sub": "由高階管理層審核並做出決定"
+    }
+  },
+  "subgroups": {
+    "current": {
+      "label": "Current",
+      "sub": "目前"
+    },
+    "after": {
+      "label": "After the raise",
+      "sub": "調整後"
+    }
+  },
+  "collapsedCount_one": "{{count}} column",
+  "collapsedCount_other": "{{count}} columns",
+  "cqFootnote": "Columns 20–40 are handled by HR, Accounting and the board",
+  "cols": {
+    "priority": {
+      "label": "Priority",
+      "sub": "提報優先順序"
+    },
+    "unit": {
+      "label": "Dept.",
+      "sub": "部門別"
+    },
+    "name": {
+      "label": "Nominee",
+      "sub": "提名幹部"
+    },
+    "cardNo": {
+      "label": "Card no.",
+      "sub": "員工編號"
+    },
+    "joinDate": {
+      "label": "Join date",
+      "sub": "到職日"
+    },
+    "seniority": {
+      "label": "Seniority (years)",
+      "sub": "工作年資"
+    },
+    "contract": {
+      "label": "Contract type",
+      "sub": "合約類型"
+    },
+    "position": {
+      "label": "Position",
+      "sub": "職稱"
+    },
+    "promotionCount": {
+      "label": "Promotion proposals since joining",
+      "sub": "自入職以來的晉升提案次數"
+    },
+    "abc": {
+      "label": "ABC ratings in the last 12 months",
+      "sub": "近 12 個月內的 ABC 評等"
+    },
+    "discipline": {
+      "label": "Disciplinary violations",
+      "sub": "違反紀律處分規定"
+    },
+    "status": {
+      "label": "Employee status",
+      "sub": "員工狀態"
+    },
+    "leave": {
+      "label": "Sick / maternity / contract suspension leave",
+      "sub": "病假／產假／停薪留職期間"
+    },
+    "type": {
+      "label": "Promotion or salary raise",
+      "sub": "升職或調薪"
+    },
+    "newTitle": {
+      "label": "New title",
+      "sub": "新職稱"
+    },
+    "reason": {
+      "label": "(Reason for proposal / appointment)",
+      "sub": "提報原因說明"
+    },
+    "jobChange": {
+      "label": "Any job changes after the promotion?",
+      "sub": "升職後工作上是否有任何調整與異動"
+    },
+    "raise": {
+      "label": "Proposed salary raise",
+      "sub": "提議加薪",
+      "note": "Choose \"Follow salary's scale\" or enter the amount you want"
+    },
+    "kpi": {
+      "label": "Current KPI",
+      "sub": "目前關鍵績效指標"
+    },
+    "salaryAdjustments": {
+      "label": "Salary adjustments in the last 3 years",
+      "sub": "近 3 年內的調薪提案次數"
+    },
+    "salaryLevels": {
+      "label": "Adjusted salary levels",
+      "sub": "已調整的薪資項目"
+    },
+    "currentTitle": {
+      "label": "Current position",
+      "sub": "目前職稱"
+    },
+    "contractSalary": {
+      "label": "Current contract salary",
+      "sub": "目前合約薪資"
+    },
+    "currentRating": {
+      "label": "Rating bonus",
+      "sub": "評等獎金"
+    },
+    "currentAttendance": {
+      "label": "Attendance bonus",
+      "sub": "全勤獎金"
+    },
+    "currentLiving": {
+      "label": "Living allowance",
+      "sub": "生活費"
+    },
+    "totalCurrent": {
+      "label": "Current total salary",
+      "sub": "目前薪資"
+    },
+    "newPosition": {
+      "label": "New position",
+      "sub": "新職稱"
+    },
+    "newContract": {
+      "label": "Estimated new contract salary",
+      "sub": "預估新合約薪資"
+    },
+    "newRating": {
+      "label": "Rating bonus",
+      "sub": "評等獎金"
+    },
+    "newAttendance": {
+      "label": "Attendance bonus",
+      "sub": "全勤獎金"
+    },
+    "newLiving": {
+      "label": "Living allowance",
+      "sub": "生活費"
+    },
+    "totalNew": {
+      "label": "Total salary after the raise",
+      "sub": "加薪後的總薪資"
+    },
+    "diffOldNew": {
+      "label": "Old vs new difference",
+      "sub": "新舊薪資差額"
+    },
+    "hrOpinion": {
+      "label": "HR opinion",
+      "sub": "人力資源的意見"
+    },
+    "boardType": {
+      "label": "Promotion or salary raise",
+      "sub": "升職或調薪",
+      "note": "Linked to the manager's proposal, but editable"
+    },
+    "boardTitle": {
+      "label": "New title",
+      "sub": "新職稱"
+    },
+    "boardAmount": {
+      "label": "Granted salary raise",
+      "sub": "薪水已經上調了",
+      "note": "Filled in by the board"
+    },
+    "boardDiff": {
+      "label": "Proposed vs actual raise difference",
+      "sub": "提議與實際調薪差異",
+      "note": "System-calculated"
+    },
+    "boardDecision": {
+      "label": "Board's decision",
+      "sub": "管理委員會的決定",
+      "note": "Shown automatically from the board's confirmed data"
+    }
+  },
+  "types": {
+    "none": {
+      "label": "No proposal",
+      "hint": "—"
+    },
+    "promotion": {
+      "label": "Promotion",
+      "hint": "Thăng chức · kèm tăng lương"
+    },
+    "raise": {
+      "label": "Raise salary",
+      "hint": "Tăng lương"
+    },
+    "reject": {
+      "label": "Rejected",
+      "hint": "Từ chối"
+    }
+  },
+  "decision": {
+    "promotion": {
+      "label": "Promoted & increased salary",
+      "hint": "Thăng chức + tăng lương"
+    },
+    "raise": {
+      "label": "Increased salary",
+      "hint": "Tăng lương"
+    },
+    "reject": {
+      "label": "Rejected",
+      "hint": "Từ chối"
+    }
+  },
+  "rejectReasonPlaceholder": "* A rejection reason is required",
+  "boardRejected": "Rejected — no new title applies",
+  "raiseMode": {
+    "scale": {
+      "label": "Company salary scale",
+      "hint": "Follow salary's scale"
+    },
+    "amount": {
+      "label": "Enter an amount",
+      "hint": "Enter the raise you want"
+    },
+    "short": {
+      "scale": "Salary scale",
+      "amount": "Amount"
+    }
+  },
+  "contract": {
+    "permanent": {
+      "label": "Permanent",
+      "sub": "無固定期限"
+    },
+    "fixed": {
+      "label": "Fixed-term",
+      "sub": "固定期限"
+    }
+  },
+  "empStatus": {
+    "active": "Working",
+    "maternity": "Maternity leave",
+    "sickLeave": "Sick leave",
+    "contractSuspended": "Contract suspended",
+    "resigned": "Resigned"
+  },
+  "leaveRange": "{{from}} → {{to}}",
+  "titleHint": "One level at a time — the next level is preselected",
+  "titleLevel": "Level {{level}} · {{name}}",
+  "noNextTitle": "No next title for this division yet",
+  "history": {
+    "promotionTitle": "Promotion proposals",
+    "salaryTitle": "Salary adjustments",
+    "date": "Date",
+    "amount": "Salary",
+    "more": "Show all {{count}}",
+    "contractOnly": "Contract salary only"
+  },
+  "fields": {
+    "position": "Position of {{name}}",
+    "type": "Promotion or raise for {{name}}",
+    "newTitle": "New title for {{name}}",
+    "reason": "Reason for proposal",
+    "jobChange": "Job changes after the promotion",
+    "raiseMode": "Proposed raise type for {{name}}",
+    "raiseAmount": "Proposed raise amount for {{name}}",
+    "hrOpinion": "HR opinion",
+    "newContract": "Estimated new contract salary for {{name}}",
+    "newRating": "New rating bonus for {{name}}",
+    "newAttendance": "New attendance bonus for {{name}}",
+    "newLiving": "New living allowance for {{name}}",
+    "boardType": "Board's decision for {{name}}",
+    "boardTitle": "Granted title for {{name}}",
+    "boardAmount": "Granted raise for {{name}}",
+    "boardReason": "Rejection reason for {{name}}"
+  },
+  "orgChart": {
+    "title": "Organization chart",
+    "required": "(required)",
+    "uploadSub": "Organization chart 組織圖 · PDF, PNG, JPG ≤ 10MB · both files are needed to submit",
+    "viewSub": "Organization chart 組織圖 · {{group}}",
+    "uploadedOn": "uploaded {{date}}",
+    "count": "{{count}}/2 files",
+    "slots": {
+      "before": {
+        "label": "Before promotion",
+        "sub": "提報前"
+      },
+      "after": {
+        "label": "After promotion",
+        "sub": "提報後"
+      }
+    },
+    "drop": "Drop a file here or click to choose",
+    "choose": "Choose file",
+    "replace": "Replace",
+    "remove": "Remove",
+    "view": "View",
+    "download": "Download",
+    "missing": "Not uploaded yet",
+    "previewTitle": "Organization chart · {{group}}",
+    "noPreview": "No preview — this is a sample file; its content is not stored on the test system.",
+    "errors": {
+      "type": "Only PDF, PNG or JPG files are accepted",
+      "size": "The file is larger than 10MB",
+      "upload": "Couldn't upload the file. Please try again."
+    },
+    "button_one": "Org chart · {{count}} file",
+    "button_other": "Org chart · {{count}} files",
+    "lacking_one": "Org chart · {{count}} file missing",
+    "lacking_other": "Org chart · {{count}} files missing"
+  },
+  "rules": {
+    "title": "Company rules",
+    "sub": "公司規定",
+    "when": "When an employee has 4C in one year",
+    "locked": {
+      "who": "Employees without a permanent contract",
+      "effect": "Contract is not renewed → cannot be proposed for promotion / salary raise",
+      "result": "The manager CANNOT select a proposal"
+    },
+    "reason": {
+      "who": "Employees with a permanent contract",
+      "effect": "The manager should consider carefully before proposing a promotion / salary raise",
+      "result": "Selectable, but a specific reason is required"
+    }
+  },
+  "notes": {
+    "title": "Notes",
+    "sub": "注意事項 · read before proposing",
+    "n1": "Proposals apply to high-performing individuals only.",
+    "n2": "Runs every April and October; the evaluation is finalized about one month earlier.",
+    "n3": "Promote level by level; don't jump over levels.",
+    "n4": "If the job scale stays the same after a promotion, explain clearly why the promotion is needed.",
+    "collapse": "Collapse",
+    "expand": "Expand"
+  },
+  "guide": {
+    "title": "Notes & rules",
+    "sub": "注意事項",
+    "summary": "{{notes}} notes · {{rules}} 4C rules"
+  },
+  "titleNext": "Next level under the rules"
+}

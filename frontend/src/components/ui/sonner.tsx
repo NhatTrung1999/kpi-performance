@@ -2,8 +2,9 @@ import type { ReactNode } from "react";
 import { CircleAlert, CircleCheck, Info, Loader2, TriangleAlert, X } from "lucide-react";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 
-import { cn } from "@/lib/utils";
+import { useGlassPopup } from "@/hooks/use-is-desktop";
 import { useTheme } from "@/lib/theme";
+import { cn } from "@/lib/utils";
 
 /**
  * Toaster dùng chung toàn hệ thống — MỌI style toast nằm ở đây.
@@ -49,10 +50,12 @@ const icons: ToasterProps["icons"] = {
 };
 
 export function Toaster({ label = "Notifications", closeLabel = "Dismiss notification", ...props }: ToasterProps & { label?: string; closeLabel?: string }) {
+  // Giao diện kính: toast là kính tối như menu xổ/hộp thoại (useGlassPopup gắn `dark liquid-popup`); phẳng: thẻ sáng.
+  const glass = useGlassPopup();
   const { theme } = useTheme();
   return (
     <Sonner
-      theme={theme}
+      theme={glass ? "dark" : theme}
       position="top-right"
       closeButton
       visibleToasts={3}
@@ -67,7 +70,8 @@ export function Toaster({ label = "Notifications", closeLabel = "Dismiss notific
           toast: cn(
             "group pointer-events-auto relative flex w-[var(--width)] items-start gap-3 rounded-control border p-4 pr-14 font-login",
             "border-border bg-card text-foreground shadow-toast",
-            "dark:bg-card/75 dark:backdrop-blur-xl dark:backdrop-saturate-150"
+            "dark:bg-card/75 dark:backdrop-blur-xl dark:backdrop-saturate-150",
+            glass
           ),
           icon: "!m-0 !h-8 !w-8 shrink-0",
           content: "flex min-w-0 flex-1 flex-col gap-0.5 pt-[5px]",

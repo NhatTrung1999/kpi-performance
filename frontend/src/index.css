@@ -7,7 +7,8 @@
 
 @theme inline {
     --font-heading: var(--font-sans);
-    --font-sans: 'Be Vietnam Pro', system-ui, sans-serif;
+    /* Be Vietnam Pro cho Latin/tiếng Việt; chữ Hán rơi về font CJK có sẵn trên máy (không đóng gói font CJK nặng vài MB). */
+    --font-sans: 'Be Vietnam Pro', 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', 'Noto Sans CJK TC', system-ui, sans-serif;
     --font-login: var(--font-sans);
 
     /* Thang cỡ chữ bổ sung (ngoài text-xs/sm/base/lg… mặc định của Tailwind) */
@@ -23,6 +24,8 @@
     --color-brand-text-hover: var(--brand-text-hover);
     --color-info: var(--info);
     --color-page: var(--page);
+    --color-shell: var(--shell);
+    --color-panel: var(--panel);
     --color-text-secondary: var(--text-secondary);
     --color-success: var(--success);
     --color-success-soft: var(--success-soft);
@@ -40,6 +43,24 @@
     --color-surface-dark: var(--surface-dark);
     --color-placeholder: var(--placeholder);
     --color-border-strong: var(--border-strong);
+    /* Nền tiêu đề bảng dữ liệu (DataGrid): nhóm/cột chỉ đọc, nhóm/cột nhập liệu, cột khóa */
+    --color-grid-group-read: var(--grid-group-read);
+    --color-grid-group-input: var(--grid-group-input);
+    --color-grid-head-read: var(--grid-head-read);
+    --color-grid-head-input: var(--grid-head-input);
+    --color-grid-locked: var(--grid-locked);
+    --color-grid-row-muted: var(--grid-row-muted);
+    --color-grid-row-alt: var(--grid-row-alt);
+    --color-grid-row-hover: var(--grid-row-hover);
+    --color-grid-group-warn: var(--grid-group-warn);
+    --color-grid-head-warn: var(--grid-head-warn);
+    --color-grid-group-info: var(--grid-group-info);
+    --color-grid-head-info: var(--grid-head-info);
+    --color-grid-group-salary: var(--grid-group-salary);
+    --color-grid-head-salary: var(--grid-head-salary);
+    --color-grid-group-success: var(--grid-group-success);
+    --color-grid-head-success: var(--grid-head-success);
+    --color-grid-row-danger: var(--grid-row-danger);
 
     /* Đổ bóng */
     --shadow-glass: var(--shadow-glass-value);
@@ -48,6 +69,11 @@
     --shadow-brand-hover: var(--shadow-brand-hover-value);
     --shadow-field: var(--shadow-field-value);
     --shadow-toast: var(--shadow-toast-value);
+    --shadow-card: var(--shadow-card-value);
+    --shadow-panel: var(--shadow-panel-value);
+    --shadow-grid-footer: var(--shadow-grid-footer-value);
+    --shadow-grid-pin: var(--shadow-grid-pin-value);
+    --shadow-nav: var(--shadow-nav-value);
 
     /* Gradient chính */
     --background-image-brand-gradient: linear-gradient(to bottom right, var(--brand-from), var(--brand-to));
@@ -95,37 +121,83 @@
     --radius-hero: 28px; /* thẻ kính của form */
 }
 
+/* Hiệu ứng của băng tiêu đề trang (PageBanner): sóng trôi, vệt sáng lướt một lần, trượt lên khi vào trang.
+   Bật "giảm chuyển động" thì khối prefers-reduced-motion cuối file tắt hết. */
+@theme {
+    --animate-banner-wave: banner-wave 28s linear infinite;
+    --animate-banner-shine: banner-shine 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+    --animate-banner-enter: banner-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+    @keyframes banner-wave {
+        to { transform: translateX(-50%); }
+    }
+    @keyframes banner-shine {
+        from { transform: translateX(-100%); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+    @keyframes banner-enter {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: none; }
+    }
+}
+
 :root {
     /* Nền & bề mặt */
-    --page: #F8FAFF;
+    --page: #EDF2FD;
     --background: var(--page);
-    --foreground: #111827;
+    --shell: #070B14; /* nền khung trang trong (sidebar + thanh trên) từ lg — tối gần đen, họa tiết mảng màu loang như trang đăng nhập (xem .shell-pattern, .shell-inverse) */
+    --panel: rgb(255 255 255 / 0.03); /* tấm nội dung (từ lg) là kính trong suốt kiểu iOS "Clear" trên nền khung tối; tab mục đang chọn cùng màu kính để nối liền (xem .liquid-panel, .liquid-tab). Gần như không làm nhòe nên tab và tấm nhìn xuyên cùng một nền → liền màu. */
+    --tab-foreground: #FFFFFF; /* chữ/icon của tab mục đang chọn (nằm trên nền panel, ngoài phạm vi token đảo của khung) */
+    --glass-rim: rgb(255 255 255 / 0.3); /* viền sáng của kính (mép trái tấm, tab mục đang chọn, góc lõm) — mã kính cũ */
+    --foreground: #0F172A;
     --card: #FFFFFF;
     --card-foreground: var(--foreground);
     --popover: #FFFFFF;
     --popover-foreground: var(--foreground);
     --surface-dark: #101018;
-    --text-secondary: #374151;
-    --muted: #F3F4F6;
-    --muted-foreground: #6B7280;
-    --border: #E5E7EB;
-    --input: #E5E7EB;
-    --border-strong: #D1D5DB;
-    --placeholder: #9CA3AF;
+    --text-secondary: #334155;
+    --muted: #F1F5FC;
+    --muted-foreground: #64748B;
+    --border: #E2E9F6;
+    --input: #DCE5F5;
+    --border-strong: #C9D6EE;
+    --placeholder: #94A3B8;
+    --scrollbar-thumb: var(--border-strong); /* thanh cuộn mảnh dùng chung */
+    --scrollbar-thumb-hover: var(--muted-foreground);
+
+    /* Bảng dữ liệu (DataGrid) — luôn ĐỤC vì nằm trên ô dính (sticky): nội dung cuộn qua không được lộ ra.
+       Ghi hex đã pha sẵn (không dùng color-mix: sinh thêm khối :root dự phòng, làm hỏng tách token của build:lib). */
+    --grid-group-read: #F4F7FC; /* hàng nhóm cột, nhóm chỉ đọc (≈ muted 70% trên card) */
+    --grid-group-input: #EAF2FF; /* hàng nhóm cột, nhóm nhập liệu (≈ accent 80%) */
+    --grid-head-read: #FAFBFE; /* tiêu đề cột chỉ đọc (≈ muted 35%) */
+    --grid-head-input: #F5F9FF; /* tiêu đề cột nhập liệu (≈ accent 40%) */
+    --grid-locked: #F3F6FB; /* cột chỉ người khác cập nhật (≈ muted 80%) */
+    --grid-row-muted: var(--muted); /* dòng làm mờ (vd. tạm hoãn, sắp thôi việc) */
+    --grid-row-alt: #FAFCFF; /* dòng xen kẽ khi bảng có sọc (≈ muted 30% trên card) */
+    --grid-row-hover: #EFF5FF; /* dòng đang rê chuột (`hoverRows`, ≈ accent 70% trên card) */
+    --grid-group-warn: #FEF3D6; /* hàng nhóm cột tô vàng nhạt (vd. CQ tự điền) */
+    --grid-head-warn: #FFFAEB;
+    --grid-group-info: #E3EEFE; /* hàng nhóm cột tô xanh dương nhạt (vd. hệ thống KPI, BLĐ) */
+    --grid-head-info: #F2F7FF;
+    --grid-group-salary: #FCEBB6; /* nhóm cột lương (các cột tô vàng của mẫu Excel) */
+    --grid-head-salary: #FEF5DA;
+    --grid-group-success: #E3F6EC; /* hàng nhóm cột tô xanh lá nhạt (vd. ý kiến nhân sự) */
+    --grid-head-success: #F2FBF6;
+    --grid-row-danger: #FEF4F4; /* dòng bị từ chối (≈ danger-soft) */
 
     /* Thương hiệu */
-    --brand: #6366F1; /* ring, điểm nhấn */
-    --brand-from: #4F46E5; /* gradient chính */
-    --brand-to: #2563EB;
-    --brand-text: #4F46E5; /* liên kết */
-    --brand-text-hover: #4338CA; /* liên kết khi hover */
+    --brand: #3B82F6; /* ring, điểm nhấn */
+    --brand-from: #38A3FF; /* gradient chính */
+    --brand-to: #2B5CEB;
+    --brand-text: #2563EB; /* liên kết */
+    --brand-text-hover: #1D4ED8; /* liên kết khi hover */
     --info: #3B82F6; /* màu phụ xanh dương */
-    --primary: #4F46E5;
+    --primary: #2F6BF2;
     --primary-foreground: #FFFFFF;
-    --secondary: #F3F4F6;
-    --secondary-foreground: #1F2937;
-    --accent: #EEF2FF;
-    --accent-foreground: #3730A3;
+    --secondary: #EEF4FF;
+    --secondary-foreground: #1E3A8A;
+    --accent: #E8F1FF;
+    --accent-foreground: #1D4ED8;
     --ring: var(--brand);
 
     /* Trạng thái */
@@ -146,13 +218,18 @@
     --glass-border: rgb(255 255 255 / 0.8);
     --shadow-glass-value: 0 40px 100px -30px rgb(49 46 129 / 0.45), 0 2px 6px rgb(49 46 129 / 0.06);
     --shadow-glass-sm-value: 0 24px 60px -24px rgb(49 46 129 / 0.35);
-    --shadow-brand-value: 0 10px 24px -10px rgb(79 70 229 / 0.55), 0 2px 6px -2px rgb(37 99 235 / 0.25);
-    --shadow-brand-hover-value: 0 16px 32px -12px rgb(79 70 229 / 0.6), 0 4px 10px -4px rgb(37 99 235 / 0.3);
-    --shadow-field-value: 0 1px 2px rgb(16 24 40 / 0.04);
-    --shadow-toast-value: 0 18px 44px -18px rgb(15 23 42 / 0.28), 0 2px 6px -2px rgb(15 23 42 / 0.06);
+    --shadow-brand-value: 0 12px 26px -12px rgb(37 99 235 / 0.6), 0 2px 6px -2px rgb(56 163 255 / 0.3);
+    --shadow-brand-hover-value: 0 18px 34px -12px rgb(37 99 235 / 0.65), 0 4px 10px -4px rgb(56 163 255 / 0.35);
+    --shadow-field-value: 0 1px 2px rgb(30 58 138 / 0.04);
+    --shadow-toast-value: 0 22px 48px -18px rgb(30 64 175 / 0.3), 0 2px 6px -2px rgb(30 64 175 / 0.08);
+    --shadow-card-value: 0 1px 2px rgb(30 64 175 / 0.04), 0 16px 36px -20px rgb(37 99 235 / 0.28);
+    --shadow-panel-value: 0 1px 2px rgb(30 64 175 / 0.04), 0 22px 48px -24px rgb(37 99 235 / 0.3);
+    --shadow-nav-value: 0 1px 2px rgb(30 64 175 / 0.05), 0 8px 20px -10px rgb(37 99 235 / 0.3);
+    --shadow-grid-footer-value: 0 -8px 12px -8px rgb(17 24 39 / 0.18); /* bóng phía trên dòng tổng DataGrid khi còn dòng bị che */
+    --shadow-grid-pin-value: 8px 0 12px -6px rgb(30 64 175 / 0.16); /* bóng mép phải các cột cố định của DataGrid khi đã cuộn ngang */
 
-    --chart-1: #6366F1;
-    --chart-2: #3B82F6;
+    --chart-1: #3B82F6;
+    --chart-2: #38BDF8;
     --chart-3: #10B981;
     --chart-4: #F59E0B;
     --chart-5: #EF4444;
@@ -167,34 +244,58 @@
 }
 
 .dark {
-    --page: #0B0B0F;
+    --page: #0A1020;
     --background: var(--page);
-    --foreground: #F3F4F6;
-    --card: #15151C;
+    --shell: #070B14; /* như giao diện sáng — khung luôn tối */
+    --panel: rgb(255 255 255 / 0.03);
+    --tab-foreground: #FFFFFF;
+    --foreground: #E8EEF9;
+    --card: #111A2E;
     --card-foreground: var(--foreground);
-    --popover: #15151C;
+    --popover: #111A2E;
     --popover-foreground: var(--foreground);
     --surface-dark: #101018;
-    --text-secondary: #D1D5DB;
-    --muted: rgb(255 255 255 / 0.06);
-    --muted-foreground: #9CA3AF;
-    --border: rgb(255 255 255 / 0.1);
-    --input: rgb(255 255 255 / 0.1);
-    --border-strong: rgb(255 255 255 / 0.2);
-    --placeholder: #6B7280;
+    --text-secondary: #C3CEE3;
+    --muted: rgb(148 163 184 / 0.1);
+    --muted-foreground: #8A9BBA;
+    --border: rgb(148 163 184 / 0.16);
+    --input: rgb(148 163 184 / 0.2);
+    --border-strong: rgb(148 163 184 / 0.3);
+    --placeholder: #64748B;
+    --scrollbar-thumb: var(--border-strong);
+    --scrollbar-thumb-hover: rgb(255 255 255 / 0.35);
 
-    --brand: #818CF8;
-    --brand-from: #4F46E5;
-    --brand-to: #2563EB;
-    --brand-text: #A5B4FC;
-    --brand-text-hover: #C7D2FE;
+    /* muted/accent tối là màu trong suốt → ghi sẵn kết quả đã phủ lên card */
+    --grid-group-read: #172036;
+    --grid-group-input: #16264A;
+    --grid-head-read: #141D31;
+    --grid-head-input: #142140;
+    --grid-locked: #161F34;
+    --grid-row-muted: #1A2338;
+    --grid-row-alt: #131C31;
+    --grid-row-hover: #17264A;
+    --grid-group-warn: #2C261D;
+    --grid-head-warn: #231F1C;
+    --grid-group-info: #182A4D;
+    --grid-head-info: #142242;
+    --grid-group-salary: #3A301D;
+    --grid-head-salary: #2A241D;
+    --grid-group-success: #142928;
+    --grid-head-success: #151F22;
+    --grid-row-danger: #2C1E24;
+
+    --brand: #60A5FA;
+    --brand-from: #38A3FF;
+    --brand-to: #2B5CEB;
+    --brand-text: #7DB4FF;
+    --brand-text-hover: #A9CCFF;
     --info: #60A5FA;
-    --primary: #4F46E5;
+    --primary: #2F6BF2;
     --primary-foreground: #FFFFFF;
-    --secondary: rgb(255 255 255 / 0.08);
-    --secondary-foreground: #F3F4F6;
-    --accent: rgb(129 140 248 / 0.15);
-    --accent-foreground: #C7D2FE;
+    --secondary: rgb(148 163 184 / 0.12);
+    --secondary-foreground: #E2E8F0;
+    --accent: rgb(59 130 246 / 0.16);
+    --accent-foreground: #A9CCFF;
     --ring: var(--brand);
 
     --success: #10B981;
@@ -213,17 +314,22 @@
     --glass-border: rgb(255 255 255 / 0.1);
     --shadow-glass-value: 0 40px 100px -30px rgb(0 0 0 / 0.75), 0 0 80px -20px rgb(99 102 241 / 0.35);
     --shadow-glass-sm-value: 0 24px 60px -20px rgb(0 0 0 / 0.6);
-    --shadow-brand-value: inset 0 0 0 1px rgb(255 255 255 / 0.08), 0 10px 30px -8px rgb(99 102 241 / 0.65);
-    --shadow-brand-hover-value: 0 16px 32px -12px rgb(79 70 229 / 0.6), 0 4px 10px -4px rgb(37 99 235 / 0.3);
+    --shadow-brand-value: 0 12px 28px -12px rgb(37 99 235 / 0.7), 0 2px 6px -2px rgb(0 0 0 / 0.4);
+    --shadow-brand-hover-value: 0 18px 34px -12px rgb(37 99 235 / 0.75), 0 4px 10px -4px rgb(0 0 0 / 0.45);
     --shadow-field-value: none;
     --shadow-toast-value: 0 24px 60px -20px rgb(0 0 0 / 0.75);
+    --shadow-card-value: 0 1px 2px rgb(0 0 0 / 0.3), 0 16px 36px -20px rgb(0 0 0 / 0.6);
+    --shadow-panel-value: 0 0 0 1px rgb(148 163 184 / 0.05), 0 22px 48px -24px rgb(0 0 0 / 0.7);
+    --shadow-nav-value: 0 0 0 1px rgb(148 163 184 / 0.08), 0 8px 20px -10px rgb(0 0 0 / 0.6);
+    --shadow-grid-footer-value: 0 -8px 14px -8px rgb(0 0 0 / 0.7);
+    --shadow-grid-pin-value: 8px 0 12px -6px rgb(0 0 0 / 0.75);
 
-    --chart-1: #818CF8;
-    --chart-2: #60A5FA;
+    --chart-1: #60A5FA;
+    --chart-2: #38BDF8;
     --chart-3: #34D399;
     --chart-4: #FBBF24;
     --chart-5: #F87171;
-    --sidebar: #15151C;
+    --sidebar: #0E1628;
     --sidebar-foreground: var(--foreground);
     --sidebar-primary: var(--primary);
     --sidebar-primary-foreground: #FFFFFF;
@@ -232,6 +338,8 @@
     --sidebar-border: var(--border);
     --sidebar-ring: var(--ring);
 }
+
+
 
 @layer base {
   * {
@@ -265,6 +373,10 @@
     --animate-blur-in: blur-in 400ms ease-out both;
     --animate-slide-down: slide-down 260ms ease-out both;
     --animate-gradient-drift: gradient-drift 9s ease-in-out infinite alternate;
+    /* Trang trong (Overview): thẻ hiện dần, thanh tiến độ chạy, đường biểu đồ vẽ dần */
+    --animate-rise-in: card-in 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    --animate-bar-in: fill-in 800ms cubic-bezier(0.16, 1, 0.3, 1) 250ms both;
+    --animate-line-in: line-in 1000ms cubic-bezier(0.16, 1, 0.3, 1) 300ms both;
 
     @keyframes bob {
         from { transform: translate3d(0, 0, 0); }
@@ -315,6 +427,10 @@
         from { opacity: 0; transform: translateY(-6px); }
         to { opacity: 1; transform: none; }
     }
+    @keyframes line-in {
+        from { clip-path: inset(-10% 100% -10% 0); }
+        to { clip-path: inset(-10% 0 -10% 0); }
+    }
     @keyframes gradient-drift {
         from { background-position: 0% 50%; }
         to { background-position: 100% 50%; }
@@ -323,6 +439,594 @@
 
 @layer base {
   html { -webkit-font-smoothing: antialiased; }
+
+  /* Thanh cuộn mảnh cho toàn hệ thống — màu theo token nên tự đổi sáng/tối. */
+  * {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+  /* Chrome/Edge/Safari: khi có ::-webkit-scrollbar thì bỏ scrollbar-color để kiểu dưới đây được dùng. */
+  @supports selector(::-webkit-scrollbar) {
+    * { scrollbar-color: auto; scrollbar-width: auto; }
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background: var(--scrollbar-thumb) padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { background-color: var(--scrollbar-thumb-hover); }
+  ::-webkit-scrollbar-button { display: none; }
+}
+
+/*
+ * Khung trang trong (sidebar + thanh trên, mọi cỡ màn hình) nằm trên nền `shell` xanh navy đậm → đảo các token chữ/viền/nền phụ
+ * sang tông sáng trong phạm vi này. Tab mục đang chọn dùng `panel` + `--tab-foreground` (không bị đảo) nên vẫn nối liền tấm nội dung.
+ * Popover/menu mở ra từ đây render qua portal (ngoài phạm vi) — tự gắn kính tối qua useGlassPopup.
+ */
+.shell-inverse {
+  --foreground: #FFFFFF;
+  --text-secondary: rgb(255 255 255 / 0.78);
+  --muted-foreground: rgb(219 234 254 / 0.62);
+  --placeholder: rgb(219 234 254 / 0.45);
+  --border: rgb(255 255 255 / 0.12);
+  --border-strong: rgb(255 255 255 / 0.22);
+  --input: rgb(255 255 255 / 0.12);
+  --muted: rgb(255 255 255 / 0.08);
+  --card: rgb(255 255 255 / 0.07);
+  --accent: rgb(255 255 255 / 0.16);
+  --accent-foreground: #FFFFFF;
+  --brand-text: #BFDBFE;
+  --brand-text-hover: #DBEAFE;
+  --ring: #93C5FD;
+  --switch-active: #FFFFFF; /* ô đang chọn của nút đổi ngôn ngữ: trắng đặc, chữ xanh — cùng kiểu tab menu */
+  --switch-active-foreground: #1D4ED8;
+  color: var(--foreground);
+}
+
+/*
+ * Họa tiết nền khung xanh navy (sidebar + thanh trên + menu trượt mobile; tấm nội dung che phần giữa):
+ * vệt sáng xanh dương ở góc dưới trái sidebar, vệt xanh ngọc mờ ở góc trên, quầng xanh trời sau tên ứng dụng, và lưới chấm nhỏ.
+ * Chỉ là background-image — không thêm phần tử, không ảnh hưởng bố cục.
+ */
+.shell-pattern {
+  background-image:
+    radial-gradient(520px 460px at -8% 104%, rgb(37 99 235 / 0.55), transparent 70%),
+    radial-gradient(420px 300px at 6% 36%, rgb(14 165 233 / 0.22), transparent 70%),
+    radial-gradient(380px 260px at 2% 70%, rgb(34 197 94 / 0.14), transparent 70%),
+    radial-gradient(520px 200px at 40% -40%, rgb(239 68 68 / 0.14), transparent 70%),
+    radial-gradient(620px 220px at 92% -50%, rgb(249 115 22 / 0.16), transparent 70%),
+    radial-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1.3px);
+  background-size: auto, auto, auto, auto, auto, 18px 18px;
+  background-attachment: fixed;
+}
+.dark .flat-backdrop {
+  background-image:
+    radial-gradient(60% 50% at 12% 0%, rgb(59 130 246 / 0.16), transparent 70%),
+    radial-gradient(45% 45% at 100% 8%, rgb(56 189 248 / 0.1), transparent 70%),
+    radial-gradient(55% 50% at 70% 100%, rgb(37 99 235 / 0.14), transparent 70%);
+}
+
+/*
+ * Trang đăng nhập kiểu "Liquid Glass" (iOS 26): nền tối rất nhòe với các mảng màu loang (như màn hình phía sau Control Center),
+ * kính gần như KHÔNG màu (xám trong), làm nhòe + tăng bão hòa phía sau, viền phản quang sáng ở mép trên-trái và dưới-phải
+ * như mép thấu kính, bo góc lớn. Thẻ đăng nhập = phần "đang bật": trắng đục. Chỉ áp trong trang đăng nhập.
+ */
+/*
+ * Nền trang đăng nhập (và trang 404): navy + lưới chấm; các mảng màu nằm trên 2 lớp ::before/::after (cố định theo
+ * khung nhìn, rộng hơn màn hình 15% mỗi phía) trôi chậm theo 2 nhịp khác nhau → kiểu cực quang. Phần tử gốc cần
+ * `isolate` để 2 lớp (z-index -1) nằm trên nền nhưng dưới nội dung. Bật "giảm chuyển động" thì đứng yên.
+ */
+.login-backdrop {
+  background-color: #070B14;
+  background-image: radial-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1.3px);
+  background-size: 18px 18px;
+}
+.login-backdrop::before,
+.login-backdrop::after {
+  content: "";
+  position: fixed;
+  inset: -15%;
+  z-index: -1;
+  pointer-events: none;
+  will-change: transform;
+}
+.login-backdrop::before {
+  background-image:
+    radial-gradient(520px 420px at 15% 85%, rgb(37 99 235 / 0.55), transparent 70%),
+    radial-gradient(420px 340px at 35% 18%, rgb(14 165 233 / 0.32), transparent 70%),
+    radial-gradient(380px 300px at 58% 42%, rgb(239 68 68 / 0.18), transparent 70%);
+  animation: aurora-a 26s ease-in-out infinite alternate;
+}
+.login-backdrop::after {
+  background-image:
+    radial-gradient(460px 360px at 50% 82%, rgb(34 197 94 / 0.2), transparent 70%),
+    radial-gradient(520px 420px at 80% 25%, rgb(249 115 22 / 0.16), transparent 70%),
+    radial-gradient(640px 520px at 78% 70%, rgb(59 130 246 / 0.38), transparent 70%);
+  animation: aurora-b 34s ease-in-out infinite alternate;
+}
+@keyframes aurora-a {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(7%, -5%, 0) scale(1.08); }
+  100% { transform: translate3d(-5%, 6%, 0) scale(0.96); }
+}
+@keyframes aurora-b {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-8%, 4%, 0) scale(1.06); }
+  100% { transform: translate3d(5%, -6%, 0) scale(0.95); }
+}
+/*
+ * Mảnh kính vỡ (lib/shatter.ts): khối nhỏ vừa một ô (cắt theo ô), nền = lớp trắng mỏng như thân kính trong của thẻ đăng nhập
+ * + ảnh vết nứt, đặt inline. Không làm nhòe nền, không nhân bản nội dung → nhẹ.
+ */
+.shard {
+  --shard-glass: linear-gradient(170deg, rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.05) 45%, rgb(255 255 255 / 0.1));
+  position: fixed;
+  z-index: 60;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  will-change: transform, opacity;
+}
+/* Thẻ đăng nhập lúc vỡ: kính đã thành mảnh, chỉ còn nội dung tan dần. */
+.shatter-hollow {
+  background: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.shatter-hollow [data-slot="input"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+/* Nền cực quang dừng trôi trong lúc kính vỡ (lib/shatter.ts). */
+.login-backdrop-paused::before,
+.login-backdrop-paused::after {
+  animation-play-state: paused;
+}
+
+/* Lúc mở trang: các thẻ lần lượt trượt lên + hiện dần + từ nhòe sang nét (độ trễ đặt trong Login.tsx). */
+.login-backdrop .animate-card-in,
+.login-backdrop .animate-form-in {
+  animation-name: login-in;
+  animation-duration: 750ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes login-in {
+  from { opacity: 0; transform: translateY(26px) scale(0.98); filter: blur(8px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+/*
+ * Kính trong suốt kiểu iOS "Clear" (trang đăng nhập): gần như không làm nhòe nền, thân kính chỉ phủ một lớp trắng rất
+ * mỏng; cảm giác "khối kính" đến từ mép — viền sáng + ánh sáng mép bên trong (giả khúc xạ ở cạnh) — và bóng chữ nhẹ để
+ * chữ đọc được trên nền màu.
+ */
+.login-glass [data-slot="info-card"] {
+  border-radius: 26px;
+  background-color: rgb(255 255 255 / 0.015);
+  background-image: linear-gradient(150deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0) 40%, rgb(255 255 255 / 0.04));
+  border-color: rgb(255 255 255 / 0.22);
+  -webkit-backdrop-filter: blur(2px) saturate(150%) brightness(1.06);
+  backdrop-filter: blur(2px) saturate(150%) brightness(1.06);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.1),
+    inset 2px 2px 1px -1px rgb(255 255 255 / 0.75),
+    inset -2px -2px 1px -1px rgb(255 255 255 / 0.4),
+    inset 0 0 14px rgb(255 255 255 / 0.14),
+    inset 0 -18px 30px -24px rgb(255 255 255 / 0.25),
+    0 20px 50px -30px rgb(0 0 0 / 0.55);
+}
+:is(.login-glass [data-slot="info-card"], .login-form-glass) :is(h1, h2, h3, p, span, label, a, time, strong):not([data-slot="input"] *) {
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+}
+.login-glass [data-slot="info-card"]:hover {
+  border-color: rgb(255 255 255 / 0.34);
+}
+/* Thẻ đếm ngược (tone brand): vẫn kính trong, chỉ ánh xanh rất nhẹ. */
+.login-glass [data-slot="info-card"][class*="from-brand"] {
+  background-image: linear-gradient(150deg, rgb(147 197 253 / 0.12), rgb(255 255 255 / 0) 50%, rgb(255 255 255 / 0.04));
+  border-color: rgb(255 255 255 / 0.24);
+}
+/* Thẻ đăng nhập: cùng kiểu kính trong với các thẻ bên trái (luôn tông tối — Login.tsx gắn class `dark`), ô nhập cũng là kính. */
+.login-form-glass {
+  border-radius: 30px;
+  background-color: rgb(255 255 255 / 0.02);
+  background-image: linear-gradient(150deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0) 40%, rgb(255 255 255 / 0.04));
+  border: 1px solid rgb(255 255 255 / 0.24);
+  -webkit-backdrop-filter: blur(2px) saturate(150%) brightness(1.06);
+  backdrop-filter: blur(2px) saturate(150%) brightness(1.06);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.1),
+    inset 2px 2px 1px -1px rgb(255 255 255 / 0.75),
+    inset -2px -2px 1px -1px rgb(255 255 255 / 0.4),
+    inset 0 0 14px rgb(255 255 255 / 0.14),
+    inset 0 -18px 30px -24px rgb(255 255 255 / 0.25),
+    0 30px 70px -34px rgb(0 0 0 / 0.6);
+}
+.login-form-glass [data-slot="input"] {
+  background-color: rgb(255 255 255 / 0.04);
+  border-color: rgb(255 255 255 / 0.22);
+  box-shadow: inset 1px 1px 0 rgb(255 255 255 / 0.22), inset -1px -1px 0 rgb(255 255 255 / 0.08);
+}
+/*
+ * Thẻ đang nứt khi rê chuột (lib/shatter.ts gắn `data-cracked`): tăng tương phản nội dung để đọc rõ trên mạng nứt —
+ * chữ phụ sáng lên gần bằng chữ chính, chữ có bóng tối tách khỏi nét nứt, ô nhập nền kính tối đặc hơn che vết nứt.
+ */
+[data-cracked] {
+  --text-secondary: #F3F4F6;
+  --muted-foreground: #E5E7EB;
+  --placeholder: #CBD5E1;
+}
+[data-cracked] :is(h1, h2, h3, p, span, label, a, time, strong):not([data-slot="input"] *) {
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.85), 0 0 12px rgb(0 0 0 / 0.6);
+}
+[data-cracked] [data-slot="input"] {
+  background-color: rgb(255 255 255 / 0.08);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+/*
+ * Ô được trình duyệt tự điền (autocomplete): Chrome tô nền xanh nhạt + chữ đen, che cả icon trong ô. Giữ nền kính
+ * (trì hoãn đổi nền rất lâu) và chữ màu thường.
+ */
+.login-form-glass [data-slot="input"]:is(:-webkit-autofill, :autofill),
+.login-form-glass [data-slot="input"]:is(:-webkit-autofill, :autofill):is(:hover, :focus) {
+  -webkit-text-fill-color: var(--foreground);
+  caret-color: var(--foreground);
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
+.login-form-glass [data-slot="input"]:focus-visible {
+  border-color: rgb(147 197 253 / 0.7);
+  background-color: rgb(255 255 255 / 0.1);
+}
+
+@property --tab-gap-top {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+@property --tab-gap-bottom {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+/*
+ * Liquid Glass bên trong ứng dụng (mọi cỡ màn hình): tấm nội dung + tab mục đang chọn là kính tối trong suốt trên nền khung màu loang
+ * (giống trang đăng nhập). Tấm nội dung mang class `dark` (AppShell) nên chữ/ô lọc/bảng bên trong dùng token tông tối;
+ * khung bảng cũng là kính. Tab dùng cùng màu `--panel` + làm nhòe để nối liền với tấm.
+ */
+.liquid-panel {
+  background-color: var(--panel);
+  /*
+   * Viền sáng mép trên + ánh sáng mép bên trong (giả khúc xạ) ở đây; mép trái là .liquid-rim (chừa khoảng trống đúng chỗ
+   * tab nối vào) — không đặt ánh sáng mép trái ở đây để chỗ nối tab vẫn liền. Viền trên dùng spread âm (-1px): bóng
+   * `inset 0 1.5px 0` thường bị lem 1 vạch sáng dọc mép trái ở tỉ lệ màn hình lẻ (125%, 150%) — lộ ngay chỗ nối tab.
+   */
+  box-shadow: inset 0 2.5px 0 -1px rgb(255 255 255 / 0.4), inset 0 16px 22px -20px rgb(255 255 255 / 0.25);
+}
+/*
+ * Viền sáng mép trái của tấm, bỏ đúng đoạn tab mục đang chọn (kèm 2 góc lõm) nối vào — để tab liền với tấm, không có vạch.
+ * Vị trí đoạn trống (--tab-gap-top/--tab-gap-bottom) do AppSidebar đo và gắn lên tấm; trượt theo tab.
+ */
+.liquid-rim {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
+  border-left: 1px solid var(--glass-rim);
+  border-top-left-radius: inherit;
+  -webkit-mask-image: linear-gradient(to bottom, #000 var(--tab-gap-top), transparent var(--tab-gap-top) var(--tab-gap-bottom), #000 var(--tab-gap-bottom));
+  mask-image: linear-gradient(to bottom, #000 var(--tab-gap-top), transparent var(--tab-gap-top) var(--tab-gap-bottom), #000 var(--tab-gap-bottom));
+  transition: --tab-gap-top 300ms cubic-bezier(0.22, 1, 0.36, 1), --tab-gap-bottom 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Dưới lg không có tab nối vào: viền sáng đủ hai mép trái/phải của tấm. */
+@media (max-width: 63.999rem) {
+  .liquid-rim {
+    border-right: 1px solid var(--glass-rim);
+    border-top-right-radius: inherit;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+/*
+ * Tab mục đang chọn = thân tab (.liquid-tab) + đoạn nối 16px cuối (.liquid-tab-joint) sát mép tấm + 2 góc lõm (::before/::after).
+ * Ở đây chỉ là nền kính; viền sáng quanh tab là MỘT nét SVG trong AppSidebar (tabOutline) để liền mạch ở mọi tỉ lệ màn hình.
+ */
+/*
+ * Tấm, tab và 2 góc lõm KHÔNG làm nhòe nền (kính trong): góc lõm chỉ là bóng đổ màu `--panel`, không làm nhòe được — nếu
+ * tấm/tab có backdrop-filter thì nền chấm sau tab bị nhòe còn sau góc lõm thì không → lệch tông, lộ chỗ nối.
+ */
+.liquid-tab,
+.liquid-tab-joint {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+/*
+ * Tấm lùi trái 1px (`lg:-ml-px`) đè lên 1px cuối của đoạn nối → kính trong bị chồng 2 lớp thành vạch sáng. Đoạn nối (và 2 góc
+ * lõm, clip-path bên dưới) chỉ tô tới trước 1px đó; phần ấy do tấm tô.
+ */
+.liquid-tab-joint {
+  background-color: transparent;
+  background-image: linear-gradient(to right, var(--color-panel) calc(100% - 1px), transparent calc(100% - 1px));
+}
+/*
+ * Góc lõm: ô 16×16 bo 16px ở góc phía tấm → phần lõm (lộ nền khung) là phần tư hình tròn; phần kính ngoài cung tô bằng bóng
+ * đổ màu `--panel`, cắt gọn trong ô bằng clip-path (lùi 1px ở mép xa tab: bóng đổ lem qua mép cắt thành vệt tối — nét viền
+ * SVG phủ chỗ đó).
+ */
+.liquid-tab-joint::before,
+.liquid-tab-joint::after {
+  width: 16px;
+  height: 16px;
+  background: none;
+  box-shadow: 0 0 0 16px var(--color-panel);
+}
+.liquid-tab-joint::before {
+  bottom: 100%;
+  border-bottom-right-radius: 16px;
+  clip-path: inset(1px 1px 0 0);
+}
+.liquid-tab-joint::after {
+  top: 100%;
+  border-top-right-radius: 16px;
+  clip-path: inset(0 1px 1px 0);
+}
+/*
+ * Popup nổi (menu xổ, gợi ý, menu tài khoản, hộp thoại, thông báo — gắn `dark liquid-popup` qua useGlassPopup): kính trong
+ * kiểu iOS — lớp tối mỏng + làm nhòe nhẹ (vừa đủ để chữ đọc được khi đè lên bảng), mép sáng như kính trang đăng nhập.
+ */
+.liquid-popup {
+  background-color: rgb(10 14 24 / 0.42);
+  background-image: linear-gradient(150deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0) 40%, rgb(255 255 255 / 0.04));
+  border-color: rgb(255 255 255 / 0.24);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  backdrop-filter: blur(10px) saturate(160%);
+  box-shadow:
+    inset 2px 2px 1px -1px rgb(255 255 255 / 0.7),
+    inset -2px -2px 1px -1px rgb(255 255 255 / 0.35),
+    inset 0 0 14px rgb(255 255 255 / 0.1),
+    0 24px 60px -24px rgb(0 0 0 / 0.6);
+}
+/* Bên trong popup kính: nền "card" (chân ngăn kéo, ô checkbox…) trong suốt để thấy lớp kính. */
+.liquid-popup {
+  --card: transparent;
+}
+/* Ngăn kéo cạnh phải (Phạm vi quản lý): tấm kính nổi, cách mép trình duyệt 12px (trên/phải/dưới), bo 20px, viền sáng quanh. */
+.liquid-drawer {
+  border-color: rgb(255 255 255 / 0.24);
+  box-shadow:
+    inset 2px 2px 1px -1px rgb(255 255 255 / 0.7),
+    inset -2px -2px 1px -1px rgb(255 255 255 / 0.35),
+    inset 0 0 18px rgb(255 255 255 / 0.1),
+    0 30px 80px -24px rgb(0 0 0 / 0.6);
+}
+.liquid-popup [data-slot="input"] {
+  background-color: rgb(255 255 255 / 0.04);
+  border-color: rgb(255 255 255 / 0.22);
+  box-shadow: inset 1px 1px 0 rgb(255 255 255 / 0.2);
+}
+/*
+ * Mọi nền "thẻ" (`bg-card`: khung, nút lọc, ô chọn, chip…) trên tấm kính là kính trong — không còn mảng tối đặc.
+ * Khung bảng tự đặt lại `--card` (trong suốt) cho dòng/ô bên trong — xem dưới.
+ */
+.liquid-panel {
+  --card: rgb(255 255 255 / 0.03);
+}
+.liquid-panel [data-slot="table-card"],
+.liquid-panel [data-slot="guide-strip"] {
+  background-color: rgb(255 255 255 / 0.02);
+  border-color: rgb(255 255 255 / 0.2);
+  box-shadow:
+    inset 2px 2px 1px -1px rgb(255 255 255 / 0.55),
+    inset -2px -2px 1px -1px rgb(255 255 255 / 0.25),
+    inset 0 0 14px rgb(255 255 255 / 0.07);
+}
+/*
+ * Dòng/ô bảng trong khung kính: nền `--card` trong suốt để thấy lớp kính phía sau (dòng xen kẽ chỉ sáng nhẹ).
+ * Ô dính (tiêu đề dính trên, cột ghim trái, dòng tổng) cần nền đặc (cùng tông tấm kính) để nội dung cuộn bên dưới không lộ qua.
+ */
+.liquid-panel [data-slot="table-card"] {
+  --card: transparent;
+  --grid-row-alt: rgb(255 255 255 / 0.025);
+  --glass-solid: rgb(17 22 34);
+  --glass-head: rgb(23 29 43);
+}
+.liquid-panel [data-slot="table-card"] .sticky.bg-card {
+  background-color: var(--glass-solid);
+}
+/*
+ * Hàng tiêu đề: cùng tông với thanh "Danh sách…" phía trên (không dùng backdrop-filter — lồng trong tấm kính thì trình duyệt
+ * chỉ làm nhòe được phần bên trong tấm, ra màu xám). Gần đặc để dòng cuộn bên dưới không lộ chữ qua.
+ */
+.liquid-panel [data-slot="table-card"] [role="columnheader"].sticky:is(.bg-card, .bg-grid-head-read, .bg-grid-group-read) {
+  background-color: var(--glass-head);
+}
+.liquid-panel [data-slot="table-card"] .group\/row:hover > .sticky.bg-card {
+  background-color: color-mix(in srgb, var(--glass-solid), white 4%);
+}
+
+/* Logo ứng dụng (AppLogo) + ảnh đại diện (Avatar, account-menu.tsx): ô kính mờ (nền trong ánh tím nhẹ, làm nhòe nền, viền sáng), icon màu thương hiệu theo tông sáng/tối. */
+:is(.app-logo, .app-avatar) {
+  color: var(--brand-text);
+  background-color: rgb(255 255 255 / 0.02);
+  background-image: linear-gradient(150deg, rgb(255 255 255 / 0.14), rgb(255 255 255 / 0) 55%, rgb(255 255 255 / 0.05));
+  border: 1px solid rgb(255 255 255 / 0.26);
+  -webkit-backdrop-filter: blur(2px) saturate(150%) brightness(1.06);
+  backdrop-filter: blur(2px) saturate(150%) brightness(1.06);
+  box-shadow:
+    inset 1.5px 1.5px 1px -1px rgb(255 255 255 / 0.75),
+    inset -1.5px -1.5px 1px -1px rgb(255 255 255 / 0.35),
+    inset 0 0 8px rgb(255 255 255 / 0.12);
+}
+/* Nền sáng (thanh trên / menu trượt trên điện thoại): viền + bóng nhạt theo tông sáng. */
+/* Giao diện phẳng (lib/ui-theme.ts): logo/ảnh đại diện là ô màu nhạt đặc, không kính. */
+:is(.app-logo, .app-avatar) {
+  background-color: var(--accent);
+  background-image: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:is(.app-logo, .app-avatar):not(.dark *) {
+  border-color: rgb(99 102 241 / 0.22);
+  box-shadow: inset 1px 1px 0 rgb(255 255 255 / 0.9), 0 4px 12px -6px rgb(79 70 229 / 0.35);
+}
+.dark :is(.app-logo, .app-avatar) {
+  border-color: rgb(96 165 250 / 0.25);
+  box-shadow: none;
+}
+.shell-inverse :is(.app-logo, .app-avatar) {
+  border-color: rgb(255 255 255 / 0.26);
+  box-shadow: inset 1.5px 1.5px 1px -1px rgb(255 255 255 / 0.75), inset -1.5px -1.5px 1px -1px rgb(255 255 255 / 0.35), inset 0 0 8px rgb(255 255 255 / 0.12);
+}
+
+/* Nút kính nhỏ kiểu Liquid Glass trên nền khung tối (nút ngôn ngữ, nút sáng/tối ở thanh trên từ lg). */
+/* Trang đăng nhập (mọi cỡ màn hình) dùng cùng kiểu. */
+.login-glass .liquid-glass,
+.login-glass .liquid-glass:hover {
+  background-color: rgb(255 255 255 / 0.02);
+  background-image: linear-gradient(150deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0) 50%, rgb(255 255 255 / 0.04));
+  border: 1px solid rgb(255 255 255 / 0.24);
+  -webkit-backdrop-filter: blur(2px) saturate(150%) brightness(1.06);
+  backdrop-filter: blur(2px) saturate(150%) brightness(1.06);
+  box-shadow: inset 1.5px 1.5px 1px -1px rgb(255 255 255 / 0.7), inset -1.5px -1.5px 1px -1px rgb(255 255 255 / 0.35), inset 0 0 10px rgb(255 255 255 / 0.12);
+}
+.shell-inverse .liquid-glass {
+  background-color: rgb(255 255 255 / 0.02);
+  background-image: linear-gradient(150deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0) 50%, rgb(255 255 255 / 0.04));
+  border: 1px solid rgb(255 255 255 / 0.24);
+  -webkit-backdrop-filter: blur(2px) saturate(150%) brightness(1.06);
+  backdrop-filter: blur(2px) saturate(150%) brightness(1.06);
+  box-shadow: inset 1.5px 1.5px 1px -1px rgb(255 255 255 / 0.7), inset -1.5px -1.5px 1px -1px rgb(255 255 255 / 0.35), inset 0 0 10px rgb(255 255 255 / 0.12);
+}
+
+/*
+ * Trang trí theo dịp lễ (trang đăng nhập — lib/season.ts; vật rơi: components/seasonal/season-particles.tsx):
+ * - Tết (`.season-tet`): nền cực quang đỏ – vàng kim, thẻ chúc mừng kính đỏ (`.tet-glass`).
+ * - Giáng sinh (`.season-xmas`): nền cực quang đỏ – xanh thông – vàng kim, thẻ kính xanh thông (`.xmas-glass`).
+ * Ấn vàng kim chung (`.season-seal`): "福" (Tết), "★" (Giáng sinh).
+ */
+.season-tet.login-backdrop {
+  background-color: #12070A;
+}
+.season-tet.login-backdrop::before {
+  background-image:
+    radial-gradient(520px 420px at 15% 85%, rgb(220 38 38 / 0.5), transparent 70%),
+    radial-gradient(420px 340px at 35% 18%, rgb(245 158 11 / 0.3), transparent 70%),
+    radial-gradient(380px 300px at 58% 42%, rgb(244 114 182 / 0.16), transparent 70%);
+}
+.season-tet.login-backdrop::after {
+  background-image:
+    radial-gradient(460px 360px at 50% 82%, rgb(234 179 8 / 0.2), transparent 70%),
+    radial-gradient(520px 420px at 80% 25%, rgb(249 115 22 / 0.22), transparent 70%),
+    radial-gradient(640px 520px at 78% 70%, rgb(185 28 28 / 0.4), transparent 70%);
+}
+.season-xmas.login-backdrop {
+  background-color: #06100C;
+}
+.season-xmas.login-backdrop::before {
+  background-image:
+    radial-gradient(520px 420px at 15% 85%, rgb(22 163 74 / 0.42), transparent 70%),
+    radial-gradient(420px 340px at 35% 18%, rgb(220 38 38 / 0.3), transparent 70%),
+    radial-gradient(380px 300px at 58% 42%, rgb(250 204 21 / 0.12), transparent 70%);
+}
+.season-xmas.login-backdrop::after {
+  background-image:
+    radial-gradient(460px 360px at 50% 82%, rgb(220 38 38 / 0.22), transparent 70%),
+    radial-gradient(520px 420px at 80% 25%, rgb(21 128 61 / 0.32), transparent 70%),
+    radial-gradient(640px 520px at 78% 70%, rgb(14 116 144 / 0.3), transparent 70%);
+}
+.xmas-glass {
+  border-radius: 24px;
+  background-color: rgb(20 83 45 / 0.3);
+  background-image: linear-gradient(150deg, rgb(220 252 231 / 0.16), rgb(255 255 255 / 0.02) 45%, rgb(254 202 202 / 0.1));
+  border: 1px solid rgb(252 211 77 / 0.26);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  box-shadow:
+    inset 1.5px 1.5px 0 rgb(240 253 244 / 0.35),
+    inset -1px -1px 0 rgb(251 191 36 / 0.1),
+    0 24px 60px -28px rgb(5 46 22 / 0.85);
+}
+.tet-glass {
+  border-radius: 24px;
+  background-color: rgb(127 29 29 / 0.28);
+  background-image: linear-gradient(150deg, rgb(254 202 202 / 0.16), rgb(255 255 255 / 0.02) 45%, rgb(251 191 36 / 0.1));
+  border: 1px solid rgb(252 211 77 / 0.28);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  box-shadow:
+    inset 1.5px 1.5px 0 rgb(255 237 213 / 0.35),
+    inset -1px -1px 0 rgb(251 191 36 / 0.12),
+    0 24px 60px -28px rgb(127 29 29 / 0.8);
+}
+.season-seal {
+  color: #7F1D1D;
+  background-image: linear-gradient(145deg, #FDE68A, #F59E0B 55%, #B45309);
+  box-shadow: inset 1px 1px 0 rgb(255 255 255 / 0.6), inset -1px -1px 0 rgb(120 53 15 / 0.4), 0 6px 18px -6px rgb(245 158 11 / 0.7);
+  font-family: "Noto Serif TC", "PMingLiU", "MingLiU", serif;
+}
+
+/*
+ * Chế độ nhẹ cho máy yếu (`<html data-perf="lite">`, lib/perf.ts): nền cực quang đứng yên và kính mờ nhẹ hơn (làm nhòe
+ * ít, bỏ tăng màu/độ sáng) — nền trôi sau 6 thẻ kính buộc làm nhòe lại cả 6 mỗi khung hình. Nền thẻ đặc hơn chút để bù.
+ */
+[data-perf="lite"] .login-backdrop::before,
+[data-perf="lite"] .login-backdrop::after {
+  animation: none;
+  will-change: auto;
+}
+[data-perf="lite"] :is(.login-glass [data-slot="info-card"], .login-form-glass, .login-glass .liquid-glass) {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+[data-perf="lite"] :is(.shell-inverse .liquid-glass, .app-logo, .app-avatar) {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+[data-perf="lite"] .liquid-popup {
+  -webkit-backdrop-filter: blur(8px) !important;
+  backdrop-filter: blur(8px) !important;
+}
+[data-perf="lite"] .login-form-glass [data-slot="input"],
+[data-perf="lite"] [data-cracked] [data-slot="input"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* ── Giao diện phẳng "soft blue" (token ở :root / .dark) ─────────────────────────────────────────────── */
+/* Nền trang: xanh lam nhạt + quầng sáng trắng/xanh trời mềm như ảnh mẫu (app-shell, trang đăng nhập). */
+.flat-backdrop {
+  background-color: var(--page);
+  background-image:
+    radial-gradient(60% 50% at 12% 0%, rgb(255 255 255 / 0.9), transparent 70%),
+    radial-gradient(45% 45% at 100% 8%, rgb(147 197 253 / 0.35), transparent 70%),
+    radial-gradient(55% 50% at 70% 100%, rgb(191 219 254 / 0.45), transparent 70%);
+  background-attachment: fixed;
+}
+/* Thẻ lớn (khung bảng, dải hướng dẫn, thẻ thông tin & form đăng nhập): trắng, bo tròn lớn, viền gần như vô hình, bóng xanh mềm. */
+:is([data-slot="table-card"], [data-slot="guide-strip"], [data-slot="info-card"]) {
+  border-color: var(--border);
+  border-radius: 22px;
+  box-shadow: var(--shadow-panel-value);
+}
+[data-slot="guide-strip"] {
+  border-radius: 18px;
+}
+/* Ô nhập: nền thẻ (trắng / navy), viền xanh rất nhạt. */
+[data-slot="input"] {
+  background-color: var(--card);
+  border-color: var(--input);
+}
+/* Logo / ảnh đại diện / nút tròn thanh trên: ô xanh nhạt như ô icon trong ảnh mẫu. */
+.liquid-glass {
+  background-color: var(--card);
+  background-image: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-color: var(--border);
+  box-shadow: var(--shadow-nav-value);
 }
 
 @media (prefers-reduced-motion: reduce) {

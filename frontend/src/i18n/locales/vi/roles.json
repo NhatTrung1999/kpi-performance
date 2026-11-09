@@ -1,0 +1,124 @@
+{
+  "title": "Phân quyền",
+  "titleZh": "權限管理",
+  "subtitle": "Quản lý vai trò và phạm vi quản lý",
+  "role": {
+    "CQ": "Chủ quản",
+    "NONE": "Chưa phân quyền"
+  },
+  "roleZh": {
+    "CQ": "主管",
+    "NONE": "未授權"
+  },
+  "roleDesc": {
+    "CQ": "Đăng nhập và đề xuất cho các nhóm được giao",
+    "NONE": "Chưa được truy cập hệ thống"
+  },
+  "badgeManagers": "Chủ quản",
+  "badgeOrphan": "Nhóm chưa có chủ quản",
+  "filterManagers": "Lọc bảng: Chủ quản",
+  "filterOrphan": "Mở danh sách nhóm chưa có chủ quản",
+  "unit": "Đơn vị",
+  "searchUnitPlaceholder": "Tìm đơn vị · 搜尋單位",
+  "searchUnit": "Tìm đơn vị",
+  "orphanOnly": "Nhóm chưa có chủ quản · {{n}}",
+  "clearFilter": "Bỏ lọc",
+  "noCq": "Chưa có CQ",
+  "noUnitMatch": "Không tìm thấy đơn vị",
+  "noUnits": "Chưa có đơn vị nào",
+  "noTeam": "Không có tổ",
+  "unitsError": "Không tải được danh sách đơn vị.",
+  "searchEmployeePlaceholder": "Tìm tên hoặc số thẻ",
+  "searchEmployee": "Tìm nhân viên",
+  "clearSearch": "Xóa tìm kiếm",
+  "quickFilter": "Lọc nhanh",
+  "tabs": {
+    "all": "Tất cả",
+    "CQ": "Chủ quản",
+    "NONE": "Chưa phân quyền"
+  },
+  "listTitle": "Danh sách nhân viên",
+  "listZh": "員工名單",
+  "total": "Tổng {{n}}",
+  "shown": "Đang hiện {{n}}",
+  "cols": {
+    "name": {
+      "label": "Họ tên",
+      "sub": "姓名 · 工號"
+    },
+    "dept": {
+      "label": "Bộ phận",
+      "sub": "單位"
+    },
+    "position": {
+      "label": "Chức vụ",
+      "sub": "職務"
+    },
+    "joinDate": {
+      "label": "Ngày vào",
+      "sub": "進廠日期"
+    },
+    "role": {
+      "label": "Vai trò",
+      "sub": "角色"
+    },
+    "scope": {
+      "label": "Phạm vi quản lý",
+      "sub": "管理範圍"
+    }
+  },
+  "changeRole": "Đổi vai trò (hiện tại: {{role}})",
+  "unsaved": "Chưa lưu",
+  "scopeSummary": "{{groups}} · {{people}}",
+  "groupCount_one": "{{n}} nhóm",
+  "groupCount_other": "{{n}} nhóm",
+  "staffCount_one": "{{n}} NV",
+  "staffCount_other": "{{n}} NV",
+  "noScope": "Chưa có phạm vi",
+  "edit": "Chỉnh sửa",
+  "assignScope": "Thiết lập",
+  "scopeOnlyManager": "Chỉ áp dụng cho Chủ quản",
+  "empty": {
+    "noPeople": {
+      "title": "Đơn vị chưa có nhân viên",
+      "zh": "此單位尚無員工資料",
+      "text": "Danh sách được đồng bộ từ HT nhân sự. Chọn đơn vị khác hoặc liên hệ HR nếu đơn vị này đã có người.",
+      "action": "Chọn đơn vị khác"
+    },
+    "noMatch": {
+      "title": "Không tìm thấy nhân viên phù hợp",
+      "zh": "查無符合條件的員工",
+      "text": "Thử đổi từ khóa tìm kiếm hoặc chọn \"Tất cả\" ở bộ lọc nhanh.",
+      "action": "Xóa bộ lọc"
+    },
+    "noManagers": {
+      "title": "Chưa có ai được phân quyền chủ quản",
+      "zh": "尚未設定任何主管",
+      "text": "Chọn một đơn vị để xem nhân viên và phân quyền chủ quản.",
+      "action": "Chọn đơn vị"
+    }
+  },
+  "employeesError": "Không tải được danh sách nhân viên.",
+  "managersError": "Không tải được danh sách phân quyền.",
+  "unsavedChanges_one": "{{count}} thay đổi chưa lưu",
+  "unsavedChanges_other": "{{count}} thay đổi chưa lưu",
+  "unsavedZh": "尚未儲存",
+  "discard": "Hủy",
+  "save": "Lưu thay đổi",
+  "saveError": "Không lưu được thay đổi. Vui lòng thử lại.",
+  "saveInvalidScope": "Một số bộ phận đã chọn không còn tồn tại. Hãy xem lại phạm vi quản lý và thử lại.",
+  "drawerTitle": "Phạm vi quản lý · 管理範圍",
+  "drawerSub": "{{id}} · Chủ quản 主管",
+  "drawerHint": "Tick đơn vị cha để chọn tất cả nhóm bên trong.",
+  "partial": "{{on}}/{{total}} nhóm",
+  "selectedSummary": "Đã chọn {{groups}} · {{people}}",
+  "selectedZh": "已選擇",
+  "close": "Đóng",
+  "cancel": "Hủy",
+  "apply": "Lưu",
+  "collapse": "Thu gọn",
+  "expand": "Mở rộng",
+  "allManagers": "Tất cả chủ quản",
+  "allManagersTitle": "Tất cả chủ quản (mọi đơn vị)",
+  "allManagersHint": "Xem mọi người đã được phân quyền chủ quản, không cần chọn đơn vị"
+}

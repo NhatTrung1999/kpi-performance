@@ -11,4 +11,11 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // Dev: chuyển /api sang backend NestJS (backend đã đặt global prefix 'api').
+  server: {
+    proxy: {
+      '/api': process.env.VITE_API_PROXY ?? 'http://192.168.18.42:4310',
+    },
+    host: true,
+  },
 });

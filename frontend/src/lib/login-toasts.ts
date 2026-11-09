@@ -9,13 +9,13 @@ import { describeLoginFailure, type LoginFailure } from "./auth-errors";
  */
 type ToastFailure = Exclude<LoginFailure, { kind: "locked" }>;
 
-const ID: Record<ToastFailure["kind"] | "warning" | "success", string> = {
+const ID: Record<ToastFailure["kind"] | "warning", string> = {
   invalid: "login-invalid",
   warning: "login-warning",
   "rate-limited": "login-rate-limited",
+  "no-access": "login-no-access",
   unavailable: "login-unavailable",
   unknown: "login-unknown",
-  success: "login-success",
 };
 
 const DURATION = 5000;
@@ -58,8 +58,8 @@ export const loginToasts = {
     }
   },
 
-  success() {
-    dismissExcept(ID.success);
-    toast.success(i18n.t("auth:successToast"), { id: ID.success, duration: 1500 });
+  /** Đăng nhập thành công: đóng mọi toast lỗi còn sót, không hiện thông báo thành công. */
+  clear() {
+    dismissExcept();
   },
 };

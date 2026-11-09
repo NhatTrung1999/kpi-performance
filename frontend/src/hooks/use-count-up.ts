@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-/** Đếm từ 0 đến `target` (easeOutCubic). Hiện ngay giá trị cuối nếu người dùng bật giảm chuyển động. */
-export function useCountUp(target: number, duration = 1800, delay = 200) {
+/** Đếm từ 0 đến `target` (easeOutCubic), làm tròn `decimals` chữ số. Hiện ngay giá trị cuối nếu người dùng bật giảm chuyển động. */
+export function useCountUp(target: number, duration = 1800, delay = 200, decimals = 0) {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const [value, setValue] = useState(reduce ? target : 0);
 
@@ -13,7 +13,7 @@ export function useCountUp(target: number, duration = 1800, delay = 200) {
       const tick = (t: number) => {
         start ??= t;
         const x = Math.min(1, (t - start) / duration);
-        setValue(Math.round(target * (1 - Math.pow(1 - x, 3))));
+        setValue(Number((target * (1 - Math.pow(1 - x, 3))).toFixed(decimals)));
         if (x < 1) raf = requestAnimationFrame(tick);
       };
       raf = requestAnimationFrame(tick);
@@ -22,7 +22,7 @@ export function useCountUp(target: number, duration = 1800, delay = 200) {
       clearTimeout(timer);
       cancelAnimationFrame(raf);
     };
-  }, [target, duration, delay, reduce]);
+  }, [target, duration, delay, decimals, reduce]);
 
   return reduce ? target : value;
 }

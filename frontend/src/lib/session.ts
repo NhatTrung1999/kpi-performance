@@ -1,17 +1,25 @@
+import { useMemo } from 'react';
 import i18n from '@/i18n';
-import { getToken, TOKEN_KEY, USER_KEY } from './axios';
+import { useAuthStore, type ServerUser } from '@/stores/auth';
 
-/** AD = Admin, CQ = Chủ quản, NV = Nhân viên. */
-export type AppRole = 'AD' | 'CQ' | 'NV';
+/**
+ * AD = Admin, CQ = Chủ quản, BLD = Ban lãnh đạo (duyệt đề xuất), HR = Nhân sự, KT = Kế toán, NV = Nhân viên.
+ * HR và KT chỉ tham gia màn Thăng chức & lương (ý kiến nhân sự, lương tạm tính).
+ * Hệ thống không dành cho nhân viên: NV chỉ là giá trị dự phòng khi không xác định được vai trò (server trả 403 khi đăng nhập).
+ */
+export type AppRole = 'AD' | 'CQ' | 'BLD' | 'HR' | 'KT' | 'NV';
 
 /** Tên cổng theo vai trò, theo ngôn ngữ hiện tại. */
 export const portalOf = (role: AppRole) => i18n.t(`portal.${role}`);
 
-export type CurrentUser = { name: string; title: string; role: AppRole; roleKnown: boolean };
+export type CurrentUser = { name: string; title: string; email: string; role: AppRole; roleKnown: boolean };
 
 const ROLE_ALIASES: Record<string, AppRole> = {
   AD: 'AD', ADMIN: 'AD',
   CQ: 'CQ', MANAGER: 'CQ',
+  BLD: 'BLD', BOARD: 'BLD', DIRECTOR: 'BLD',
+  HR: 'HR', NS: 'HR',
+  KT: 'KT', ACCOUNTING: 'KT', ACCOUNTANT: 'KT',
   NV: 'NV', EMPLOYEE: 'NV', STAFF: 'NV',
 };
 
@@ -35,37 +43,39 @@ const decodePayload = (token: string): Record<string, unknown> => {
   }
 };
 
-const readStored = (): Record<string, unknown> => {
-  try {
-    const raw = localStorage.getItem(USER_KEY) ?? sessionStorage.getItem(USER_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-};
-
-export const getCurrentUser = (): CurrentUser => {
-  const token = getToken();
+const deriveUser = (token: string | null, stored: ServerUser | null): CurrentUser => {
   const claims = token ? decodePayload(token) : {};
-  const stored = readStored();
-  const role = roleOf(stored.role) ?? roleOf(claims.role);
+  const user = stored ?? {};
+  const role = roleOf(user.role) ?? roleOf(claims.role);
   return {
-    name: str(stored.name) || str(claims.name) || i18n.t('user'),
-    title: str(stored.title) || str(claims.title),
+    name: str(user.name) || str(claims.name) || i18n.t('user'),
+    title: str(user.title) || str(claims.title),
+    email: str(user.email) || str(claims.email),
     role: role ?? 'NV',
     roleKnown: !!role,
   };
 };
 
-/** Lưu user vào cùng nơi với token (localStorage nếu "ghi nhớ", ngược lại sessionStorage). */
-export const saveCurrentUser = (user: unknown) => {
-  if (!user || typeof user !== 'object') return;
-  const target = localStorage.getItem(TOKEN_KEY) !== null ? localStorage : sessionStorage;
-  try {
-    target.setItem(USER_KEY, JSON.stringify(user));
-  } catch {
-    /* storage đầy/bị chặn: dùng claim trong token */
-  }
+/** User hiện tại cho code ngoài React (đọc một lần, không theo dõi thay đổi). */
+export const getCurrentUser = (): CurrentUser => {
+  const { token, user } = useAuthStore.getState();
+  return deriveUser(token, user);
+};
+
+/** User hiện tại trong component: tự re-render khi đăng nhập/đăng xuất, refresh token hoặc /auth/me trả tên mới. */
+export const useCurrentUser = (): CurrentUser => {
+  const token = useAuthStore((s) => s.token);
+  const user = useAuthStore((s) => s.user);
+  return useMemo(() => deriveUser(token, user), [token, user]);
+};
+
+/** Lưu user do server trả về (cùng nơi với token: localStorage nếu "ghi nhớ", ngược lại sessionStorage). */
+export const saveCurrentUser = (user: unknown) => useAuthStore.getState().setUser(user);
+
+/** Tên gọi trong lời chào: bỏ họ khi tên có từ ba chữ trở lên ("Nguyễn Minh Anh" → "Minh Anh"). */
+export const shortNameOf = (name: string) => {
+  const words = name.split(/\s+/).filter(Boolean);
+  return words.length >= 3 ? words.slice(1).join(' ') : name;
 };
 
 export const initialsOf = (name: string) =>
