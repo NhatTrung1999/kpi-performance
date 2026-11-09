@@ -428,6 +428,8 @@ const Proposals = () => {
                 columns={columns}
                 rows={visible}
                 wrapHeaders
+                centerHeaders
+                centerCells
                 rowKey={(r) => r.psk}
                 striped
                 rowAccent={resultAccentClass}
@@ -456,7 +458,6 @@ const Proposals = () => {
 
       <FormAlert tone="info" className="flex-none px-3.5 py-2.5 text-xs">
         <span className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
-          <span className="font-semibold text-foreground">{t('rules.title')}</span>
           <span className="text-text-secondary">{t('rules.body')}</span>
           <span className="flex flex-wrap items-center gap-1.5">
             <Pill tone="danger">{t('rules.c3')}</Pill>

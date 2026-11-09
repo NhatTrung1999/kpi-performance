@@ -9,6 +9,7 @@ import {
   hasRaise,
   HEADCOUNT_RULES,
   nextPositions,
+  TITLE_LIST,
   type BoardType,
   type ProposalType,
 } from '@/config/promotion-proposal';
@@ -98,12 +99,15 @@ export function boardIssue(r: Pick<PromotionRow, 'type' | 'raiseMode' | 'raiseAm
   return hasRaise(type) && grantedRaise(r) <= 0 ? 'grantedRequired' : null;
 }
 
-/** Chức danh mới được chọn: chỉ bậc kế tiếp, đúng khối VP/SX. */
-export const titleOptions = (r: Pick<PromotionRow, 'position' | 'division'>) => nextPositions(r.position, r.division);
+/** Danh sách "Chức danh mới": đủ 8 chức danh như danh sách chọn trong file. */
+export const titleOptions = (): readonly string[] => TITLE_LIST;
+
+/** Chức danh gợi ý sẵn khi chọn thăng chức: bậc kế tiếp trong đúng khối VP/SX (không có thì để trống). */
+export const nextTitle = (r: Pick<PromotionRow, 'position' | 'division'>) => nextPositions(r.position, r.division)[0] ?? null;
 
 /** CQ đổi loại đề xuất: có thăng chức thì gợi ý sẵn bậc kế tiếp, không thì bỏ chức danh mới. */
 export function typeChange(r: Pick<PromotionRow, 'position' | 'division' | 'newTitle'>, type: ProposalType): PromotionEdit {
-  return { type, newTitle: hasPromotion(type) ? (r.newTitle ?? titleOptions(r)[0] ?? null) : null };
+  return { type, newTitle: hasPromotion(type) ? (r.newTitle ?? nextTitle(r)) : null };
 }
 
 /** BLĐ đổi quyết định: Từ chối → Mức lương được tăng về 0 và bỏ chức danh mới; loại khác → lấy lại số đề xuất nếu đang 0. */
@@ -112,7 +116,7 @@ export function boardTypeChange(r: Pick<PromotionRow, 'type' | 'raiseMode' | 'ra
   return {
     boardType: type,
     boardAmount: hasRaise(type) ? (r.board?.amount || proposedRaise(r) || 0) : 0,
-    boardTitle: hasPromotion(type) ? (r.board?.title ?? r.newTitle ?? titleOptions(r)[0] ?? null) : null,
+    boardTitle: hasPromotion(type) ? (r.board?.title ?? r.newTitle ?? nextTitle(r)) : null,
   };
 }
 
@@ -132,7 +136,8 @@ export function headcountUsage(rows: readonly PromotionRow[], group: Pick<Review
     return { key, count, base, percent, limit, over: percent > limit };
   };
   const promotions = rows.filter((r) => hasPromotion(typeOf(r))).length;
-  const raises = rows.filter((r) => hasRaise(typeOf(r)));
+  // Hạn mức tăng lương chỉ đếm dòng "raise salary"; dòng thăng chức đã tính vào hạn mức thăng chức.
+  const raises = rows.filter((r) => typeOf(r) === 'raise');
   const local = group.headcount - group.expatHeadcount;
   const meters = [
     meter('promotion', promotions, group.headcount, HEADCOUNT_RULES.promotion),

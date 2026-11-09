@@ -26,7 +26,7 @@ const Nav = ({ collapsed }: { collapsed: boolean }) => (
 );
 
 export const ExpandedAndCollapsed = () => (
-  <div className="bg-shell text-foreground" style={{ display: 'flex', gap: 24, height: 440, padding: '0 8px' }}>
+  <div className="flat-backdrop text-foreground" style={{ display: 'flex', gap: 24, height: 440, padding: '0 8px' }}>
     <AppSidebar logo="K" name="KPI Performance" toggle={<SidebarToggle collapsed={false} onToggle={() => {}} />}>
       <Nav collapsed={false} />
     </AppSidebar>

@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { AppSidebar, SidebarNavGroup, SidebarNavItem } from "@/components/ui/app-shell";
+import { AppLogo } from "@/components/ui/app-logo";
 import { SidebarToggle } from "@/components/ui/sidebar-toggle";
 import { useShell } from "@/layouts/shell-context";
 import { useCurrentUser } from "@/lib/session";
@@ -27,7 +28,7 @@ const Sidebar = ({ collapsed = false, onClose, onNavigate, className }: SidebarP
   return (
     <AppSidebar
       collapsed={collapsed}
-      logo="K"
+      logo={<AppLogo />}
       name={t("appName")}
       toggle={
         !onClose && shell ? (

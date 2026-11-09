@@ -1,5 +1,9 @@
 import { useSyncExternalStore } from "react";
 
+/**
+ * Sáng / tối cho toàn app (cả trang đăng nhập). Nguồn sự thật duy nhất: class `dark` trên `<html>`.
+ * Lưu lựa chọn ở localStorage `kpi-theme`; chưa chọn thì theo hệ điều hành. index.html có script chống nháy làm y hệt initTheme.
+ */
 export type Theme = "light" | "dark";
 const KEY = "kpi-theme";
 const root = () => document.documentElement;
@@ -14,12 +18,21 @@ function apply(theme: Theme) {
 /** Người dùng chủ động chọn → lưu lại. */
 export function setTheme(theme: Theme) {
   apply(theme);
-  localStorage.setItem(KEY, theme);
+  try {
+    localStorage.setItem(KEY, theme);
+  } catch {
+    // Không lưu được: chỉ có tác dụng tới khi tải lại trang.
+  }
 }
 
-/** Gọi một lần trong main.tsx trước khi render (index.html có script chống nháy — xem README). */
+/** Gọi một lần trong main.tsx trước khi render. */
 export function initTheme() {
-  const saved = localStorage.getItem(KEY) as Theme | null;
+  let saved: Theme | null = null;
+  try {
+    saved = localStorage.getItem(KEY) as Theme | null;
+  } catch {
+    // bỏ qua
+  }
   apply(saved ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
 }
 
@@ -29,7 +42,7 @@ function subscribe(onChange: () => void) {
   return () => obs.disconnect();
 }
 
-/** Nguồn sự thật duy nhất: class `dark` trên <html>. ThemeToggle và Toaster cùng đọc từ đây. */
+/** ThemeToggle và Toaster cùng đọc từ đây. */
 export function useTheme() {
   const theme = useSyncExternalStore(subscribe, getTheme, () => "light" as Theme);
   return { theme, setTheme, toggle: () => setTheme(theme === "dark" ? "light" : "dark") };

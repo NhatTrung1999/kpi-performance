@@ -1,33 +1,34 @@
 import { useMemo } from "react";
-import { Keyboard, LogOut, Menu, Moon, Sun } from "lucide-react";
+import { Keyboard, LogOut, Menu } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router";
+import { LanguageSwitch } from "@/components/language-switch";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { AccountMenu } from "@/components/ui/account-menu";
+import { AppLogo } from "@/components/ui/app-logo";
 import { Button } from "@/components/ui/button";
 import { Pill } from "@/components/ui/metric-card";
 import { useShell } from "@/layouts/shell-context";
 import { getQuarterInfo } from "@/lib/quarter";
+import { useGlassUi } from "@/lib/ui-theme";
+import { cn } from "@/lib/utils";
 import { initialsOf, portalOf, useCurrentUser } from "@/lib/session";
-import { useTheme } from "@/lib/theme";
 import { canAccess, metaOf, ROLE_GATING } from "@/routes/config";
 import { usePagePeriodStore } from "@/stores/page-period";
-
-const iconButton = "relative size-10 rounded-lg text-text-secondary lg:size-9 lg:border-border [&_svg]:size-[18px] lg:[&_svg]:size-[18px]";
 
 type HeaderProps = {
   /** Có sidebar (Admin): hiện tiêu đề trang + nút mở menu mobile. Không có (CQ, BLĐ): hiện logo + tên ứng dụng. */
   withSidebar: boolean;
 };
 
-/** Thanh trên chung của trang trong: tiêu đề/logo, quý hiện tại, giao diện sáng/tối, menu tài khoản. */
+/** Thanh trên chung của trang trong: tiêu đề/logo, quý hiện tại, chuyển ngôn ngữ, menu tài khoản. */
 const Header = ({ withSidebar }: HeaderProps) => {
   const { t } = useTranslation(["common", "nav"]);
   const shell = useShell();
-  const { theme, toggle } = useTheme();
   const meta = metaOf(useLocation().pathname);
   const user = useCurrentUser();
+  const glass = useGlassUi();
   const title = !meta ? "" : canAccess(meta, user.role) ? t(`nav:${meta.title}`) : t("forbidden.title");
-  const isDark = theme === "dark";
   const quarter = useMemo(() => {
     const q = getQuarterInfo(new Date());
     return t("quarterLabel", { quarter: q.quarter, year: q.startDate.slice(0, 4) });
@@ -37,7 +38,13 @@ const Header = ({ withSidebar }: HeaderProps) => {
   const periodLabel = meta?.period === false ? null : meta?.period === "page" ? pageLabel : quarter;
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 flex-none items-center gap-2 border-b border-border bg-card pr-3 pl-4 lg:static lg:gap-4 lg:border-0 lg:bg-transparent lg:pr-4 lg:pl-6">
+    <header
+      className={cn(
+        "sticky top-0 z-20 flex h-14 flex-none items-center gap-2 border-b border-border pr-3 pl-4 lg:static lg:gap-4 lg:pr-4 lg:pl-6",
+        // Trên điện thoại là dải mờ dính đầu trang (kính: tối; phẳng: xanh nhạt); từ lg trong suốt trên nền khung/nền trang.
+        glass ? "bg-shell/80 backdrop-blur-xl lg:border-0 lg:bg-transparent lg:backdrop-blur-none" : "bg-page/80 backdrop-blur-xl lg:border-0 lg:bg-transparent lg:backdrop-blur-none"
+      )}
+    >
       {withSidebar ? (
         <>
           <Button variant="ghost" size="icon-lg" aria-label={t("openMenu")} onClick={shell?.openMobileMenu} className="-ml-3 size-10 lg:hidden [&_svg]:size-5">
@@ -47,9 +54,7 @@ const Header = ({ withSidebar }: HeaderProps) => {
         </>
       ) : (
         <div className="flex min-w-0 items-center gap-2.5">
-          <div aria-hidden="true" className="flex size-8 flex-none items-center justify-center rounded-[10px] bg-brand-gradient text-[15px] font-bold text-white">
-            K
-          </div>
+          <AppLogo />
           <span className="truncate text-[15px] font-bold tracking-[-0.01em]">{t("appName")}</span>
           <h1 className="sr-only">{title}</h1>
         </div>
@@ -60,9 +65,8 @@ const Header = ({ withSidebar }: HeaderProps) => {
         </Pill>
       )}
       <div className="flex-1" />
-      <Button variant="ghost" size="icon-lg" aria-label={isDark ? t("theme.toLight") : t("theme.toDark")} onClick={toggle} className={iconButton}>
-        {isDark ? <Sun strokeWidth={1.8} /> : <Moon strokeWidth={1.8} />}
-      </Button>
+      <ThemeToggle />
+      <LanguageSwitch className="liquid-glass" />
       <AccountMenu
         avatarSize="md"
         name={user.name}

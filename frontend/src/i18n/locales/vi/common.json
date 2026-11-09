@@ -23,10 +23,6 @@
   },
   "search": "Tìm kiếm",
   "searchPlaceholder": "Tìm mục tiêu, đánh giá…",
-  "theme": {
-    "toLight": "Chuyển sang giao diện sáng",
-    "toDark": "Chuyển sang giao diện tối"
-  },
   "toaster": {
     "label": "Thông báo",
     "close": "Đóng thông báo"
@@ -38,6 +34,7 @@
     "back": "Về trang chủ"
   },
   "notFound": "Không tìm thấy trang",
+  "notFoundDescription": "Địa chỉ này không tồn tại hoặc đã được chuyển đi. Kiểm tra lại đường dẫn hoặc quay về trang chủ.",
   "trend": {
     "flat": "Không đổi",
     "up": "Tăng",
@@ -75,5 +72,16 @@
   "underConstruction": {
     "heading": "Đang xây dựng",
     "description": "Trang này đang được xây dựng và sẽ sớm ra mắt."
+  },
+  "language": {
+    "label": "Ngôn ngữ",
+    "switch": "Đổi ngôn ngữ",
+    "vi": "Tiếng Việt",
+    "zh": "中文（繁體）",
+    "en": "English"
+  },
+  "theme": {
+    "toLight": "Chuyển sang giao diện sáng",
+    "toDark": "Chuyển sang giao diện tối"
   }
 }

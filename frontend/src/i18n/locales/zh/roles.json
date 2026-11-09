@@ -1,0 +1,124 @@
+{
+  "title": "權限設定",
+  "titleZh": "權限管理",
+  "subtitle": "管理角色與管理範圍",
+  "role": {
+    "CQ": "主管",
+    "NONE": "未授權"
+  },
+  "roleZh": {
+    "CQ": "主管",
+    "NONE": "未授權"
+  },
+  "roleDesc": {
+    "CQ": "可登入並為所指派的組別提報",
+    "NONE": "尚無系統存取權限"
+  },
+  "badgeManagers": "主管",
+  "badgeOrphan": "無主管的組別",
+  "filterManagers": "篩選表格：主管",
+  "filterOrphan": "開啟無主管的組別清單",
+  "unit": "單位",
+  "searchUnitPlaceholder": "搜尋單位",
+  "searchUnit": "搜尋單位",
+  "orphanOnly": "無主管的組別 · {{n}}",
+  "clearFilter": "清除篩選",
+  "noCq": "尚無主管",
+  "noUnitMatch": "找不到單位",
+  "noUnits": "尚無任何單位",
+  "noTeam": "無組別",
+  "unitsError": "無法載入單位清單。",
+  "searchEmployeePlaceholder": "搜尋姓名或工號",
+  "searchEmployee": "搜尋員工",
+  "clearSearch": "清除搜尋",
+  "quickFilter": "快速篩選",
+  "tabs": {
+    "all": "全部",
+    "CQ": "主管",
+    "NONE": "未授權"
+  },
+  "listTitle": "員工名單",
+  "listZh": "員工名單",
+  "total": "共 {{n}}",
+  "shown": "顯示 {{n}}",
+  "cols": {
+    "name": {
+      "label": "姓名 · 工號",
+      "sub": "Họ tên · Số thẻ"
+    },
+    "dept": {
+      "label": "單位",
+      "sub": "Bộ phận"
+    },
+    "position": {
+      "label": "職務",
+      "sub": "Chức vụ"
+    },
+    "joinDate": {
+      "label": "進廠日期",
+      "sub": "Ngày vào"
+    },
+    "role": {
+      "label": "角色",
+      "sub": "Vai trò"
+    },
+    "scope": {
+      "label": "管理範圍",
+      "sub": "Phạm vi quản lý"
+    }
+  },
+  "changeRole": "變更角色（目前：{{role}}）",
+  "unsaved": "未儲存",
+  "scopeSummary": "{{groups}} · {{people}}",
+  "groupCount_one": "{{n}} 個組別",
+  "groupCount_other": "{{n}} 個組別",
+  "staffCount_one": "{{n}} 位員工",
+  "staffCount_other": "{{n}} 位員工",
+  "noScope": "尚未設定範圍",
+  "edit": "編輯",
+  "assignScope": "設定",
+  "scopeOnlyManager": "僅適用於主管",
+  "empty": {
+    "noPeople": {
+      "title": "此單位尚無員工",
+      "zh": "此單位尚無員工資料",
+      "text": "名單由人資系統同步。請選擇其他單位，若此單位已有人員，請聯絡人資。",
+      "action": "選擇其他單位"
+    },
+    "noMatch": {
+      "title": "找不到符合的員工",
+      "zh": "查無符合條件的員工",
+      "text": "請更換搜尋關鍵字，或在快速篩選中選擇「全部」。",
+      "action": "清除篩選"
+    },
+    "noManagers": {
+      "title": "尚未設定任何主管",
+      "zh": "Chưa có ai được phân quyền chủ quản",
+      "text": "請選擇單位以查看員工並設定主管權限。",
+      "action": "選擇單位"
+    }
+  },
+  "employeesError": "無法載入員工名單。",
+  "managersError": "無法載入權限設定清單。",
+  "unsavedChanges_one": "{{count}} 項變更尚未儲存",
+  "unsavedChanges_other": "{{count}} 項變更尚未儲存",
+  "unsavedZh": "尚未儲存",
+  "discard": "取消",
+  "save": "儲存變更",
+  "saveError": "無法儲存變更，請再試一次。",
+  "saveInvalidScope": "部分已選擇的部門已不存在。請重新檢視管理範圍後再試一次。",
+  "drawerTitle": "管理範圍",
+  "drawerSub": "{{id}} · 主管",
+  "drawerHint": "勾選上層單位即可選取其下所有組別。",
+  "partial": "{{on}}/{{total}} 個組別",
+  "selectedSummary": "已選擇 {{groups}} · {{people}}",
+  "selectedZh": "已選擇",
+  "close": "關閉",
+  "cancel": "取消",
+  "apply": "儲存",
+  "collapse": "收合",
+  "expand": "展開",
+  "allManagers": "全部主管",
+  "allManagersTitle": "全部主管（所有單位）",
+  "allManagersHint": "不需選擇單位，即可查看所有已授權的主管"
+}

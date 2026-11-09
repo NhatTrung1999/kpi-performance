@@ -1,0 +1,134 @@
+{
+  "banner": {
+    "title": "DC KPI提報 - 第{{round}}批",
+    "subtitle": "期間 {{range}}"
+  },
+  "badge": {
+    "open": "開放中",
+    "deadline": "截止 {{date}}",
+    "submitted": "已送出",
+    "awaiting": "待核准",
+    "approved": "已核准",
+    "filled": "已填寫",
+    "decided": "已決定",
+    "filledValue": "{{filled}}/{{total}}"
+  },
+  "unitLabel": "部門：",
+  "unitFilter": "依部門篩選",
+  "nameFilter": "以姓名或工號搜尋",
+  "allUnits": "全部",
+  "searchPlaceholder": "搜尋姓名或工號",
+  "search": "搜尋員工",
+  "issues_one": "尚有 {{count}} 項ABC評等警示",
+  "issues_other": "尚有 {{count}} 項ABC評等警示",
+  "saveDraft": "儲存草稿",
+  "saving": "儲存中…",
+  "savedAt": "已於 {{time}} 儲存",
+  "submit": "確認並送出",
+  "approve": "核准",
+  "return": "退回",
+  "pill": {
+    "draft": "主管編製提報中",
+    "submitted": "已送出 · 待高階管理層核准",
+    "approved": "高階管理層已核准"
+  },
+  "loadError": "無法載入KPI提報。",
+  "saveError": "無法儲存草稿，請再試一次。",
+  "actionError": "無法執行，請再試一次。",
+  "done": {
+    "submit": "已將KPI提報送交高階管理層。",
+    "approve": "已核准KPI提報。",
+    "return": "已將提報退回主管。"
+  },
+  "confirm": {
+    "cancel": "取消",
+    "submit": {
+      "title": "送出 {{units}} 部門的KPI提報？",
+      "description": "高階管理層將收到通知郵件。送出後無法修改，除非被退回。",
+      "confirm": "確認送出"
+    },
+    "approve": {
+      "title": "核准 {{units}} 的KPI提報？",
+      "description": "高階管理層的決定欄位將一併儲存。核准後提報即鎖定。",
+      "confirm": "核准"
+    },
+    "return": {
+      "title": "退回 {{units}} 的KPI提報？",
+      "description": "主管將修改後重新送出。已填寫的高階管理層決定欄位會保留。",
+      "confirm": "退回"
+    }
+  },
+  "grid": "KPI提報表",
+  "groups": {
+    "hr": "取自人資系統資料",
+    "cqFill": "主管依所負責員工之工作性質自行填寫",
+    "preset": "預先設定並供選擇",
+    "system": "取自系統最近期資訊",
+    "cqGive": "主管參考各項評核標準後自行給定",
+    "auto": "系統自動計算"
+  },
+  "cols": {
+    "unit": { "label": "單位", "sub": "BỘ PHẬN" },
+    "name": { "label": "姓名", "sub": "HỌ TÊN" },
+    "cardNo": { "label": "工號", "sub": "SỐ THẺ" },
+    "joinDate": { "label": "進廠日期", "sub": "NVCT" },
+    "seniority": { "label": "工作年資", "sub": "Thâm niên làm việc" },
+    "position": { "label": "職務", "sub": "Chức vụ" },
+    "abc": { "label": "近3個月ABC評等", "sub": "" },
+    "status": { "label": "員工狀態", "sub": "" },
+    "leave": { "label": "病假/產假/合約暫停期間", "sub": "" },
+    "resignDate": { "label": "離職日期", "sub": "" },
+    "duties": { "label": "目前職責與績效", "sub": "Công việc đang phụ trách & hiệu suất" },
+    "result": { "label": "審核結果", "sub": "Kết quả đánh giá" },
+    "prev": { "label": "{{period}}", "sub": "（金額）" },
+    "next": { "label": "{{period}}", "sub": "（金額）" },
+    "diff": { "label": "Diff", "sub": "" },
+    "note": { "label": "備註", "sub": "" },
+    "board": { "label": "管理委員會的決定", "sub": "Quyết định của BLĐ" }
+  },
+  "results": {
+    "suspend": { "label": "暫緩KPI", "hint": "(Suspend KPI)" },
+    "sick": { "label": "依病假時間調降KPI", "hint": "(Reduce KPI based on sick leave duration)" },
+    "cancel": { "label": "取消KPI", "hint": "(Cancelled KPI)" },
+    "maintain": { "label": "維持KPI", "hint": "(maintain KPI)" },
+    "increase": { "label": "依工作績效調升KPI", "hint": "(Increase KPI based on work performance)" },
+    "reduce": { "label": "依工作績效調降KPI", "hint": "(Reduce KPI based on Job performance)" },
+    "add": { "label": "Add new KPI", "hint": "" }
+  },
+  "status": {
+    "active": "",
+    "maternity": "產假中",
+    "sickLeave": "長期病假",
+    "resigning": "即將離職",
+    "contractSuspended": "合約暫停",
+    "resigned": "已離職"
+  },
+  "leaveRange": "{{from}} → {{to}}",
+  "issue": {
+    "mustReduce": "ABC評等3C：必須選擇調降KPI",
+    "capIncrease": "ABC評等2C：最多只能調升 {{max}}"
+  },
+  "rules": {
+    "body": "工作績效評核須結合近3個月A-B-C評等",
+    "c3": "3C：調降KPI",
+    "c2": "2C：最多調升 {{max}}",
+    "c1": "1C：不影響"
+  },
+  "total": "合計",
+  "employeeCount_one": "{{count}} 位員工",
+  "employeeCount_other": "{{count}} 位員工",
+  "placeholder": "輸入...",
+  "none": "—",
+  "boardPending": "待高階管理層",
+  "boardOnly": "僅高階管理層可更新",
+  "noMatch": "沒有符合的員工。",
+  "noScopeTitle": "尚未被指派任何部門",
+  "noScopeHint": "請聯絡管理員，指派您所管理的部門。",
+  "fields": {
+    "duties": "{{name}} 的職責與績效",
+    "result": "{{name}} 的審核結果",
+    "amount": "{{name}} 本期KPI金額",
+    "note": "{{name}} 的備註",
+    "decision": "高階管理層對 {{name}} 的決定"
+  }
+}

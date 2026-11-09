@@ -1,0 +1,9 @@
+{
+  "proposals": "KPI提報",
+  "promotions": "升職與調薪",
+  "roles": "權限設定",
+  "groups": {
+    "proposal": "提報",
+    "admin": "管理"
+  }
+}

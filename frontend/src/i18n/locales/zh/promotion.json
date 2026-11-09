@@ -1,0 +1,485 @@
+{
+  "grid": "升職與調薪提案表",
+  "banner": {
+    "title": "LYV's Promotion & Salary Proposal · {{month}} 期",
+    "subtitle": "生效日 {{date}}",
+    "proposed": "提案",
+    "proposedValue": "{{count}}/{{total}} 人",
+    "deadline": "截止 {{date}}"
+  },
+  "status": {
+    "draft": "編製中",
+    "submitted": "待核准",
+    "approved": "已核准",
+    "returned": "已退回"
+  },
+  "groupPicker": {
+    "label": "審核組別",
+    "sub": "Nhóm xét duyệt · BLĐ duyệt từng nhóm",
+    "option": "{{headcount}} 人 · {{proposed}} 件提案",
+    "approvedCount": "已核准 {{approved}}/{{total}} 組",
+    "total": {
+      "label": "全 TTKT",
+      "sub": "Grand Total · 依 SUM 工作表",
+      "promotion": "升職 {{count}}/{{base}} · {{percent}}",
+      "raise": "調薪 {{count}}/{{base}} · {{percent}}"
+    }
+  },
+  "unitLabel": "部門：",
+  "allUnits": "全部",
+  "unitFilter": "依部門篩選",
+  "search": "搜尋員工",
+  "searchPlaceholder": "搜尋姓名或員工編號",
+  "meters": {
+    "promotion": "升職",
+    "raiseLocal": "調薪",
+    "raiseExpat": "外派人員調薪",
+    "value": "{{count}}/{{base}} · {{percent}}",
+    "limit": "/ {{limit}}",
+    "over": "超出名額上限 {{limit}} — 僅提醒，不阻擋送出",
+    "budget": {
+      "title": "Headcount budget: (only for High Performing Individuals)",
+      "promotion": "* Promotion headcount: 5% for local and expats;",
+      "raise": "* Salary adjustment headcount: 10% for local; 5% for expats."
+    }
+  },
+  "saveDraft": "儲存草稿",
+  "save": "儲存",
+  "saving": "儲存中…",
+  "savedAt": "已於 {{time}} 儲存",
+  "submit": "送出提案",
+  "return": "退回主管",
+  "approve": "核准此組",
+  "submitBlocked": "送出前須上傳完整 2 份組織圖（升遷前與升遷後）",
+  "issues_one": "尚有 {{count}} 列待處理",
+  "issues_other": "尚有 {{count}} 列待處理",
+  "rejectIssues_one": "尚有 {{count}} 列拒絕未填原因",
+  "rejectIssues_other": "尚有 {{count}} 列拒絕未填原因",
+  "grantedIssues_one": "尚有 {{count}} 列未填核定調薪金額",
+  "grantedIssues_other": "尚有 {{count}} 列未填核定調薪金額",
+  "issue": {
+    "locked": "未簽無固定期限合約且 12 個月內有 4C → 不得提案",
+    "reasonRequired": "已簽無固定期限合約但 12 個月內有 4C → 必須填寫具體原因",
+    "rejectReason": "必須填寫拒絕原因",
+    "grantedRequired": "請填寫核定調薪金額"
+  },
+  "lockedShort": "不得提案",
+  "returnedAlert": "管理層已退回提案：{{reason}}",
+  "confirm": {
+    "cancel": "取消",
+    "submit": {
+      "title": "送出 {{group}} 的提案？",
+      "description": "Admin 將檢查資料，之後由人資與會計補充，再交管理層審核。送出後無法再修改。",
+      "confirm": "送出提案"
+    },
+    "approve": {
+      "title": "核准 {{group}} 的提案？",
+      "description": "主管與 Admin 將收到最終結果通知。",
+      "confirm": "核准"
+    },
+    "return": {
+      "title": "將提案退回主管 · {{group}}？",
+      "description": "該組提案將轉為草稿狀態，供主管修改後重新送出。主管與 Admin 會收到附有原因的電子郵件。",
+      "confirm": "退回主管",
+      "reasonLabel": "退回原因",
+      "reasonPlaceholder": "請清楚說明主管需補充或調整的內容...",
+      "reasonRequired": "必須填寫退回原因。"
+    }
+  },
+  "done": {
+    "save": "已儲存",
+    "submit": "已送出提案",
+    "approve": "已核准此組",
+    "return": "已退回主管"
+  },
+  "saveError": "無法儲存，請再試一次。",
+  "actionError": "無法執行，請再試一次。",
+  "loadError": "無法載入提案。",
+  "noScopeTitle": "尚未指派審核組別",
+  "noScopeHint": "請聯絡 Admin 指派您負責的組別。",
+  "noMatch": "沒有符合的員工。",
+  "none": "—",
+  "choose": "請選擇...",
+  "placeholder": "點擊以輸入...",
+  "typing": "輸入...",
+  "expat": "外派",
+  "salaryLock": {
+    "label": "薪資資訊查看權限",
+    "text": "以上資訊僅供高階管理層、會計及人資部門查看與審核，因此發送給各部門主管的核准文件中，不會顯示這些資訊。",
+    "sub": "những thông tin này chỉ có BLĐ, Kế toán & Nhân sự nhìn thấy để xét duyệt => file approval gửi về cho các chủ quản sẽ ko hiển thị những thông tin này"
+  },
+  "salaryHidden": {
+    "stub": "{{n}} 個薪資欄位 · 僅限管理層、人資、會計",
+    "label": "薪資群組依權限隱藏：{{n}} 個薪資欄位僅管理層、人資與會計可查看"
+  },
+  "collapse": "收合群組：{{name}}",
+  "expand": "展開群組：{{name}}",
+  "groups": {
+    "hr": {
+      "label": "從人事系統自動連結資料",
+      "sub": "dữ liệu link từ hệ thống nhân sự"
+    },
+    "cq": {
+      "label": "由部門主管自行填寫資訊",
+      "sub": "thông tin chủ quản tự điền"
+    },
+    "kpi": {
+      "label": "從 KPI 評核系統自動連結資料",
+      "sub": "tự link từ HT đánh giá KPI"
+    },
+    "salary": {
+      "label": "從薪資系統自動連結資料，並發送給會計進行薪資預估",
+      "sub": "dữ liệu link từ hệ thống lương & gửi Kế toán tạm tính"
+    },
+    "hrOpinion": {
+      "label": "系統發送至 HR，徵詢意見",
+      "sub": "Gửi đến HR để lấy ý kiến"
+    },
+    "board": {
+      "label": "由高階管理層審核並做出決定",
+      "sub": "BLĐ xét duyệt & quyết định"
+    }
+  },
+  "subgroups": {
+    "current": {
+      "label": "目前",
+      "sub": "Hiện tại"
+    },
+    "after": {
+      "label": "調整後",
+      "sub": "Sau khi tăng"
+    }
+  },
+  "collapsedCount_one": "{{count}} 欄",
+  "collapsedCount_other": "{{count}} 欄",
+  "cqFootnote": "第 20–40 欄由人資、會計、管理層處理",
+  "cols": {
+    "priority": {
+      "label": "提報優先順序",
+      "sub": "Thứ tự ưu tiên"
+    },
+    "unit": {
+      "label": "部門別",
+      "sub": "Bộ phận"
+    },
+    "name": {
+      "label": "提名幹部",
+      "sub": "Đề cử cán bộ"
+    },
+    "cardNo": {
+      "label": "員工編號",
+      "sub": "Số thẻ"
+    },
+    "joinDate": {
+      "label": "到職日",
+      "sub": "NGÀY VÀO"
+    },
+    "seniority": {
+      "label": "工作年資",
+      "sub": "Thâm niên làm việc"
+    },
+    "contract": {
+      "label": "合約類型",
+      "sub": "Loại hợp đồng"
+    },
+    "position": {
+      "label": "職稱",
+      "sub": "Chức vụ"
+    },
+    "promotionCount": {
+      "label": "自入職以來的晉升提案次數",
+      "sub": "Số lần được đề xuất thăng chức từ lúc vào Cty"
+    },
+    "abc": {
+      "label": "近 12 個月內的 ABC 評等",
+      "sub": "Bình bầu ABC trong 12 tháng gần nhất"
+    },
+    "discipline": {
+      "label": "違反紀律處分規定",
+      "sub": "Vi phạm Xử lý Kỷ luật"
+    },
+    "status": {
+      "label": "員工狀態",
+      "sub": "Tình trạng nhân viên"
+    },
+    "leave": {
+      "label": "病假／產假／停薪留職期間",
+      "sub": "Thời gian nghỉ ỐM/ Thai sản/ THHĐ"
+    },
+    "type": {
+      "label": "升職或調薪",
+      "sub": "Thăng chức hoặc tăng lương"
+    },
+    "newTitle": {
+      "label": "新職稱",
+      "sub": "Chức danh mới"
+    },
+    "reason": {
+      "label": "提報原因說明",
+      "sub": "(Lý do đề xuất/ bổ nhiệm)"
+    },
+    "jobChange": {
+      "label": "升職後工作上是否有任何調整與異動",
+      "sub": "Sau khi thăng chức có thay đổi công việc gì không?"
+    },
+    "raise": {
+      "label": "提議加薪",
+      "sub": "Đề xuất tăng lương",
+      "note": "可選擇「依公司薪資級距（Follow salary's scale）」，或自行填寫希望的金額"
+    },
+    "kpi": {
+      "label": "目前關鍵績效指標",
+      "sub": "KPI hiện tại"
+    },
+    "salaryAdjustments": {
+      "label": "近 3 年內的調薪提案次數",
+      "sub": "Số lần được điều chỉnh lương trong 3 năm gần nhất"
+    },
+    "salaryLevels": {
+      "label": "已調整的薪資項目",
+      "sub": "Các mức lương đã được điều chỉnh"
+    },
+    "currentTitle": {
+      "label": "目前職稱",
+      "sub": "Chức vụ hiện tại"
+    },
+    "contractSalary": {
+      "label": "目前合約薪資",
+      "sub": "Mức lương hiện tại theo HĐ"
+    },
+    "currentRating": {
+      "label": "評等獎金",
+      "sub": "Tiền bình bầu"
+    },
+    "currentAttendance": {
+      "label": "全勤獎金",
+      "sub": "Tiền chuyên cần"
+    },
+    "currentLiving": {
+      "label": "生活費",
+      "sub": "Phí sinh hoạt"
+    },
+    "totalCurrent": {
+      "label": "目前薪資",
+      "sub": "Tổng lương hiện tại"
+    },
+    "newPosition": {
+      "label": "新職稱",
+      "sub": "Chức vụ mới"
+    },
+    "newContract": {
+      "label": "預估新合約薪資",
+      "sub": "Mức lương mới tạm tính theo HĐ"
+    },
+    "newRating": {
+      "label": "評等獎金",
+      "sub": "Tiền bình bầu"
+    },
+    "newAttendance": {
+      "label": "全勤獎金",
+      "sub": "Tiền chuyên cần"
+    },
+    "newLiving": {
+      "label": "生活費",
+      "sub": "Phí sinh hoạt"
+    },
+    "totalNew": {
+      "label": "加薪後的總薪資",
+      "sub": "Tổng lương sau khi tăng"
+    },
+    "diffOldNew": {
+      "label": "新舊薪資差額",
+      "sub": "Mức chênh lệch giữa cũ & mới"
+    },
+    "hrOpinion": {
+      "label": "人力資源的意見",
+      "sub": "Ý kiến của nhân sự"
+    },
+    "boardType": {
+      "label": "升職或調薪",
+      "sub": "Thăng chức hoặc tăng lương",
+      "note": "依主管提案連動，但可修改"
+    },
+    "boardTitle": {
+      "label": "新職稱",
+      "sub": "Chức danh mới"
+    },
+    "boardAmount": {
+      "label": "薪水已經上調了",
+      "sub": "Mức lương được tăng",
+      "note": "由管理層自行填寫"
+    },
+    "boardDiff": {
+      "label": "提議與實際調薪差異",
+      "sub": "Mức chênh lệch giữa đề xuất lương và thực tế",
+      "note": "系統自動計算"
+    },
+    "boardDecision": {
+      "label": "管理委員會的決定",
+      "sub": "Quyết định của BLĐ",
+      "note": "系統依管理層確認的資料自動顯示"
+    }
+  },
+  "types": {
+    "none": {
+      "label": "不提案",
+      "hint": "—"
+    },
+    "promotion": {
+      "label": "升職",
+      "hint": "promotion · 含調薪"
+    },
+    "raise": {
+      "label": "調薪",
+      "hint": "raise salary"
+    },
+    "reject": {
+      "label": "拒絕",
+      "hint": "Rejected"
+    }
+  },
+  "decision": {
+    "promotion": {
+      "label": "升職 + 調薪",
+      "hint": "Promoted & increased salary"
+    },
+    "raise": {
+      "label": "調薪",
+      "hint": "Increased salary"
+    },
+    "reject": {
+      "label": "拒絕",
+      "hint": "Rejected"
+    }
+  },
+  "rejectReasonPlaceholder": "* 必須填寫拒絕原因",
+  "boardRejected": "已選擇拒絕 — 不適用新職稱",
+  "raiseMode": {
+    "scale": {
+      "label": "依公司薪資級距",
+      "hint": "Follow salary's scale"
+    },
+    "amount": {
+      "label": "自行輸入金額",
+      "hint": "輸入期望調薪金額"
+    },
+    "short": {
+      "scale": "依公司級距",
+      "amount": "自行輸入"
+    }
+  },
+  "contract": {
+    "permanent": {
+      "label": "無固定期限",
+      "sub": "Vô thời hạn"
+    },
+    "fixed": {
+      "label": "固定期限",
+      "sub": "Có thời hạn"
+    }
+  },
+  "empStatus": {
+    "active": "在職",
+    "maternity": "產假",
+    "sickLeave": "病假",
+    "contractSuspended": "停薪留職",
+    "resigned": "已離職"
+  },
+  "leaveRange": "{{from}} → {{to}}",
+  "titleHint": "依規定逐級升職 — 已預選下一級",
+  "titleLevel": "第 {{level}} 級 · {{name}}",
+  "noNextTitle": "此部門尚無下一級職稱",
+  "history": {
+    "promotionTitle": "歷次升職提案",
+    "salaryTitle": "調薪紀錄",
+    "date": "日期",
+    "amount": "薪資",
+    "more": "查看全部 {{count}} 次",
+    "contractOnly": "僅計合約薪資"
+  },
+  "fields": {
+    "position": "職稱 — {{name}}",
+    "type": "升職或調薪 — {{name}}",
+    "newTitle": "新職稱 — {{name}}",
+    "reason": "提案原因",
+    "jobChange": "升職後的工作異動",
+    "raiseMode": "調薪提案方式 — {{name}}",
+    "raiseAmount": "提案調薪金額 — {{name}}",
+    "hrOpinion": "人資意見",
+    "newContract": "預估新合約薪資 — {{name}}",
+    "newRating": "新評等獎金 — {{name}}",
+    "newAttendance": "新全勤獎金 — {{name}}",
+    "newLiving": "新生活費 — {{name}}",
+    "boardType": "管理層決定 — {{name}}",
+    "boardTitle": "管理層核准新職稱 — {{name}}",
+    "boardAmount": "核定調薪金額 — {{name}}",
+    "boardReason": "拒絕原因 — {{name}}"
+  },
+  "orgChart": {
+    "title": "組織圖",
+    "required": "（必填）",
+    "uploadSub": "Organization chart 組織圖 · PDF、PNG、JPG ≤ 10MB · 需上傳 2 份檔案才能送出提案",
+    "viewSub": "Organization chart 組織圖 · {{group}}",
+    "uploadedOn": "主管於 {{date}} 上傳",
+    "count": "{{count}}/2 份檔案",
+    "slots": {
+      "before": {
+        "label": "提報前",
+        "sub": "Trước đề bạt"
+      },
+      "after": {
+        "label": "提報後",
+        "sub": "Sau đề bạt"
+      }
+    },
+    "drop": "將檔案拖曳至此，或點擊選擇",
+    "choose": "選擇檔案",
+    "replace": "更換檔案",
+    "remove": "移除檔案",
+    "view": "檢視",
+    "download": "下載",
+    "missing": "尚未上傳",
+    "previewTitle": "組織圖 · {{group}}",
+    "noPreview": "尚無預覽 — 這是範例檔案，系統測試版不會儲存檔案內容。",
+    "errors": {
+      "type": "僅接受 PDF、PNG 或 JPG 檔案",
+      "size": "檔案超過 10MB",
+      "upload": "無法上傳，請再試一次。"
+    },
+    "button_one": "組織圖 · {{count}} 份檔案",
+    "button_other": "組織圖 · {{count}} 份檔案",
+    "lacking_one": "組織圖 · 缺 {{count}} 份檔案",
+    "lacking_other": "組織圖 · 缺 {{count}} 份檔案"
+  },
+  "rules": {
+    "title": "公司規定",
+    "sub": "Theo quy định Cty",
+    "when": "員工於 1 年內有 4C 時",
+    "locked": {
+      "who": "尚未簽無固定期限勞動合約的員工",
+      "effect": "不得續簽勞動合約 → 不得提報升職／調薪",
+      "result": "主管「無法」選擇提案"
+    },
+    "reason": {
+      "who": "已簽無固定期限合約的員工",
+      "effect": "主管提報升職／調薪時須審慎考量",
+      "result": "主管可選擇，但必須填寫具體原因"
+    }
+  },
+  "notes": {
+    "title": "Notes",
+    "sub": "注意事項 · 提案前須知",
+    "n1": "Proposal is only applied for high performance indivisual only;",
+    "n2": "Frequency is every Apr/Oct and finalize the evaluation about 1month earlier.",
+    "n3": "Promotion level by level, don't jump over levels;",
+    "n4": "Promotion but the job scale remains the same, please provide clear explanation why promotion needed.",
+    "collapse": "收合",
+    "expand": "展開"
+  },
+  "guide": {
+    "title": "注意事項",
+    "sub": "Lưu ý & quy định",
+    "summary": "{{notes}} 項注意事項 · {{rules}} 項 4C 規定"
+  },
+  "titleNext": "依規定的下一級"
+}

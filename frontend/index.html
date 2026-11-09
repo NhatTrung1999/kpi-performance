@@ -6,9 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
       (function () {
-        var t = localStorage.getItem('kpi-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        var t = 'light';
+        try { t = localStorage.getItem('kpi-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) {}
         document.documentElement.classList.toggle('dark', t === 'dark');
         document.documentElement.style.colorScheme = t;
+        document.documentElement.dataset.ui = 'flat';
       })();
     </script>
     <title>KPI Performance</title>

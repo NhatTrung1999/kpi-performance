@@ -14,8 +14,8 @@ import {
   canEdit,
   canView,
   EFFECTIVE_DATE,
+  actsAsBoard,
   hasPromotion,
-  hasRaise,
   ORG_CHART,
   POSITION_CODES,
   type BoardType,
@@ -97,6 +97,7 @@ export type PromotionRow = {
 
 /** Phần đã sửa trên một dòng (chỉ các ô được nhập). */
 export type PromotionEdit = Partial<{
+  position: string;
   type: ProposalType;
   newTitle: string | null;
   reason: string;
@@ -116,6 +117,7 @@ export type PromotionEdit = Partial<{
 
 /** Ô nhập (quyền theo cột) mà mỗi khóa của PromotionEdit ghi vào. */
 const EDIT_FIELD: Record<keyof PromotionEdit, PromotionField> = {
+  position: 'position',
   type: 'type', newTitle: 'newTitle', reason: 'reason', jobChange: 'jobChange', raiseMode: 'raise', raiseAmount: 'raise',
   hrOpinion: 'hrOpinion',
   newContract: 'newContract', newRating: 'newRating', newAttendance: 'newAttendance', newLiving: 'newLiving',
@@ -190,7 +192,7 @@ const SEED: RowSeed[] = [
   {
     group: 'transfer', psk: 'tr01', priority: 1, unit: 'XXX', name: 'NGUYỄN VĂN A', cardNo: '01234', joinDate: '2017-06-19', contract: 'permanent', position: 'PP',
     promotionHistory: ['2020-04-01', '2023-10-01'], abc: '3A, 3B', status: 'maternity', leave: { from: '2026-07-01', to: '2027-01-01' },
-    type: 'both', newTitle: 'TRP', raiseAmount: 1_000_000, kpi: 2_000_000,
+    type: 'promotion', newTitle: 'TRP', raiseAmount: 1_000_000, kpi: 2_000_000,
     reason: 'He is hardworking, responsible, and consistently delivers high-quality results.\nHe is willing to support both the DC and Factory teams to ensure Transfer projects are completed on schedule.\nHe demonstrates good planning, coordination, and team support capabilities.',
     jobChange: 'No, but he need more powerful to work with the other departments',
     salary: {
@@ -203,7 +205,7 @@ const SEED: RowSeed[] = [
       newContract: 11_120_000, newRating: 500_000, newAttendance: 300_000, newLiving: 1_000_000,
     },
     hrOpinion: 'Đủ điều kiện. NV đang nghỉ thai sản đến 2027/01/01, đề nghị hiệu lực khi đi làm lại.',
-    board: { type: 'both', title: 'TRP', amount: 1_000_000 },
+    board: { type: 'promotion', title: 'TRP', amount: 1_000_000 },
   },
   {
     group: 'transfer', psk: 'tr02', priority: 2, unit: 'YYY', name: 'TRẦN THỊ B', cardNo: '56789', joinDate: '2025-08-01', contract: 'fixed', position: 'NV',
@@ -255,10 +257,10 @@ const SEED: RowSeed[] = [
     salary: { contract: 6_400_000, rating: 300_000, attendance: 300_000, living: 800_000 } },
 
   // Các nhóm khác (BLĐ chọn từng nhóm để xét duyệt).
-  { group: 'cc-planning', psk: 'cc01', priority: 1, unit: 'CCP', name: 'MAI VĂN M', cardNo: '15530', joinDate: '2018-07-02', contract: 'permanent', position: 'TBP', abc: '4A, 2B', type: 'both', newTitle: 'PP', raiseAmount: 1_000_000, kpi: 1_500_000,
+  { group: 'cc-planning', psk: 'cc01', priority: 1, unit: 'CCP', name: 'MAI VĂN M', cardNo: '15530', joinDate: '2018-07-02', contract: 'permanent', position: 'TBP', abc: '4A, 2B', type: 'promotion', newTitle: 'PP', raiseAmount: 1_000_000, kpi: 1_500_000,
     reason: 'Dẫn dắt nhóm lập kế hoạch mùa FW27 đúng hạn.', jobChange: 'Quản lý thêm nhóm CCP-2.',
     salary: { contract: 9_200_000, rating: 500_000, attendance: 300_000, living: 1_000_000, newContract: 10_200_000, newRating: 500_000, newAttendance: 300_000, newLiving: 1_000_000 },
-    hrOpinion: 'Đồng ý.', board: { type: 'both', title: 'PP', amount: 1_000_000 } },
+    hrOpinion: 'Đồng ý.', board: { type: 'promotion', title: 'PP', amount: 1_000_000 } },
   { group: 'ce', psk: 'ce01', priority: 1, unit: 'CE-1', name: 'TRỊNH VĂN N', cardNo: '17722', joinDate: '2019-04-08', contract: 'permanent', position: 'NV', abc: '5A, 1B', type: 'promotion', newTitle: 'TBP', raiseAmount: 700_000, kpi: 800_000,
     salary: { contract: 7_400_000, rating: 400_000, attendance: 300_000, living: 800_000 } },
   { group: 'erp', psk: 'er01', priority: 1, unit: 'ERP', name: 'PHAN THỊ P', cardNo: '19045', joinDate: '2020-09-14', contract: 'permanent', position: 'NV', abc: '3A, 3B', type: 'raise', raiseAmount: 700_000, kpi: 1_000_000,
@@ -301,15 +303,17 @@ export const SAMPLE_GROUP_OF: Readonly<Record<string, string>> = Object.fromEntr
 export const isListed = (row: Pick<PromotionRow, 'status'>) => row.status !== 'resigned';
 
 /**
- * Phạm vi của Chủ quản trong bản mẫu (theo email đăng nhập).
+ * Phạm vi của Chủ quản trong bản mẫu (theo email đăng nhập). Chủ quản không có trong bảng (vd. tài khoản thật đăng nhập
+ * qua HRIS) → thấy các nhóm mẫu mặc định, để thử trang khi chưa có API đề xuất.
  * TODO: server phải tự lọc theo phạm vi do Admin gán (trang Phân quyền) và trả 403 khi vượt phạm vi.
  */
+const DEFAULT_MANAGER_GROUPS = ['tooling', 'transfer'];
 const MANAGER_SCOPE: Record<string, string[]> = {
-  'chuquan.dev@example.com': ['tooling', 'transfer'],
+  'chuquan.dev@example.com': DEFAULT_MANAGER_GROUPS,
 };
 
 const groupIdsOf = (viewer: PromotionViewer) =>
-  viewer.role === 'CQ' ? (MANAGER_SCOPE[viewer.email] ?? []) : viewer.role === 'NV' ? [] : GROUPS.map((g) => g.id);
+  viewer.role === 'CQ' ? (MANAGER_SCOPE[viewer.email] ?? DEFAULT_MANAGER_GROUPS) : viewer.role === 'NV' ? [] : GROUPS.map((g) => g.id);
 
 /**
  * Bỏ khỏi dòng các nhóm cột vai trò không được xem (lương, ý kiến HR, quyết định BLĐ) — không chỉ ẩn trên giao diện.
@@ -330,6 +334,7 @@ export function applyEdit(row: PromotionRow, edit: PromotionEdit | undefined): P
   if (!edit) return row;
   const { hrOpinion, newContract, newRating, newAttendance, newLiving, boardType, boardTitle, boardAmount, boardReason, ...cq } = edit;
   const next: PromotionRow = { ...row, ...cq };
+  if (cq.position !== undefined) next.positionName = POSITION_CODES[cq.position]?.cn ?? '';
   if (hrOpinion !== undefined && row.hrOpinion !== undefined) next.hrOpinion = hrOpinion;
   if (row.salary) {
     const s = { newContract, newRating, newAttendance, newLiving };
@@ -407,7 +412,7 @@ const groupOf = (stored: Stored, seed: GroupSeed): ReviewGroup => {
     savedAt: s.savedAt ?? null,
     proposed: rows.filter((r) => r.type !== 'none').length,
     promotions: rows.filter((r) => hasPromotion(r.type)).length,
-    raises: rows.filter((r) => hasRaise(r.type)).length,
+    raises: rows.filter((r) => r.type === 'raise').length,
   };
 };
 
@@ -455,7 +460,7 @@ export async function submitPromotionProposal(viewer: PromotionViewer, groupId: 
 export async function approvePromotionProposal(viewer: PromotionViewer, groupId: string, edits: Record<string, PromotionEdit>) {
   const stored = read();
   const group = scopedGroup(viewer, stored, groupId);
-  if (viewer.role !== 'BLD' || group.status !== 'submitted') throw new Error('Proposal is not submitted');
+  if (!actsAsBoard(viewer.role) || group.status !== 'submitted') throw new Error('Proposal is not submitted');
   const merged = mergeEdits(stored[groupId]?.edits, allowedEdits(viewer, group.status, edits));
   const rows = rowsOf({ ...stored, [groupId]: { ...stored[groupId], edits: merged } }, groupId);
   if (rows.some((r) => r.board?.type === 'reject' && !r.board.reason.trim())) throw new Error('Rejected rows need a reason');
@@ -471,7 +476,7 @@ export async function approvePromotionProposal(viewer: PromotionViewer, groupId:
 export async function returnPromotionProposal(viewer: PromotionViewer, groupId: string, reason: string, edits: Record<string, PromotionEdit>) {
   const stored = read();
   const group = scopedGroup(viewer, stored, groupId);
-  if (viewer.role !== 'BLD' || group.status !== 'submitted') throw new Error('Proposal is not submitted');
+  if (!actsAsBoard(viewer.role) || group.status !== 'submitted') throw new Error('Proposal is not submitted');
   if (!reason.trim()) throw new Error('A reason is required');
   const savedAt = new Date().toISOString();
   write({ ...stored, [groupId]: { ...stored[groupId], edits: mergeEdits(stored[groupId]?.edits, allowedEdits(viewer, group.status, edits)), status: 'returned', returnReason: reason.trim(), savedAt } });

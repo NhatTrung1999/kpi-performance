@@ -4,6 +4,7 @@ import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 import { TriangleAlert, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useGlassPopup } from "@/hooks/use-is-desktop"
 
 const backdropClass =
   "fixed inset-0 z-50 bg-black/45 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0"
@@ -28,11 +29,12 @@ type ConfirmDialogProps = {
 
 /** Hộp xác nhận chặn (alert dialog), vd. "You have unsaved changes". Tiêu điểm mặc định ở nút Cancel. */
 function ConfirmDialog({ open, onOpenChange, title, description, confirmLabel = "Confirm", cancelLabel = "Cancel", onConfirm, tone = "default", children, confirmDisabled }: ConfirmDialogProps) {
+  const glass = useGlassPopup()
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
         <AlertDialog.Backdrop className={backdropClass} />
-        <AlertDialog.Popup data-slot="confirm-dialog" className={popupClass}>
+        <AlertDialog.Popup data-slot="confirm-dialog" className={cn(popupClass, glass)}>
           <div className="flex gap-3.5">
             <div aria-hidden="true" className="flex size-10 flex-none items-center justify-center rounded-full bg-warning-soft text-warning-text">
               <TriangleAlert className="size-5" strokeWidth={1.8} />
@@ -67,11 +69,12 @@ type DialogProps = {
 
 /** Hộp thoại thông tin đơn giản (có nút X, đóng bằng Esc / bấm ra ngoài). */
 function Dialog({ open, onOpenChange, title, description, closeLabel = "Close", children, className }: DialogProps) {
+  const glass = useGlassPopup()
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Backdrop className={backdropClass} />
-        <DialogPrimitive.Popup data-slot="dialog" className={cn(popupClass, "gap-4", className)}>
+        <DialogPrimitive.Popup data-slot="dialog" className={cn(popupClass, "gap-4", glass, className)}>
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col gap-1">
               <DialogPrimitive.Title className="text-base font-semibold">{title}</DialogPrimitive.Title>

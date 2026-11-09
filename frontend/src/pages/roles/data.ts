@@ -1,13 +1,15 @@
 export type Unit = { id: string; n: string; c?: number; k?: Unit[] };
 /** CQ = chủ quản (được vào hệ thống, thấy nhân viên trong phạm vi); NONE = không được vào. Admin cấu hình ở backend (.env). */
 export type Role = 'CQ' | 'NONE';
-/** Nhân viên lấy từ API (GET /api/departments/:id/employees, HRIS 0.117) qua useEmployees() — xem use-employees.ts. */
+/** Nhân viên lấy từ API (GET /api/employees, HRIS 0.117) qua useEmployees() — xem use-employees.ts. */
 export type Person = {
   /** Person_Serial_Key — khoá cho vai trò/phạm vi (khớp tài khoản đăng nhập). */
   psk: string;
   /** Mã nhân viên (Person_ID). */
   id: string;
   name: string;
+  /** Tên tiếng Trung (dòng phụ dưới họ tên); API chưa trả nên hiện để trống. */
+  zh?: string;
   /** Department_Serial_Key của đơn vị gốc. */
   deptKey: string;
   /** Mã ngắn của đơn vị (Department_ID), hiện ở cột "Unit". */
@@ -29,11 +31,18 @@ export type Person = {
 /** Thứ tự vai trò trong menu chọn / bộ lọc; nhãn và mô tả lấy từ i18n (namespace `roles`). */
 export const ROLE_OPTION_KEYS = ['CQ', 'NONE'] as const;
 export const ROLE_FILTER_KEYS = ['all', 'CQ', 'NONE'] as const;
+export type RoleFilter = (typeof ROLE_FILTER_KEYS)[number];
 
 /** Tên đơn vị hiển thị: bỏ phần chữ Hán sau dấu "-". */
 export const unitLabel = (n: string) => {
   const d = n.indexOf('-');
   return d > 0 && /[一-鿿]/.test(n.slice(d)) ? n.slice(0, d) : n;
+};
+
+/** Phần chữ Hán sau dấu "-" của tên đơn vị (dòng phụ dưới tên); không có thì chuỗi rỗng. */
+export const unitZh = (n: string) => {
+  const d = n.indexOf('-');
+  return d > 0 && /[一-鿿]/.test(n.slice(d)) ? n.slice(d + 1).trim() : '';
 };
 
 export const norm = (t: string) =>

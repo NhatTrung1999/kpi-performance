@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, Info } from 'lucide-react';
-import { Pill } from '@/components/ui/metric-card';
+import { ChevronDown, Info, Lock, PenLine, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const NOTES = ['n1', 'n2', 'n3', 'n4'] as const;
-const RULES = [
-  ['locked', 'danger'],
-  ['reason', 'warning'],
-] as const;
+/** 2 quy định 4C (A10–B13): khóa chọn (đỏ) / bắt buộc lý do (cam). */
+const RULES: readonly { key: 'locked' | 'reason'; icon: LucideIcon; tone: string; chip: string }[] = [
+  { key: 'locked', icon: Lock, tone: 'border-l-danger bg-danger-soft/40', chip: 'bg-danger-soft text-danger-text' },
+  { key: 'reason', icon: PenLine, tone: 'border-l-warning bg-warning-soft/40', chip: 'bg-warning-soft text-warning-text' },
+];
 
 /** Mở / thu gọn dải, nhớ trong localStorage; chưa có giá trị (lần đầu vào trang) thì mở. try/catch: bị chặn lưu trữ thì luôn mở. */
 const KEY = 'promotion.guideOpen';
@@ -32,7 +32,7 @@ const saveOpen = (open: boolean) => {
 /**
  * Dải "Lưu ý & quy định": Notes của file (B16–B19, "hiển thị ở trang đầu để các Chủ quản lưu ý") bên trái và
  * "Theo quy định Cty:" về 4C (A10–B13) bên phải — câu chữ nguyên văn file.
- * Thu gọn: một dòng tóm tắt; mở rộng: 2 cột, cao tối đa 160px và cuộn bên trong.
+ * Thu gọn: một dòng tóm tắt; mở rộng: 2 cột, cao tối đa 192px và cuộn bên trong.
  * Màn hình thấp (vd. 1366×768): bảng co trước tới mức tối thiểu 5 dòng (TableCard `fit`), sau đó dải mới co (còn ít nhất dòng tiêu đề).
  */
 export function GuideStrip() {
@@ -44,7 +44,7 @@ export function GuideStrip() {
   };
 
   return (
-    <section aria-labelledby="promotion-guide-title" className="flex max-h-40 min-h-10 flex-col gap-2 overflow-hidden rounded-xl border border-border bg-card px-3.5 py-2 text-xs leading-normal">
+    <section data-slot="guide-strip" aria-labelledby="promotion-guide-title" className="flex max-h-48 min-h-10 flex-col gap-2 overflow-hidden rounded-xl border border-border bg-card px-3.5 py-2 text-xs leading-normal">
       <div className="flex flex-none items-center gap-2">
         <span aria-hidden="true" className="flex size-5.5 flex-none items-center justify-center rounded-md bg-accent text-brand-text">
           <Info className="size-3.5" />
@@ -82,14 +82,18 @@ export function GuideStrip() {
           <div className="flex flex-col gap-1.5">
             <h3 className="font-semibold">
               {t('rules.title')} <span className="text-[11px] font-normal text-muted-foreground">{t('rules.sub')}</span>
+              <span className="ml-2 rounded-full bg-muted px-1.5 py-px text-[11px] font-semibold text-foreground">{t('rules.when')}</span>
             </h3>
-            {RULES.map(([k, tone]) => (
-              <div key={k} className="flex flex-col gap-1 rounded-lg bg-muted/50 px-2.5 py-1.5">
-                <span className="text-pretty text-foreground">{t(`rules.${k}.text`)}</span>
-                <span className="flex flex-wrap items-center gap-2 pl-3.5 text-text-secondary">
-                  {t(`rules.${k}.result`)}
-                  <Pill tone={tone}>{t(`rules.${k}.pill`)}</Pill>
-                </span>
+            {RULES.map(({ key, icon: Icon, tone, chip }) => (
+              <div key={key} className={cn('flex flex-col gap-0.5 rounded-lg border border-l-[3px] border-border px-2.5 py-1.5', tone)}>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span aria-hidden="true" className={cn('flex size-4.5 flex-none items-center justify-center rounded', chip)}>
+                    <Icon className="size-3" strokeWidth={2.4} />
+                  </span>
+                  <span className="font-semibold text-foreground">{t(`rules.${key}.who`)}</span>
+                  <span className={cn('ml-auto rounded-full px-2 py-px text-[11px] font-semibold whitespace-nowrap', chip)}>{t(`rules.${key}.result`)}</span>
+                </div>
+                <span className="pl-6.5 text-pretty text-text-secondary">{t(`rules.${key}.effect`)}</span>
               </div>
             ))}
           </div>

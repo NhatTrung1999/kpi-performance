@@ -4,10 +4,27 @@ import i18n from '@/i18n';
  * Định dạng ngày/số dùng chung — mọi nơi hiển thị phải đi qua đây để đổi theo ngôn ngữ sau này.
  * Locale Intl lấy từ ngôn ngữ đang dùng của i18n.
  */
-const INTL_LOCALE: Record<string, string> = { en: 'en-US', vi: 'vi-VN' };
+const INTL_LOCALE: Record<string, string> = { en: 'en-US', vi: 'vi-VN', zh: 'zh-TW' };
 const intlLocale = () => INTL_LOCALE[i18n.language] ?? i18n.language;
 
 type DateInput = string | number | Date;
+
+// Tạo Intl.NumberFormat/DateTimeFormat khá tốn (~0.1ms mỗi lần) — bảng/menu gọi hàng trăm lần mỗi lượt vẽ,
+// nên giữ lại theo locale + tuỳ chọn.
+const numberFormats = new Map<string, Intl.NumberFormat>();
+const numberFormat = (locale: string, options?: Intl.NumberFormatOptions) => {
+  const key = `${locale}|${options ? JSON.stringify(options) : ''}`;
+  let f = numberFormats.get(key);
+  if (!f) numberFormats.set(key, (f = new Intl.NumberFormat(locale, options)));
+  return f;
+};
+const dateFormats = new Map<string, Intl.DateTimeFormat>();
+const dateFormat = (locale: string, options: Intl.DateTimeFormatOptions) => {
+  const key = `${locale}|${JSON.stringify(options)}`;
+  let f = dateFormats.get(key);
+  if (!f) dateFormats.set(key, (f = new Intl.DateTimeFormat(locale, options)));
+  return f;
+};
 
 const toDate = (v: DateInput) => {
   if (v instanceof Date) return v;
@@ -16,9 +33,11 @@ const toDate = (v: DateInput) => {
   return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(v);
 };
 
-/** Ngày dạng "15 Jan 2015"; `withYear: false` → "15 Jan". */
+/** Ngày dạng "15 Jan 2015"; `withYear: false` → "15 Jan". Tiếng Trung theo cách viết của Intl: "2015年1月15日" / "1月15日". */
 export const formatDate = (value: DateInput, withYear = true) => {
-  const parts = new Intl.DateTimeFormat(intlLocale(), { day: 'numeric', month: 'short', year: 'numeric' }).formatToParts(toDate(value));
+  const locale = intlLocale();
+  if (locale.startsWith('zh')) return dateFormat(locale, { day: 'numeric', month: 'long', ...(withYear ? { year: 'numeric' } : null) }).format(toDate(value));
+  const parts = dateFormat(intlLocale(), { day: 'numeric', month: 'short', year: 'numeric' }).formatToParts(toDate(value));
   const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '';
   return [get('day'), get('month'), withYear ? get('year') : ''].filter(Boolean).join(' ');
 };
@@ -38,7 +57,7 @@ export const formatSlashDate = (value: DateInput) => formatIsoDate(value).replac
  * Số âm trong ngoặc đơn: -500000 → "(500,000)". Màu đỏ do nơi hiển thị tự tô.
  */
 export const formatAccounting = (value: number, fractionDigits = 0) => {
-  const text = new Intl.NumberFormat('en-US', { minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits }).format(Math.abs(value));
+  const text = numberFormat('en-US', { minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits }).format(Math.abs(value));
   return value < 0 ? `(${text})` : text;
 };
 
@@ -68,10 +87,10 @@ export const formatPeriodLabel = (from: string, to: string) => {
 
 /** Tên tháng viết tắt, `month` từ 1 đến 12. */
 export const formatMonthShort = (month: number) =>
-  new Intl.DateTimeFormat(intlLocale(), { month: 'short' }).format(new Date(2000, month - 1, 1));
+  dateFormat(intlLocale(), { month: 'short' }).format(new Date(2000, month - 1, 1));
 
 export const formatNumber = (value: number, options?: Intl.NumberFormatOptions) =>
-  new Intl.NumberFormat(intlLocale(), options).format(value);
+  numberFormat(intlLocale(), options).format(value);
 
 /** `value` tính theo đơn vị phần trăm (8.2 → "8.2%"). */
 export const formatPercent = (value: number, fractionDigits = 0) =>
@@ -79,26 +98,26 @@ export const formatPercent = (value: number, fractionDigits = 0) =>
 
 /** Giờ theo múi giờ `timeZone`, tách thành phần: { hours: "08", minutes: "42", period: "AM" }. */
 export const formatClockParts = (value: Date, timeZone: string) => {
-  const parts = new Intl.DateTimeFormat(intlLocale(), { timeZone, hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(value);
+  const parts = dateFormat(intlLocale(), { timeZone, hour: '2-digit', minute: '2-digit', hour12: true }).formatToParts(value);
   const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '';
   return { hours: get('hour'), minutes: get('minute'), period: get('dayPeriod') };
 };
 
 /** Ngày đầy đủ theo múi giờ `timeZone`, vd. "Tuesday, October 13, 2026". */
 export const formatLongDate = (value: Date, timeZone: string) =>
-  new Intl.DateTimeFormat(intlLocale(), { timeZone, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(value);
+  dateFormat(intlLocale(), { timeZone, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(value);
 
 /** Tháng ISO "YYYY-MM" dạng "MM/YYYY", vd. "2026-10" → "10/2026" (đợt xét Thăng chức & lương). */
 export const formatSlashMonth = (month: string) => month.split('-').reverse().join('/');
 
 /** Tháng + năm, vd. "Oct 2026". */
 export const formatMonthYear = (value: DateInput) =>
-  new Intl.DateTimeFormat(intlLocale(), { month: 'short', year: 'numeric' }).format(toDate(value));
+  dateFormat(intlLocale(), { month: 'short', year: 'numeric' }).format(toDate(value));
 
 /** Thứ viết tắt, vd. "Thu". */
 export const formatWeekdayShort = (value: DateInput) =>
-  new Intl.DateTimeFormat(intlLocale(), { weekday: 'short' }).format(toDate(value));
+  dateFormat(intlLocale(), { weekday: 'short' }).format(toDate(value));
 
 /** Giờ theo giờ địa phương, vd. "10:00 AM". */
 export const formatTime = (value: DateInput) =>
-  new Intl.DateTimeFormat(intlLocale(), { hour: 'numeric', minute: '2-digit' }).format(toDate(value));
+  dateFormat(intlLocale(), { hour: 'numeric', minute: '2-digit' }).format(toDate(value));

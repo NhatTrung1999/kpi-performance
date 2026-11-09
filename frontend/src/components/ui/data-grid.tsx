@@ -110,6 +110,10 @@ type DataGridProps<T> = {
   striped?: boolean
   /** Tiêu đề cột xuống dòng thay vì cắt bằng "…". */
   wrapHeaders?: boolean
+  /** Căn giữa tiêu đề cột (ngang và dọc); thân bảng giữ nguyên `align` của từng cột. */
+  centerHeaders?: boolean
+  /** Căn giữa nội dung ô thân bảng và dòng tổng (bỏ qua `align` của từng cột). */
+  centerCells?: boolean
   /** `compact` (mặc định): bảng rộng nhiều cột. `comfortable`: tiêu đề 48px, dòng 56px, chữ 13px, padding ngang 16px. */
   density?: "compact" | "comfortable"
   /** Tô nền cả dòng khi rê chuột. */
@@ -151,6 +155,9 @@ const GROUP_BG: Record<DataGridTone, string> = {
 }
 const MARKER_BG = { brand: "bg-brand", muted: "bg-muted-foreground", warning: "bg-warning", info: "bg-info", success: "bg-success" } as const
 
+/** Ô căn giữa: cả khối nội dung lẫn các dòng bên trong (nhãn 2 dòng, chip…) đều vào giữa. */
+const CENTER_CELL = "justify-center text-center [&>*]:items-center [&>*]:justify-center"
+
 const track = (w: number | string) => (typeof w === "number" ? `${w}px` : w)
 /** Độ rộng tối thiểu của cột: số px, hoặc phần `min` của "minmax(96px,1fr)"; track khác tính 0. */
 const minWidthOf = (w: number | string) => (typeof w === "number" ? w : Number(/minmax\(\s*(\d+(?:\.\d+)?)px/.exec(w)?.[1] ?? 0))
@@ -174,7 +181,7 @@ function Label({ tooltip, className, children }: { tooltip?: React.ReactNode; cl
 /** Một ô của hàng nhóm sau khi đã thu gọn và tách theo mép cố định. `last` = ô cuối của nhóm (mang nút −/+). */
 type GroupCell = { group: DataGridGroup; start: number; span: number; pinned: boolean; head: boolean; last: boolean }
 
-function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, rowClassName, rowAccent, striped = false, wrapHeaders = false, density = "compact", hoverRows = false, empty, fillEmpty = false, footerLabel, className, ...aria }: DataGridProps<T>) {
+function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, rowClassName, rowAccent, striped = false, wrapHeaders = false, centerHeaders = false, centerCells = false, density = "compact", hoverRows = false, empty, fillEmpty = false, footerLabel, className, ...aria }: DataGridProps<T>) {
   // Nhóm thu gọn: giữ các cột cố định của nhóm, phần còn lại thay bằng một cột hẹp không có nội dung.
   const columns: DataGridColumn<T>[] = []
   const groups: DataGridGroup[] = []
@@ -414,15 +421,15 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
               className={cn(
                 "group/head sticky flex min-w-0 border-b border-border transition-shadow duration-150",
                 roomy ? "px-4 text-xs" : cn("px-1.5", i === 0 && "pl-3"),
-                wrapHeaders ? cn(roomy ? "min-h-12" : "min-h-11", "items-start py-2") : cn(roomy ? "h-12" : "h-11", "items-center"),
+                wrapHeaders ? cn(roomy ? "min-h-12" : "min-h-11", centerHeaders ? "items-center" : "items-start", "py-2") : cn(roomy ? "h-12" : "h-11", "items-center"),
                 i < pinnedCount ? "z-6" : "z-4",
                 HEAD_BG[c.tone ?? "plain"],
-                align(c),
+                centerHeaders ? "justify-center text-center" : align(c),
                 divider(c),
                 lastPinned(i) && cn("border-r border-r-border-strong", pinEdge)
               )}
             >
-              <Label tooltip={c.tooltip} className={cn("flex max-w-full flex-col gap-px", c.align === "end" && "items-end")}>
+              <Label tooltip={c.tooltip} className={cn("flex max-w-full flex-col gap-px", centerHeaders ? "items-center" : c.align === "end" && "items-end")}>
                 <span className={cn("max-w-full font-medium text-foreground", wrapHeaders ? "text-balance" : "truncate")}>{c.header}</span>
                 <span className={cn("max-w-full text-[11px] text-muted-foreground", wrapHeaders ? "text-balance" : "truncate")}>{c.sub ?? " "}</span>
                 {wrapHeaders && c.note && <span className="mt-0.5 max-w-full text-[10.5px] leading-tight font-normal text-pretty text-muted-foreground">{c.note}</span>}
@@ -466,7 +473,7 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
                   i < pinnedCount ? "sticky z-1 transition-shadow duration-150" : i === 0 && "relative",
                   base,
                   rowCls,
-                  align(c),
+                  centerCells ? CENTER_CELL : align(c),
                   divider(c),
                   c.tone === "locked" && "bg-grid-locked",
                   stubs.has(c.key) && GROUP_BG[c.tone ?? "plain"],
@@ -502,7 +509,7 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
               </div>
             )}
             {columns.slice(pinnedCount).map((c) => (
-              <div key={c.key} role="cell" className={cn(footerCell, "z-3", align(c))}>
+              <div key={c.key} role="cell" className={cn(footerCell, "z-3", centerCells ? CENTER_CELL : align(c))}>
                 {c.footer}
               </div>
             ))}

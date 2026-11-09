@@ -3,14 +3,16 @@
 Nguồn sự thật của token: `frontend/src/index.css` (Tailwind v4, khối `:root`, `.dark` và `@theme inline`).
 Component dùng chung: `frontend/src/components/ui/`. Entry thư viện: `frontend/src/design-system.ts` (`npm run build:lib` → `frontend/dist-lib/`).
 
-Dark mode: class `dark` trên `<html>` (xem `src/lib/theme.ts`). Mọi token bên dưới tự đổi giá trị, **không cần** viết `dark:` khi dùng token.
+Phong cách: **phẳng "soft blue"** — nền xanh lam rất nhạt có quầng sáng (`.flat-backdrop`), thẻ trắng bo tròn lớn (khung bảng/thẻ thông tin 22px) viền gần như vô hình, đổ bóng xanh mềm, điểm nhấn gradient xanh trời → xanh dương, ô icon/chip nền `accent` xanh nhạt. Không còn kính mờ ở trang trong lẫn trang đăng nhập.
+
+Dark mode: class `dark` trên `<html>` (xem `src/lib/theme.ts`, nút `ThemeToggle` ở thanh trên và trang đăng nhập) — tông navy xanh cùng họ màu. Mọi token bên dưới tự đổi giá trị, **không cần** viết `dark:` khi dùng token.
 
 ## Nguyên tắc
 
 | | Trang đăng nhập | Trang bên trong |
 |---|---|---|
 | Mục đích | Tạo ấn tượng thương hiệu | Đọc số liệu nhanh, ít mỏi mắt |
-| Hiệu ứng | Được dùng: nền mesh, khối sáng trôi, đường tăng trưởng, kính mờ (`GlassCard`), animation vào trang | **Tiết chế**: nền phẳng, `Card` thường, không blur, không gradient nền, không animation trang trí |
+| Hiệu ứng | Nền `.flat-backdrop` (quầng sáng xanh mềm), thẻ trắng bo tròn lớn, animation vào trang (`animate-card-in`, `animate-form-in`); không kính mờ | **Tiết chế**: nền `.flat-backdrop`, `Card` thường, không blur, không animation trang trí |
 | Màu | Gradient thương hiệu, glow | Màu thương hiệu chỉ cho hành động chính; xanh/vàng/đỏ **chỉ** để chỉ trạng thái |
 | Số liệu | — | Luôn `tabular-nums`, số lớn hơn nhãn, đơn vị nhỏ và nhạt |
 
@@ -25,11 +27,11 @@ Quy tắc chung:
 ### Màu thương hiệu
 | Token | Class | Sáng | Tối | Dùng cho |
 |---|---|---|---|---|
-| `--brand` | `bg-brand`, `ring-brand` | `#6366F1` | `#818CF8` | focus ring, điểm nhấn |
-| `--brand-from` → `--brand-to` | `bg-brand-gradient` | `#4F46E5` → `#2563EB` | giữ nguyên | nút chính, checkbox, logo |
-| `--brand-text` | `text-brand-text` | `#4F46E5` | `#A5B4FC` | liên kết |
+| `--brand` | `bg-brand`, `ring-brand` | `#3B82F6` | `#60A5FA` | focus ring, điểm nhấn |
+| `--brand-from` → `--brand-to` | `bg-brand-gradient` | `#38A3FF` → `#2B5CEB` (xanh trời → xanh dương) | giữ nguyên | nút chính, checkbox, logo |
+| `--brand-text` | `text-brand-text` | `#2563EB` | `#7DB4FF` | liên kết |
 | `--info` | `text-info` | `#3B82F6` | `#60A5FA` | màu phụ (xanh dương) |
-| `--primary` | `bg-primary` | `#4F46E5` | `#4F46E5` | token shadcn mặc định |
+| `--primary` | `bg-primary` | `#2F6BF2` | `#2F6BF2` | token shadcn mặc định |
 
 ### Trạng thái
 | Ý nghĩa | Fill (`bg-*`) | Nền nhạt | Chữ (`text-*`) |
@@ -43,17 +45,18 @@ Quy tắc chung:
 ### Nền, chữ, viền
 | Token | Class | Sáng | Tối |
 |---|---|---|---|
-| `--page` / `--background` | `bg-page`, `bg-background` | `#F8FAFF` | `#0B0B0F` |
-| `--shell` | `bg-shell` | `#F3F4F8` | `#0B0B0F` |
-| `--panel` | `bg-panel` | `#F8FAFF` | `#111118` |
-| `--scrollbar-thumb` / `--scrollbar-thumb-hover` | (CSS chung, không có class) | `#D1D5DB` / `#6B7280` | `rgb(255 255 255 / .2)` / `rgb(255 255 255 / .35)` |
-| `--card` | `bg-card` | `#FFFFFF` | `#15151C` |
-| `--foreground` | `text-foreground` | `#111827` | `#F3F4F6` |
-| `--text-secondary` | `text-text-secondary` | `#374151` | `#D1D5DB` |
-| `--muted-foreground` | `text-muted-foreground` | `#6B7280` | `#9CA3AF` |
-| `--placeholder` | `text-placeholder` | `#9CA3AF` | `#6B7280` |
-| `--border` | `border-border` | `#E5E7EB` | `rgb(255 255 255 / .1)` |
-| `--border-strong` | `border-border-strong` | `#D1D5DB` | `rgb(255 255 255 / .2)` |
+| `--page` / `--background` | `bg-page`, `bg-background` | `#EDF2FD` (xanh lam rất nhạt) | `#0A1020` (navy) |
+| `--shell` | `bg-shell` | `#070B14` | `#070B14` |
+| `--panel` | `bg-panel` | `rgb(255 255 255 / .03)` | `rgb(255 255 255 / .03)` (chỉ còn trong mã kính cũ) |
+| `--scrollbar-thumb` / `--scrollbar-thumb-hover` | (CSS chung, không có class) | `#C9D6EE` / `#64748B` | `rgb(148 163 184 / .3)` / `rgb(255 255 255 / .35)` |
+| `--card` | `bg-card` | `#FFFFFF` | `#111A2E` |
+| `--foreground` | `text-foreground` | `#0F172A` | `#E8EEF9` |
+| `--text-secondary` | `text-text-secondary` | `#334155` | `#C3CEE3` |
+| `--muted-foreground` | `text-muted-foreground` | `#64748B` | `#8A9BBA` |
+| `--placeholder` | `text-placeholder` | `#94A3B8` | `#64748B` |
+| `--border` | `border-border` | `#E2E9F6` | `rgb(148 163 184 / .16)` |
+| `--accent` / `--accent-foreground` | `bg-accent`, `text-accent-foreground` | `#E8F1FF` / `#1D4ED8` | `rgb(59 130 246 / .16)` / `#A9CCFF` |
+| `--border-strong` | `border-border-strong` | `#C9D6EE` | `rgb(148 163 184 / .3)` |
 | `--glass`, `--glass-border` | `bg-glass`, `border-glass-border` | `rgb(255 255 255 / .75)`, `/ .8` | `rgb(16 16 24 / .7)`, `rgb(255 255 255 / .1)` |
 
 ### Bảng dữ liệu (`DataGrid`)
@@ -61,16 +64,16 @@ Mọi token dưới đây là màu **đục** (hex đã pha sẵn trên `card`) 
 
 | Token | Class | Sáng | Tối | Dùng cho |
 |---|---|---|---|---|
-| `--grid-group-read` / `--grid-head-read` | `bg-grid-group-read` / `bg-grid-head-read` | `#F7F7F9` / `#FBFBFC` | `#1F1F26` / `#1A1A21` | nhóm cột chỉ đọc (tông `read`) |
-| `--grid-group-input` / `--grid-head-input` | `bg-grid-group-input` / `bg-grid-head-input` | `#F1F5FF` / `#F8FAFF` | `#222336` / `#1C1C29` | nhóm cột nhập liệu (tông `input`) |
+| `--grid-group-read` / `--grid-head-read` | `bg-grid-group-read` / `bg-grid-head-read` | `#F4F7FC` / `#FAFBFE` | `#172036` / `#141D31` | nhóm cột chỉ đọc (tông `read`) |
+| `--grid-group-input` / `--grid-head-input` | `bg-grid-group-input` / `bg-grid-head-input` | `#EAF2FF` / `#F5F9FF` | `#16264A` / `#142140` | nhóm cột nhập liệu (tông `input`) |
 | `--grid-group-warn` / `--grid-head-warn` | `bg-grid-group-warn` / `bg-grid-head-warn` | `#FEF3D6` / `#FFFAEB` | `#2C261D` / `#231F1C` | tông `warn` (vd. CQ tự điền) |
-| `--grid-group-info` / `--grid-head-info` | `bg-grid-group-info` / `bg-grid-head-info` | `#E6EFFD` / `#F3F7FE` | `#1F293B` / `#1A1F2C` | tông `info` (vd. hệ thống KPI, BLĐ) |
+| `--grid-group-info` / `--grid-head-info` | `bg-grid-group-info` / `bg-grid-head-info` | `#E3EEFE` / `#F2F7FF` | `#182A4D` / `#142242` | tông `info` (vd. hệ thống KPI, BLĐ) |
 | `--grid-group-salary` / `--grid-head-salary` | `bg-grid-group-salary` / `bg-grid-head-salary` | `#FCEBB6` / `#FEF5DA` | `#3A301D` / `#2A241D` | tông `salary` (các cột lương tô vàng) |
 | `--grid-group-success` / `--grid-head-success` | `bg-grid-group-success` / `bg-grid-head-success` | `#E3F6EC` / `#F2FBF6` | `#142928` / `#151F22` | tông `success` (vd. ý kiến nhân sự) |
-| `--grid-locked` | `bg-grid-locked` | `#F5F6F8` | `#202027` | cột chỉ người khác cập nhật |
-| `--grid-row-alt` | `bg-grid-row-alt` | `#FBFCFC` | `#19191F` | dòng xen kẽ (`striped`) |
-| `--grid-row-hover` | `bg-grid-row-hover` | `#F3F6FF` | `#202133` | dòng đang rê chuột (`hoverRows`) |
-| `--grid-row-muted` | `bg-grid-row-muted` | `var(--muted)` | `#23232A` | dòng làm mờ |
+| `--grid-locked` | `bg-grid-locked` | `#F3F6FB` | `#161F34` | cột chỉ người khác cập nhật |
+| `--grid-row-alt` | `bg-grid-row-alt` | `#FAFCFF` | `#131C31` | dòng xen kẽ (`striped`) |
+| `--grid-row-hover` | `bg-grid-row-hover` | `#EFF5FF` | `#17264A` | dòng đang rê chuột (`hoverRows`) |
+| `--grid-row-muted` | `bg-grid-row-muted` | `var(--muted)` | `#1A2338` | dòng làm mờ |
 | `--grid-row-danger` | `bg-grid-row-danger` | `#FEF4F4` | `#2C1E24` | dòng bị từ chối |
 
 Thanh cuộn: toàn hệ thống dùng thanh mảnh (Firefox `scrollbar-width: thin`, Chrome/Edge `::-webkit-scrollbar` 8px, con trượt bo tròn ~4px) khai báo một lần trong `index.css`; không tự đặt kiểu thanh cuộn trong component.

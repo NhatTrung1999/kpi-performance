@@ -10,7 +10,6 @@ import NotFound from '@/pages/NotFound';
 import Proposals from '@/pages/proposals';
 import Promotions from '@/pages/promotions';
 import Roles from '@/pages/roles';
-import UnderConstruction from '@/pages/UnderConstruction';
 
 const router = createBrowserRouter([
   {
@@ -33,8 +32,6 @@ const router = createBrowserRouter([
             children: [
               { path: 'proposals', element: <Proposals /> },
               { path: 'promotions', element: <Promotions /> },
-              { path: 'periods', element: <UnderConstruction /> },
-              { path: 'history', element: <UnderConstruction /> },
               { path: 'roles', element: <Roles /> },
             ],
           },

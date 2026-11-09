@@ -1,0 +1,87 @@
+{
+  "appName": "KPI Performance",
+  "user": "使用者",
+  "loading": "載入中",
+  "openMenu": "開啟選單",
+  "closeMenu": "關閉選單",
+  "mainNav": "主要導覽",
+  "notifications": "通知",
+  "unknownRole": "尚未設定角色",
+  "portal": {
+    "AD": "管理員",
+    "CQ": "主管",
+    "BLD": "高階管理層",
+    "HR": "人資",
+    "KT": "會計",
+    "NV": "員工"
+  },
+  "period": {
+    "label": "評核期間",
+    "month": "月",
+    "quarter": "季",
+    "year": "年"
+  },
+  "search": "搜尋",
+  "searchPlaceholder": "搜尋目標、評核…",
+  "toaster": {
+    "label": "通知",
+    "close": "關閉通知"
+  },
+  "forbidden": {
+    "title": "無存取權限",
+    "heading": "您沒有存取權限",
+    "description": "此頁面僅開放給已授權的角色。如需存取，請聯絡管理員。",
+    "back": "回首頁"
+  },
+  "notFound": "找不到頁面",
+  "notFoundDescription": "此網址不存在或已移動。請檢查連結或返回首頁。",
+  "trend": {
+    "flat": "持平",
+    "up": "上升",
+    "down": "下降"
+  },
+  "shell": {
+    "collapseSidebar": "收合側邊欄",
+    "expandSidebar": "展開側邊欄",
+    "accountMenu": "帳號選單",
+    "profile": "個人資料與設定",
+    "shortcuts": "快捷鍵",
+    "logout": "登出",
+    "unsavedTitle": "您有尚未儲存的變更",
+    "unsavedDescription": "仍要登出嗎？尚未儲存的變更將會遺失。",
+    "cancel": "取消",
+    "close": "關閉"
+  },
+  "shortcuts": {
+    "title": "快捷鍵",
+    "description": "快捷鍵在任何地方皆可使用，輸入文字時除外。",
+    "toggleSidebar": "收合或展開側邊欄",
+    "focusSearch": "搜尋目標與評核",
+    "showShortcuts": "顯示快捷鍵列表",
+    "closeDialog": "關閉選單與對話框",
+    "keys": {
+      "toggleSidebar": "Ctrl B",
+      "search": "Ctrl K",
+      "showShortcuts": "?",
+      "close": "Esc"
+    }
+  },
+  "retry": "重試",
+  "quarterLabel": "Q{{quarter}} {{year}}",
+  "roundLabel": "{{month}} 梯次",
+  "underConstruction": {
+    "heading": "建置中",
+    "description": "此頁面正在建置中，即將推出。"
+  },
+  "language": {
+    "label": "語言",
+    "switch": "切換語言",
+    "vi": "Tiếng Việt",
+    "zh": "中文（繁體）",
+    "en": "English"
+  },
+  "theme": {
+    "toLight": "切換為淺色介面",
+    "toDark": "切換為深色介面"
+  }
+}

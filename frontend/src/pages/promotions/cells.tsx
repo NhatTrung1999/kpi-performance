@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState, type ReactNode, type TextareaHTMLAtt
 import { useTranslation } from 'react-i18next';
 import { Check, ChevronDown, Info, Lock } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger, onListKeyDown } from '@/components/ui/popover';
-import { POSITION_CODES } from '@/config/promotion-proposal';
+import { positionLabel } from '@/config/promotion-proposal';
 import { Tooltip } from '@/components/ui/tooltip';
 import { formatMoney, formatSlashDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -296,7 +296,6 @@ export const Dash = () => <span className="px-0.5 text-placeholder">—</span>;
 export const Money = ({ value, strong }: { value: number | null; strong?: boolean }) =>
   value === null ? <Dash /> : <span className={cn('tabular-nums', strong && 'font-semibold', value < 0 && 'text-danger-text')}>{formatMoney(value)}</span>;
 
-/** Mã chức danh + tên hệ thống ("TRP" / "单位主管"). */
 export const Position = ({ code, highlight }: { code: string; highlight?: boolean }) => (
-  <TwoLine main={<span className={cn('font-medium', highlight && 'text-brand-text')}>{code}</span>} sub={POSITION_CODES[code]?.cn} />
+  <span className={cn('font-medium', highlight && 'text-brand-text')}>{positionLabel(code)}</span>
 );

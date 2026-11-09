@@ -2,6 +2,7 @@ import * as React from "react"
 import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip"
 import { Kbd } from "@/components/ui/kbd"
 import { cn } from "@/lib/utils"
+import { useGlassPopup } from "@/hooks/use-is-desktop"
 
 type TooltipProps = {
   /** Nội dung gợi ý (chuỗi đã dịch). */
@@ -20,6 +21,7 @@ type TooltipProps = {
 
 /** Gợi ý khi rê chuột / focus bàn phím. Render qua portal nên không bị khung cha cắt. */
 function Tooltip({ content, shortcut, children, side = "right", sideOffset = 10, disabled, delay = 300, className }: TooltipProps) {
+  const glass = useGlassPopup()
   return (
     <TooltipPrimitive.Root disabled={disabled}>
       <TooltipPrimitive.Trigger render={children} delay={delay} />
@@ -31,6 +33,7 @@ function Tooltip({ content, shortcut, children, side = "right", sideOffset = 10,
               "flex items-center gap-2.5 rounded-lg border border-border bg-popover py-1.5 text-xs font-medium whitespace-nowrap text-popover-foreground shadow-toast",
               shortcut ? "pr-2 pl-2.5" : "px-2.5",
               "origin-(--transform-origin) transition-[opacity,scale] duration-150 ease-out data-ending-style:scale-95 data-ending-style:opacity-0 data-instant:transition-none data-starting-style:scale-95 data-starting-style:opacity-0",
+              glass,
               className
             )}
           >

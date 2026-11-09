@@ -1,93 +1,124 @@
 {
   "title": "Permissions",
+  "titleZh": "權限管理",
   "subtitle": "Manage roles and management scope",
   "role": {
     "CQ": "Manager",
-    "NONE": "No access"
+    "NONE": "Not assigned"
+  },
+  "roleZh": {
+    "CQ": "主管",
+    "NONE": "未授權"
   },
   "roleDesc": {
-    "CQ": "Can sign in and see employees in assigned departments",
-    "NONE": "Cannot sign in to the system"
+    "CQ": "Signs in and submits proposals for assigned teams",
+    "NONE": "No access to the system yet"
   },
+  "badgeManagers": "Managers",
+  "badgeOrphan": "Teams without a manager",
+  "filterManagers": "Filter table: Managers",
+  "filterOrphan": "Open the list of teams without a manager",
   "unit": "Unit",
-  "roleField": "Role",
-  "selectUnit": "Select unit…",
-  "searchUnitPlaceholder": "Search units (e.g. pattern)",
+  "searchUnitPlaceholder": "Search units · 搜尋單位",
   "searchUnit": "Search units",
-  "noUnitMatch": "No unit matches “{{query}}”",
+  "orphanOnly": "Teams without a manager · {{n}}",
+  "clearFilter": "Clear filter",
+  "noCq": "No manager",
+  "noUnitMatch": "No unit found",
   "noUnits": "No units available",
   "noTeam": "No team",
   "unitsError": "Couldn't load units.",
-  "unitHint": "Select a parent department to see employees of all its sub-departments",
-  "listTitle": "EMPLOYEE PERMISSION LIST",
-  "employeeCount_one": "{{count}} employee",
-  "employeeCount_other": "{{count}} employees",
-  "searchEmployeePlaceholder": "Search name / employee ID",
+  "searchEmployeePlaceholder": "Search name or card no.",
   "searchEmployee": "Search employees",
-  "unsavedChanges_one": "{{count}} unsaved change",
-  "unsavedChanges_other": "{{count}} unsaved changes",
-  "discard": "Discard changes",
-  "save": "Save changes",
-  "history": "Change history",
-  "cols": {
-    "no": "No",
-    "employeeId": "Employee ID",
-    "name": "Full name",
-    "unit": "Unit",
-    "dept": "Department",
-    "joinDate": "Join date",
-    "role": "Role",
-    "scope": "Management scope",
-    "actions": "Actions"
-  },
-  "edited": "Edited",
-  "unsaved": "Unsaved",
-  "roleOf": "Role: {{role}}",
-  "scopeOnlyManager": "Applies to Managers only",
-  "scopeSummary": "{{depts}} · {{people}}",
-  "deptCount_one": "{{count}} department",
-  "deptCount_other": "{{count}} departments",
-  "peopleCount_one": "{{count}} person",
-  "peopleCount_other": "{{count}} people",
-  "edit": "Edit",
-  "noScope": "No scope assigned",
-  "assignScope": "Assign scope",
-  "roleHistory": "Permission history",
-  "moreActions": "More actions",
-  "noMatch": "No employees match the filters",
-  "employeesError": "Couldn't load employees.",
-  "showing": "Showing",
-  "prevPage": "Previous page",
-  "nextPage": "Next page",
-  "rowsPerPage": "Rows per page",
-  "rows": "Rows",
-  "drawerTitle": "MANAGEMENT SCOPE",
-  "drawerDesc": "Managers can only see employees in the selected departments. Tick a parent department to select all its sub-departments.",
-  "searchDept": "Search departments",
-  "collapseAll": "Collapse all",
-  "expandAll": "Expand all",
-  "selectedDepts_one": "{{count}} department",
-  "selectedDepts_other": "{{count}} departments",
-  "selected": "Selected",
-  "close": "Close",
-  "cancel": "Cancel",
-  "apply": "Apply",
-  "collapse": "Collapse",
-  "expand": "Expand",
+  "clearSearch": "Clear search",
+  "quickFilter": "Quick filter",
   "tabs": {
     "all": "All",
     "CQ": "Managers",
-    "NONE": "No access"
+    "NONE": "Not assigned"
   },
-  "badgeManagers": "Managers",
-  "badgeNoScope_one": "{{count}} manager without scope",
-  "badgeNoScope_other": "{{count}} managers without scope",
-  "filterUnassigned": "Filter table: No access",
-  "filterNoScope": "Filter table: managers without scope",
-  "allUnits": "All units",
-  "clearSearch": "Clear search",
-  "emptyTitle": "Select a unit to view employees",
+  "listTitle": "Employee list",
+  "listZh": "員工名單",
+  "total": "Total {{n}}",
+  "shown": "Showing {{n}}",
+  "cols": {
+    "name": {
+      "label": "Full name",
+      "sub": "姓名 · 工號"
+    },
+    "dept": {
+      "label": "Department",
+      "sub": "單位"
+    },
+    "position": {
+      "label": "Position",
+      "sub": "職務"
+    },
+    "joinDate": {
+      "label": "Join date",
+      "sub": "進廠日期"
+    },
+    "role": {
+      "label": "Role",
+      "sub": "角色"
+    },
+    "scope": {
+      "label": "Management scope",
+      "sub": "管理範圍"
+    }
+  },
+  "changeRole": "Change role (current: {{role}})",
+  "unsaved": "Unsaved",
+  "scopeSummary": "{{groups}} · {{people}}",
+  "groupCount_one": "{{n}} team",
+  "groupCount_other": "{{n}} teams",
+  "staffCount_one": "{{n}} employee",
+  "staffCount_other": "{{n}} employees",
+  "noScope": "No scope yet",
+  "edit": "Edit",
+  "assignScope": "Set up",
+  "scopeOnlyManager": "Applies to Managers only",
+  "empty": {
+    "noPeople": {
+      "title": "This unit has no employees",
+      "zh": "此單位尚無員工資料",
+      "text": "The list is synced from the HR system. Pick another unit, or contact HR if this unit already has people.",
+      "action": "Choose another unit"
+    },
+    "noMatch": {
+      "title": "No matching employees",
+      "zh": "查無符合條件的員工",
+      "text": "Try another search term or choose \"All\" in the quick filters.",
+      "action": "Clear filters"
+    },
+    "noManagers": {
+      "title": "No managers assigned yet",
+      "zh": "尚未設定任何主管",
+      "text": "Pick a unit to see its employees and assign managers.",
+      "action": "Choose a unit"
+    }
+  },
+  "employeesError": "Couldn't load employees.",
+  "managersError": "Couldn't load permissions.",
+  "unsavedChanges_one": "{{count}} unsaved change",
+  "unsavedChanges_other": "{{count}} unsaved changes",
+  "unsavedZh": "尚未儲存",
+  "discard": "Discard",
+  "save": "Save changes",
   "saveError": "Couldn't save changes. Please try again.",
   "saveInvalidScope": "Some selected departments no longer exist. Review the management scope and try again.",
-  "managersError": "Couldn't load permissions."
+  "drawerTitle": "Management scope · 管理範圍",
+  "drawerSub": "{{id}} · Manager 主管",
+  "drawerHint": "Tick a parent unit to select all teams inside it.",
+  "partial": "{{on}}/{{total}} teams",
+  "selectedSummary": "Selected {{groups}} · {{people}}",
+  "selectedZh": "已選擇",
+  "close": "Close",
+  "cancel": "Cancel",
+  "apply": "Save",
+  "collapse": "Collapse",
+  "expand": "Expand",
+  "allManagers": "All managers",
+  "allManagersTitle": "All managers (every unit)",
+  "allManagersHint": "See everyone assigned as a manager without picking a unit"
 }

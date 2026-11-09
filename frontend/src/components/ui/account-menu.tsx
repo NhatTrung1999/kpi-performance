@@ -2,15 +2,16 @@ import * as React from "react"
 import { Menu } from "@base-ui/react/menu"
 import { Kbd } from "@/components/ui/kbd"
 import { cn } from "@/lib/utils"
+import { useGlassPopup } from "@/hooks/use-is-desktop"
 
-/** Ảnh đại diện chữ viết tắt trên nền gradient thương hiệu. */
+/** Ảnh đại diện chữ viết tắt trên ô kính mờ (cùng kiểu logo — `.app-avatar` trong index.css). */
 function Avatar({ initials, size = "md", className }: { initials: string; size?: "sm" | "md" | "lg"; className?: string }) {
   return (
     <span
       data-slot="avatar"
       aria-hidden="true"
       className={cn(
-        "flex flex-none items-center justify-center rounded-full bg-brand-gradient font-bold text-white select-none",
+        "app-avatar flex flex-none items-center justify-center rounded-full font-bold select-none",
         size === "sm" && "size-8 text-xs",
         size === "md" && "size-9 text-[13px]",
         size === "lg" && "size-10 text-[13px]",
@@ -53,6 +54,7 @@ const itemClass =
 
 /** Menu tài khoản ở avatar góc trên phải: họ tên, chức danh, email và các mục hành động. */
 function AccountMenu({ name, initials, title, email, items, triggerLabel = "Account menu", avatarSize = "md", className }: AccountMenuProps) {
+  const glass = useGlassPopup()
   return (
     <Menu.Root>
       <Menu.Trigger
@@ -68,7 +70,10 @@ function AccountMenu({ name, initials, title, email, items, triggerLabel = "Acco
         <Menu.Positioner side="bottom" align="end" sideOffset={8} collisionPadding={16} className="z-50 outline-none">
           <Menu.Popup
             data-slot="account-menu"
-            className="flex w-75 max-w-[calc(100vw-2rem)] origin-(--transform-origin) flex-col rounded-[14px] border border-border bg-popover p-1.5 text-popover-foreground shadow-toast outline-none transition-[opacity,scale] duration-150 ease-out data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0"
+            className={cn(
+              "flex w-75 max-w-[calc(100vw-2rem)] origin-(--transform-origin) flex-col rounded-[14px] border border-border bg-popover p-1.5 text-popover-foreground shadow-toast outline-none transition-[opacity,scale] duration-150 ease-out data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0",
+              glass
+            )}
           >
             <div className="flex items-start gap-3 px-2.5 pt-2.5 pb-3">
               <Avatar initials={initials} size="lg" />

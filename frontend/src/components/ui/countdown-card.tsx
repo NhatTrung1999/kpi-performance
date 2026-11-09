@@ -38,11 +38,11 @@ function CountdownCard({ label, days, daysLabel, weeks = 13, filledWeeks = 0, co
   }
 
   return (
-    <InfoCard tone="brand" delay={delay} className={cn("flex flex-col justify-between gap-3 px-6 py-5", className)} {...props}>
+    <InfoCard tone="brand" delay={delay} className={cn("flex flex-col justify-between gap-3 px-6 py-5 [@media(max-height:820px)]:gap-2 [@media(max-height:820px)]:py-4", className)} {...props}>
       {label && <div className="text-xs tracking-wide text-brand-text uppercase">{label}</div>}
       <div className="flex items-baseline gap-2.5">
         <span className="sr-only">{days}</span>
-        <span aria-hidden="true" className="text-5xl leading-none font-semibold tracking-[-0.05em] tabular-nums xl:text-6xl">{shown}</span>
+        <span aria-hidden="true" className="text-5xl leading-none font-semibold tracking-[-0.05em] tabular-nums xl:text-6xl [@media(max-height:820px)]:text-[44px]">{shown}</span>
         <span className="text-body text-brand-text">{daysLabel}</span>
       </div>
       <div aria-hidden="true" className="relative flex gap-[3px] overflow-hidden rounded-sm">

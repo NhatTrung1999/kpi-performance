@@ -23,10 +23,6 @@
   },
   "search": "Search",
   "searchPlaceholder": "Search goals, reviews…",
-  "theme": {
-    "toLight": "Switch to light theme",
-    "toDark": "Switch to dark theme"
-  },
   "toaster": {
     "label": "Notifications",
     "close": "Dismiss notification"
@@ -38,6 +34,7 @@
     "back": "Back to home"
   },
   "notFound": "Page not found",
+  "notFoundDescription": "This address does not exist or has moved. Check the link or go back to the home page.",
   "trend": {
     "flat": "No change",
     "up": "Up",
@@ -75,5 +72,16 @@
   "underConstruction": {
     "heading": "Under construction",
     "description": "This page is being built and will be available soon."
+  },
+  "language": {
+    "label": "Language",
+    "switch": "Change language",
+    "vi": "Tiếng Việt",
+    "zh": "中文（繁體）",
+    "en": "English"
+  },
+  "theme": {
+    "toLight": "Switch to light theme",
+    "toDark": "Switch to dark theme"
   }
 }

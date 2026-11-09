@@ -36,15 +36,14 @@ const toggleIn = (list: string[], id: string) => (list.includes(id) ? list.filte
 
 /**
  * Chủ quản xem nhân viên trong phạm vi admin đã gán.
- * Backend đã lọc /api/departments và /api/departments/:id/employees theo phạm vi — trang này chỉ hiển thị.
+ * Backend đã lọc /api/departments và /api/employees theo phạm vi — trang này chỉ hiển thị.
  */
 const Team = () => {
   const { t } = useTranslation(['team', 'common']);
   const unitsQuery = useUnits();
   const units = useMemo(() => unitsQuery.data ?? [], [unitsQuery.data]);
-  const rootIds = useMemo(() => units.map((u) => u.id), [units]);
   const parentIds = useMemo(() => units.filter((u) => u.k).map((u) => u.id), [units]);
-  const employees = useEmployees(rootIds);
+  const employees = useEmployees();
 
   const [unit, setUnit] = useState<string | null>(null);
   const [unitMenu, setUnitMenu] = useState(false);
@@ -216,7 +215,7 @@ const Team = () => {
               ) : unitsQuery.isError || (employees.isError && rows.length === 0) ? (
                 <div className="sticky left-0 flex w-full flex-col items-center gap-2 px-6 py-12 text-center text-muted-foreground">
                   {t(unitsQuery.isError ? 'unitsError' : 'employeesError')}
-                  <Button variant="outline" size="sm" onClick={() => (unitsQuery.isError ? void unitsQuery.refetch() : employees.refetch())}>{t('common:retry')}</Button>
+                  <Button variant="outline" size="sm" onClick={() => (unitsQuery.isError ? void unitsQuery.refetch() : void employees.refetch())}>{t('common:retry')}</Button>
                 </div>
               ) : (
                 rows.length === 0 && <div className="sticky left-0 w-full px-6 py-12 text-center text-muted-foreground">{t('noMatch')}</div>

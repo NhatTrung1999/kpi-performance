@@ -119,7 +119,8 @@ export const SAMPLE_ROWS: readonly ProposalRow[] = SEED.map((s) => ({
 export const isListed = (row: Pick<ProposalRow, 'status'>) => row.status !== 'resigned';
 
 /**
- * Phạm vi của Chủ quản trong bản mẫu (theo email đăng nhập). Chủ quản không có trong bảng → không thấy bộ phận nào.
+ * Phạm vi của Chủ quản trong bản mẫu (theo email đăng nhập). Chủ quản không có trong bảng (vd. tài khoản thật đăng nhập
+ * qua HRIS) → thấy toàn bộ dữ liệu mẫu, để thử trang khi chưa có API đề xuất.
  * TODO: khi nối API, server phải tự lọc theo phạm vi do Admin gán (trang Phân quyền) và trả 403 khi vượt phạm vi —
  *       việc lọc ở client chỉ để hiển thị, không phải lớp bảo mật.
  */
@@ -127,7 +128,7 @@ const MANAGER_SCOPE: Record<string, string[]> = {
   'chuquan.dev@example.com': UNITS,
 };
 
-const unitsOf = (viewer: ProposalViewer) => (viewer.role === 'CQ' ? (MANAGER_SCOPE[viewer.email] ?? []) : UNITS);
+const unitsOf = (viewer: ProposalViewer) => (viewer.role === 'CQ' ? (MANAGER_SCOPE[viewer.email] ?? UNITS) : UNITS);
 
 // ───────── Lưu trữ của bản mẫu ─────────
 

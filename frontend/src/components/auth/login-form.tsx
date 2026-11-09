@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowBigUp, CircleAlert, Eye, EyeOff, Lock, UserRound } from "lucide-react";
@@ -194,7 +193,7 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
             <FieldError id="password-error" message={errors.password?.message} />
           </div>
 
-          <div className="-mt-1 flex flex-wrap items-center justify-between gap-3">
+          <div className="-mt-1 flex items-center">
             <div className="flex min-h-11 items-center gap-2.5">
               <Controller
                 control={control}
@@ -212,14 +211,6 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
                 {t("remember")}
               </Label>
             </div>
-            {/* Mật khẩu do HRIS quản lý (web chỉ đọc) nên không có trang đặt lại mật khẩu: chỉ hướng dẫn liên hệ IT. */}
-            <button
-              type="button"
-              onClick={() => toast.info(t("forgotTitle"), { id: "forgot-password", description: t("forgotHint"), duration: 8000 })}
-              className="rounded-md text-sm font-medium text-brand-text underline-offset-4 hover:text-brand-text-hover hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-            >
-              {t("forgot")}
-            </button>
           </div>
 
           <Button type="submit" size="xl" loading={isSubmitting} disabled={locked} className="mt-1 w-full bg-[length:200%_200%] animate-gradient-drift">
@@ -227,13 +218,6 @@ export function LoginForm({ onSuccess }: { onSuccess?: (values: LoginValues) => 
           </Button>
         </fieldset>
       </form>
-
-      <p className="mt-8 text-center text-label text-muted-foreground">
-        {t("trouble")}{" "}
-        <a href="mailto:it@congty.vn" className="rounded font-medium text-brand-text underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
-          {t("contactIt")}
-        </a>
-      </p>
     </div>
   );
 }

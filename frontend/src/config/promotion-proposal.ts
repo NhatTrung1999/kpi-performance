@@ -76,6 +76,7 @@ export type GroupStatus = 'draft' | 'submitted' | 'approved' | 'returned';
 
 /** Các ô được nhập trên mỗi dòng. */
 export type PromotionField =
+  | 'position'
   | 'type' | 'newTitle' | 'reason' | 'jobChange' | 'raise'
   | 'hrOpinion'
   | 'newContract' | 'newRating' | 'newAttendance' | 'newLiving'
@@ -83,6 +84,7 @@ export type PromotionField =
 
 /** Nhóm cột chứa từng ô nhập (để service bỏ ô của nhóm vai trò không được xem). */
 export const FIELD_GROUP: Record<PromotionField, ColumnGroup> = {
+  position: 'hr',
   type: 'cq', newTitle: 'cq', reason: 'cq', jobChange: 'cq', raise: 'cq',
   hrOpinion: 'hrOpinion',
   newContract: 'salary', newRating: 'salary', newAttendance: 'salary', newLiving: 'salary',
@@ -91,40 +93,66 @@ export const FIELD_GROUP: Record<PromotionField, ColumnGroup> = {
 
 /**
  * Quyền SỬA theo cột, theo vai trò và trạng thái nhóm — component chỉ hỏi `canEdit`, không tự đặt điều kiện vai trò.
- *   CQ : nhóm CQ tự điền (N–R) khi đang lập hoặc bị trả lại.
+ *   CQ : nhóm CQ tự điền (N–R) và "Chức vụ" (H, có danh sách chọn trong file) khi đang lập hoặc bị trả lại.
+ *        TODO(chị Kitty): xác nhận ai được sửa Chức vụ (dữ liệu từ hệ thống nhân sự) — tạm cho CQ.
  *   HR : "Ý kiến của nhân sự" (AI) khi đã gửi.
  *   KT : các cột lương tạm tính (AC–AF) khi đã gửi.
  *   BLĐ: nhóm BLĐ (AJ, AK, AL, lý do ở AN) khi đã gửi.
- *   AD : chỉ xem. TODO(chị Kitty): bước Admin kiểm tra dữ liệu rồi chuyển HR/KT (sheet Evaluation Process) chưa làm.
+ *   AD : chỉ xem — TRỪ khi `ADMIN_ACTS_AS_BOARD` bật thì Admin làm thay BLĐ.
+ *        TODO(chị Kitty): bước Admin kiểm tra dữ liệu rồi chuyển HR/KT (sheet Evaluation Process) chưa làm.
  * TODO: server phải từ chối (403) khi một vai trò ghi vào cột/ở trạng thái không được phép.
  */
+/**
+ * TẠM (2026-11-03): backend chỉ đăng nhập ra Admin / CQ, chưa có tài khoản BLĐ → Admin đóng vai BLĐ:
+ * sửa các cột BLĐ (AJ–AN), Trả lại CQ, Phê duyệt nhóm khi nhóm đang Chờ duyệt. Có vai trò BLĐ thật thì đổi thành `false`.
+ */
+export const ADMIN_ACTS_AS_BOARD = true;
+
+/** Vai trò làm việc của BLĐ (duyệt, trả lại, quyết định từng dòng). */
+export const actsAsBoard = (role: AppRole) => role === 'BLD' || (ADMIN_ACTS_AS_BOARD && role === 'AD');
+
+const BOARD_EDIT = { statuses: ['submitted'], fields: ['boardType', 'boardTitle', 'boardAmount', 'boardReason'] } as const;
+
 export const ROLE_EDIT: Record<AppRole, { statuses: readonly GroupStatus[]; fields: readonly PromotionField[] }> = {
-  CQ: { statuses: ['draft', 'returned'], fields: ['type', 'newTitle', 'reason', 'jobChange', 'raise'] },
+  CQ: { statuses: ['draft', 'returned'], fields: ['position', 'type', 'newTitle', 'reason', 'jobChange', 'raise'] },
   HR: { statuses: ['submitted'], fields: ['hrOpinion'] },
   KT: { statuses: ['submitted'], fields: ['newContract', 'newRating', 'newAttendance', 'newLiving'] },
-  BLD: { statuses: ['submitted'], fields: ['boardType', 'boardTitle', 'boardAmount', 'boardReason'] },
-  AD: { statuses: [], fields: [] },
+  BLD: BOARD_EDIT,
+  AD: ADMIN_ACTS_AS_BOARD ? BOARD_EDIT : { statuses: [], fields: [] },
   NV: { statuses: [], fields: [] },
 };
 
+/**
+ * TẠM (2026-11-03, giai đoạn dữ liệu giả): CQ và Admin chọn được các cột BLĐ (AJ–AN) ở MỌI trạng thái trừ "Đã duyệt",
+ * để thử danh sách chọn như file. Chỉ mở ô nhập — Trả lại / Phê duyệt vẫn chỉ khi nhóm Chờ duyệt.
+ * Hết giai đoạn thử thì đổi thành `false`.
+ */
+export const DEV_OPEN_BOARD_FIELDS = true;
+const devBoardEdit = (role: AppRole, status: GroupStatus) => DEV_OPEN_BOARD_FIELDS && (role === 'CQ' || role === 'AD') && status !== 'approved';
+
 export const canEdit = (role: AppRole, status: GroupStatus, field: PromotionField) =>
-  ROLE_EDIT[role].statuses.includes(status) && ROLE_EDIT[role].fields.includes(field) && canView(role, FIELD_GROUP[field]);
+  canView(role, FIELD_GROUP[field]) &&
+  ((ROLE_EDIT[role].statuses.includes(status) && ROLE_EDIT[role].fields.includes(field)) || (FIELD_GROUP[field] === 'board' && devBoardEdit(role, status)));
 
 /** Vai trò đang thao tác trên nhóm ở trạng thái này (có nút Lưu / Gửi / Duyệt). */
-export const isEditor = (role: AppRole, status: GroupStatus) => ROLE_EDIT[role].statuses.includes(status);
+export const isEditor = (role: AppRole, status: GroupStatus) => ROLE_EDIT[role].statuses.includes(status) || devBoardEdit(role, status);
 
 // ───────── Loại đề xuất ─────────
 
-/** Cột N "Thăng chức hoặc tăng lương" của CQ. Thứ tự = thứ tự trong danh sách chọn. */
-export const PROPOSAL_TYPES = ['none', 'promotion', 'raise', 'both'] as const;
+/**
+ * Cột N "Thăng chức hoặc tăng lương" của CQ — như danh sách chọn trong file: promotion / raise salary
+ * (`none` = chưa chọn, ô trống trong file). Thăng chức luôn kèm tăng lương ("Promoted & increased salary").
+ */
+export const PROPOSAL_TYPES = ['none', 'promotion', 'raise'] as const;
 export type ProposalType = (typeof PROPOSAL_TYPES)[number];
 
-/** Cột AJ của BLĐ: theo đề xuất của CQ nhưng sửa được, thêm "Từ chối". */
-export const BOARD_TYPES = ['promotion', 'raise', 'both', 'reject'] as const;
+/** Cột AJ của BLĐ: theo đề xuất của CQ nhưng sửa được (promotion / raise salary), thêm "Từ chối" (Rejected). */
+export const BOARD_TYPES = ['promotion', 'raise', 'reject'] as const;
 export type BoardType = (typeof BOARD_TYPES)[number];
 
-export const hasPromotion = (t: ProposalType | BoardType | null | undefined) => t === 'promotion' || t === 'both';
-export const hasRaise = (t: ProposalType | BoardType | null | undefined) => t === 'raise' || t === 'both';
+export const hasPromotion = (t: ProposalType | BoardType | null | undefined) => t === 'promotion';
+/** Có tăng lương: "raise salary", và cả "promotion" (thăng chức + tăng lương). */
+export const hasRaise = (t: ProposalType | BoardType | null | undefined) => t === 'raise' || t === 'promotion';
 
 // ───────── Quy tắc ─────────
 
@@ -192,11 +220,20 @@ export const PROMOTION_LEVELS = [
  */
 export const POSITION_CODES: Record<string, { level: number | null; cn: string }> = {
   NV: { level: null, cn: '職員' },
-  TBP: { level: 17, cn: '单位小主管' },
-  PP: { level: 16, cn: '单位副主管' },
-  TRP: { level: 15, cn: '单位主管' },
+  TBP: { level: 17, cn: '單位小主管' },
+  PP: { level: 16, cn: '單位副主管' },
+  TRP: { level: 15, cn: '單位主管' },
   PCN: { level: 14, cn: '副主任' },
+  CN: { level: 13, cn: '主任' },
+  TLY: { level: 12, cn: '襄理' },
+  PGĐ: { level: 11, cn: '副經理' },
 };
+
+/** Tên chức danh như file: tên tiếng Trung liền mã ("單位主管TRP"); mã chưa có trong bảng thì chỉ hiện mã. */
+export const positionLabel = (code: string) => `${POSITION_CODES[code]?.cn ?? ''}${code}`;
+
+/** Danh sách chọn "Chức vụ" / "Chức danh mới" đúng thứ tự trong file (cao → thấp). */
+export const TITLE_LIST = ['PGĐ', 'TLY', 'CN', 'PCN', 'TRP', 'PP', 'TBP', 'NV'] as const;
 
 /**
  * Thang thăng chức theo khối, từ thấp lên cao — "Promotion level by level, don't jump over levels".
@@ -204,7 +241,7 @@ export const POSITION_CODES: Record<string, { level: number | null; cn: string }
  * TODO(chị Kitty): danh sách chức danh Khối SX chưa có trong file → khối SX chưa chọn được chức danh mới.
  */
 export const POSITION_LADDER: Record<Division, readonly string[]> = {
-  office: ['NV', 'TBP', 'PP', 'TRP', 'PCN'],
+  office: ['NV', 'TBP', 'PP', 'TRP', 'PCN', 'CN', 'TLY', 'PGĐ'],
   production: [],
 };
 

@@ -1,5 +1,5 @@
 {
-  "projectId": "1e3f61d3-e159-49a8-8651-dd36f7b51407",
+  "projectId": "22a6d0ae-edfd-4d85-9d19-e8375543415d",
   "shape": "package",
   "pkg": "frontend",
   "globalName": "KpiDS",
@@ -99,6 +99,9 @@
       "cardMode": "column"
     },
     "TrendChart": {
+      "cardMode": "column"
+    },
+    "DataGrid": {
       "cardMode": "column"
     }
   },

@@ -109,7 +109,6 @@
     "capIncrease": "Bình bầu 2C: chỉ được tăng tối đa {{max}}"
   },
   "rules": {
-    "title": "=> Ghi chú trên hệ thống để các CQ lưu ý khi xem xét đánh giá:",
     "body": "Đánh giá hiệu suất công việc kết hợp với bình bầu A-B-C trong 3 tháng gần nhất",
     "c3": "3C: giảm KPI",
     "c2": "2C: tăng tối đa {{max}}",

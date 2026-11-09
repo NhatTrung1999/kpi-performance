@@ -1,10 +1,10 @@
-import { CalendarRange, FileText, History, ShieldCheck, TrendingUp, type LucideIcon } from 'lucide-react';
+import { FileText, ShieldCheck, TrendingUp, type LucideIcon } from 'lucide-react';
 import type { AppRole } from '@/lib/session';
 
 export type NavGroup = 'proposal' | 'admin';
 
 /** Key trong namespace `nav` (src/i18n/locales/<lng>/nav.json). */
-export type NavKey = 'periods' | 'proposals' | 'promotions' | 'history' | 'roles';
+export type NavKey = 'proposals' | 'promotions' | 'roles';
 
 export type RouteMeta = {
   /** Key dịch của tiêu đề trang (namespace `nav`). */
@@ -25,12 +25,10 @@ export type RouteMeta = {
  * AD, CQ, BLD có sidebar (xem SIDEBAR_ROLES); HR và KT chỉ có trang Thăng chức & lương.
  */
 export const ROUTE_META: Record<string, RouteMeta> = {
-  '/periods': { title: 'periods', roles: ['AD'], nav: { icon: CalendarRange, group: 'proposal' } },
   // CQ: lập đề xuất cho các bộ phận được gán; BLD: tạm thời chỉ xem; AD: xem/sửa mọi bộ phận.
   '/proposals': { title: 'proposals', roles: ['AD', 'CQ', 'BLD'], nav: { icon: FileText, group: 'proposal' } },
   // Quyền xem/sửa theo nhóm cột: config/promotion-proposal.ts.
   '/promotions': { title: 'promotions', roles: ['AD', 'CQ', 'BLD', 'HR', 'KT'], nav: { icon: TrendingUp, group: 'proposal' }, period: 'page' },
-  '/history': { title: 'history', roles: ['AD'], nav: { icon: History, group: 'proposal' } },
   '/roles': { title: 'roles', roles: ['AD'], nav: { icon: ShieldCheck, group: 'admin' }, period: false },
 };
 

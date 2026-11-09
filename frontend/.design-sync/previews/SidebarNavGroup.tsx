@@ -11,7 +11,7 @@ const SHIELD = 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z';
 const USERS = 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm13 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75';
 
 export const LabeledGroups = () => (
-  <nav className="bg-shell text-foreground" style={{ width: 248, padding: 12, display: 'flex', flexDirection: 'column' }}>
+  <nav className="flat-backdrop text-foreground" style={{ width: 248, padding: 12, display: 'flex', flexDirection: 'column' }}>
     <SidebarNavGroup label="General">
       <SidebarNavItem icon={<Icon d={HOME} />} label="Overview" active />
       <SidebarNavItem icon={<Icon d={CLIPBOARD} />} label="Evaluations" />
@@ -24,7 +24,7 @@ export const LabeledGroups = () => (
 );
 
 export const Collapsed = () => (
-  <nav className="bg-shell text-foreground" style={{ width: 72, padding: 12, display: 'flex', flexDirection: 'column' }}>
+  <nav className="flat-backdrop text-foreground" style={{ width: 72, padding: 12, display: 'flex', flexDirection: 'column' }}>
     <SidebarNavGroup label="General" collapsed>
       <SidebarNavItem icon={<Icon d={HOME} />} label="Overview" active collapsed />
       <SidebarNavItem icon={<Icon d={CLIPBOARD} />} label="Evaluations" collapsed />

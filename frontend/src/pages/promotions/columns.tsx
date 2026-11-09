@@ -15,7 +15,7 @@ import {
   hasPromotion,
   hasRaise,
   levelInfo,
-  POSITION_CODES,
+  positionLabel,
   PROPOSAL_TYPES,
   SALARY_SUBGROUPS,
   type BoardType,
@@ -37,6 +37,7 @@ import {
   diffOldNew,
   diffProposedActual,
   grantedRaise,
+  nextTitle,
   proposalLock,
   proposedRaise,
   seniorityYears,
@@ -84,10 +85,10 @@ export function buildColumns({ t, role, status, issues, edit, collapsed, toggle,
   const typeLabel = (k: ProposalType | BoardType) => t(`types.${k}.label`);
   const typeHint = (k: ProposalType | BoardType) => t(`types.${k}.hint`);
   const titleOpts = (r: PromotionRow) =>
-    titleOptions(r).map((code) => {
+    titleOptions().map((code) => {
       const info = levelInfo(code);
-      // Mã + tên hệ thống trên 2 dòng (không cắt chữ); bậc theo sheet Promotion levels ở dòng gợi ý.
-      return { key: code, label: code, sub: POSITION_CODES[code]?.cn, hint: info ? t('titleLevel', { level: info.level, name: `${info.en} ${info.cn}` }) : undefined };
+      // Như danh sách chọn trong file: "單位主管TRP"; bậc kế tiếp (gợi ý theo quy định) ghi ở dòng phụ.
+      return { key: code, label: positionLabel(code), hint: code === nextTitle(r) ? t('titleNext') : info ? t('titleLevel', { level: info.level, name: info.en }) : undefined };
     });
   const salaryOf = (r: PromotionRow) => r.salary as SalaryInfo;
   const newMoney = (field: 'newContract' | 'newRating' | 'newAttendance' | 'newLiving'): DataGridColumn<PromotionRow>['cell'] => (r) =>
@@ -114,7 +115,23 @@ export function buildColumns({ t, role, status, issues, edit, collapsed, toggle,
     joinDate: col('joinDate', 92, { cellClassName: 'whitespace-nowrap tabular-nums', cell: (r) => formatSlashDate(r.joinDate) }),
     seniority: col('seniority', 92, { align: 'end', cellClassName: 'pr-2.5 tabular-nums', cell: (r) => formatAccounting(seniorityYears(r.joinDate), 1) }),
     contract: col('contract', 100, { cell: (r) => (r.contract ? <TwoLine main={t(`contract.${r.contract}.label`)} sub={t(`contract.${r.contract}.sub`)} /> : <Dash />) }),
-    position: col('position', 92, { cell: (r) => <TwoLine main={<span className="font-medium">{r.position}</span>} sub={r.positionName} /> }),
+    // Như file: ô H có danh sách chọn 8 chức danh (CQ sửa được khi đang lập); vai trò khác chỉ xem.
+    position: col('position', 156, {
+      field: true,
+      cell: (r) =>
+        can('position') ? (
+          <SelectCell
+            value={r.position}
+            options={titleOptions().map((code) => ({ key: code, label: positionLabel(code) }))}
+            onPick={(k) => edit(r, { position: k })}
+            ariaLabel={t('fields.position', { name: r.name })}
+            placeholder={t('choose')}
+            minWidth={200}
+          />
+        ) : (
+          <Position code={r.position} />
+        ),
+    }),
     promotionCount: col('promotionCount', 136, {
       cell: (r) =>
         r.promotionHistory.length ? (
@@ -168,11 +185,19 @@ export function buildColumns({ t, role, status, issues, edit, collapsed, toggle,
     newTitle: col('newTitle', 176, {
       field: true,
       cell: (r) => {
-        if (!hasPromotion(r.type)) return <Dash />;
+        // Như file: ô có danh sách chọn cả ở dòng "raise salary"; chọn chức danh ở dòng đó = chuyển sang "promotion".
+        if (r.type === 'none') return <Dash />;
         if (!can('newTitle')) return r.newTitle ? <Position code={r.newTitle} /> : <Dash />;
-        const options = titleOpts(r);
-        if (!options.length) return <span className="text-[11px] text-muted-foreground">{t('noNextTitle')}</span>;
-        return <SelectCell value={r.newTitle} options={options} onPick={(k) => edit(r, { newTitle: k })} ariaLabel={t('fields.newTitle', { name: r.name })} placeholder={t('choose')} footer={t('titleHint')} />;
+        return (
+          <SelectCell
+            value={hasPromotion(r.type) ? r.newTitle : null}
+            options={titleOpts(r)}
+            onPick={(k) => edit(r, hasPromotion(r.type) ? { newTitle: k } : { type: 'promotion', newTitle: k })}
+            ariaLabel={t('fields.newTitle', { name: r.name })}
+            placeholder={t('choose')}
+            footer={t('titleHint')}
+          />
+        );
       },
     }),
     reason: col('reason', 220, {
@@ -285,12 +310,20 @@ export function buildColumns({ t, role, status, issues, edit, collapsed, toggle,
       cell: (r) => {
         const type = boardTypeOf(r);
         if (type === 'reject') return <LockedCell danger reason={t('boardRejected')}>—</LockedCell>;
-        if (!hasPromotion(type)) return <Dash />;
-        const value = r.board?.title ?? r.newTitle;
+        if (!type) return <Dash />;
+        const value = hasPromotion(type) ? (r.board?.title ?? r.newTitle) : null;
         if (!can('boardTitle')) return value ? <Position code={value} /> : <Dash />;
-        const options = titleOpts(r);
-        if (!options.length) return <span className="text-[11px] text-muted-foreground">{t('noNextTitle')}</span>;
-        return <SelectCell value={value} options={options} onPick={(k) => edit(r, { boardTitle: k })} ariaLabel={t('fields.boardTitle', { name: r.name })} placeholder={t('choose')} footer={t('titleHint')} />;
+        // Như file: chọn được cả ở dòng "raise salary"; chọn chức danh ở dòng đó = BLĐ đổi quyết định sang "promotion".
+        return (
+          <SelectCell
+            value={value}
+            options={titleOpts(r)}
+            onPick={(k) => edit(r, hasPromotion(type) ? { boardTitle: k } : { ...boardTypeChange(r, 'promotion'), boardTitle: k })}
+            ariaLabel={t('fields.boardTitle', { name: r.name })}
+            placeholder={t('choose')}
+            footer={t('titleHint')}
+          />
+        );
       },
     }),
     boardAmount: col('boardAmount', 136, {
@@ -387,10 +420,16 @@ export function buildColumns({ t, role, status, issues, edit, collapsed, toggle,
     }
     const gi = shown.indexOf(g);
     const { tone, marker } = GROUP_STYLE[g];
-    const cols = COLUMN_KEYS[g].map((k, ci) => ({ ...defs[k], tone, divider: gi > 0 && ci === 0 ? ('start' as const) : undefined }));
-    columns.push(...cols);
     const name = t(`groups.${g}.label`);
     const sub = t(`groups.${g}.sub`);
+    // Bảng không hiện hàng nhóm (như trang Đề xuất KPI): tên nhóm hiện trong tooltip tiêu đề cột.
+    const cols = COLUMN_KEYS[g].map((k, ci) => ({
+      ...defs[k],
+      tone,
+      divider: gi > 0 && ci === 0 ? ('start' as const) : undefined,
+      tooltip: defs[k].tooltip ?? `${name} · ${sub}`,
+    }));
+    columns.push(...cols);
     const isCollapsed = collapsed.has(g);
     groups.push({
       key: g,

@@ -159,7 +159,7 @@
       "sub": "提報優先順序"
     },
     "unit": {
-      "label": "Department",
+      "label": "Dept.",
       "sub": "部門別"
     },
     "name": {
@@ -327,37 +327,29 @@
     },
     "promotion": {
       "label": "Promotion",
-      "hint": "Promotion"
+      "hint": "Thăng chức · kèm tăng lương"
     },
     "raise": {
-      "label": "Salary raise",
-      "hint": "Raise salary"
-    },
-    "both": {
-      "label": "Promotion + raise",
-      "hint": "Promotion & raise salary"
+      "label": "Raise salary",
+      "hint": "Tăng lương"
     },
     "reject": {
       "label": "Rejected",
-      "hint": "Rejected"
+      "hint": "Từ chối"
     }
   },
   "decision": {
     "promotion": {
-      "label": "Promoted",
-      "hint": "Promoted"
+      "label": "Promoted & increased salary",
+      "hint": "Thăng chức + tăng lương"
     },
     "raise": {
-      "label": "Salary increased",
-      "hint": "Increased salary"
-    },
-    "both": {
-      "label": "Promoted + salary increased",
-      "hint": "Promoted & increased salary"
+      "label": "Increased salary",
+      "hint": "Tăng lương"
     },
     "reject": {
       "label": "Rejected",
-      "hint": "Rejected"
+      "hint": "Từ chối"
     }
   },
   "rejectReasonPlaceholder": "* A rejection reason is required",
@@ -394,7 +386,7 @@
     "resigned": "Resigned"
   },
   "leaveRange": "{{from}} → {{to}}",
-  "titleHint": "One level at a time, within the same division",
+  "titleHint": "One level at a time — the next level is preselected",
   "titleLevel": "Level {{level}} · {{name}}",
   "noNextTitle": "No next title for this division yet",
   "history": {
@@ -406,6 +398,7 @@
     "contractOnly": "Contract salary only"
   },
   "fields": {
+    "position": "Position of {{name}}",
     "type": "Promotion or raise for {{name}}",
     "newTitle": "New title for {{name}}",
     "reason": "Reason for proposal",
@@ -459,17 +452,18 @@
     "lacking_other": "Org chart · {{count}} files missing"
   },
   "rules": {
-    "title": "Company rules:",
+    "title": "Company rules",
     "sub": "公司規定",
+    "when": "When an employee has 4C in one year",
     "locked": {
-      "text": "* Employees without a permanent contract: 4C in one year means the contract is not renewed => cannot be proposed for promotion / salary raise",
-      "result": "=> The manager CANNOT select a proposal",
-      "pill": "Cannot be selected"
+      "who": "Employees without a permanent contract",
+      "effect": "Contract is not renewed → cannot be proposed for promotion / salary raise",
+      "result": "The manager CANNOT select a proposal"
     },
     "reason": {
-      "text": "* Employees with a permanent contract: 4C in one year => the manager should consider carefully before proposing a promotion / salary raise",
-      "result": "=> The manager can select it but must give a specific reason",
-      "pill": "Reason required"
+      "who": "Employees with a permanent contract",
+      "effect": "The manager should consider carefully before proposing a promotion / salary raise",
+      "result": "Selectable, but a specific reason is required"
     }
   },
   "notes": {
@@ -486,5 +480,6 @@
     "title": "Notes & rules",
     "sub": "注意事項",
     "summary": "{{notes}} notes · {{rules}} 4C rules"
-  }
+  },
+  "titleNext": "Next level under the rules"
 }

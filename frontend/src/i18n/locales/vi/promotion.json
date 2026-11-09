@@ -327,15 +327,11 @@
     },
     "promotion": {
       "label": "Thăng chức",
-      "hint": "Promotion"
+      "hint": "promotion · kèm tăng lương"
     },
     "raise": {
       "label": "Tăng lương",
-      "hint": "Raise salary"
-    },
-    "both": {
-      "label": "Thăng chức + tăng lương",
-      "hint": "Promotion & raise salary"
+      "hint": "raise salary"
     },
     "reject": {
       "label": "Từ chối",
@@ -344,16 +340,12 @@
   },
   "decision": {
     "promotion": {
-      "label": "Thăng chức",
-      "hint": "Promoted"
+      "label": "Thăng chức + tăng lương",
+      "hint": "Promoted & increased salary"
     },
     "raise": {
       "label": "Tăng lương",
       "hint": "Increased salary"
-    },
-    "both": {
-      "label": "Thăng chức + tăng lương",
-      "hint": "Promoted & increased salary"
     },
     "reject": {
       "label": "Từ chối",
@@ -394,7 +386,7 @@
     "resigned": "Đã thôi việc"
   },
   "leaveRange": "{{from}} → {{to}}",
-  "titleHint": "Thăng từng bậc theo quy định, đúng khối",
+  "titleHint": "Thăng từng bậc theo quy định — bậc kế tiếp được chọn sẵn",
   "titleLevel": "Bậc {{level}} · {{name}}",
   "noNextTitle": "Chưa có chức danh kế tiếp cho khối này",
   "history": {
@@ -406,6 +398,7 @@
     "contractOnly": "Chỉ tính lương HĐ"
   },
   "fields": {
+    "position": "Chức vụ — {{name}}",
     "type": "Thăng chức hoặc tăng lương — {{name}}",
     "newTitle": "Chức danh mới — {{name}}",
     "reason": "Lý do đề xuất",
@@ -459,17 +452,18 @@
     "lacking_other": "Sơ đồ tổ chức · Thiếu {{count}} file"
   },
   "rules": {
-    "title": "Theo quy định Cty:",
+    "title": "Theo quy định Cty",
     "sub": "公司規定",
+    "when": "Khi NV có 4C trong 1 năm",
     "locked": {
-      "text": "* Đối với NV chưa ký HĐLĐ vô thời hạn: nếu có 4C trong 1 năm sẽ không được tái ký HĐLĐ => không được đề xuất thăng chức/ tăng lương",
-      "result": "=> CQ KHÔNG thể chọn đề xuất",
-      "pill": "Không thể chọn"
+      "who": "NV chưa ký HĐLĐ vô thời hạn",
+      "effect": "Không được tái ký HĐLĐ → không được đề xuất thăng chức / tăng lương",
+      "result": "CQ KHÔNG thể chọn đề xuất"
     },
     "reason": {
-      "text": "* Đối với NV đã ký HĐ vô thời hạn: nếu có 4C trong 1 năm => CQ cần cân nhắc kỹ khi đề xuất thăng chức/ tăng lương",
-      "result": "=> CQ có thể chọn nhưng phải có lý do cụ thể",
-      "pill": "Bắt buộc ghi lý do"
+      "who": "NV đã ký HĐ vô thời hạn",
+      "effect": "CQ cần cân nhắc kỹ khi đề xuất thăng chức / tăng lương",
+      "result": "CQ chọn được nhưng phải có lý do cụ thể"
     }
   },
   "notes": {
@@ -486,5 +480,6 @@
     "title": "Lưu ý & quy định",
     "sub": "注意事項",
     "summary": "{{notes}} lưu ý · {{rules}} quy định 4C"
-  }
+  },
+  "titleNext": "Bậc kế tiếp theo quy định"
 }

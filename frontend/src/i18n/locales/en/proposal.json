@@ -109,7 +109,6 @@
     "capIncrease": "2C rating: increase capped at {{max}}"
   },
   "rules": {
-    "title": "=> Note for managers when reviewing:",
     "body": "Evaluate work performance together with the A-B-C ratings of the last 3 months",
     "c3": "3C: reduce KPI",
     "c2": "2C: increase up to {{max}}",

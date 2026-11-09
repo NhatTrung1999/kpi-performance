@@ -9,6 +9,7 @@ import { Kbd } from '@/components/ui/kbd';
 import { useMe } from '@/hooks/use-me';
 import { logout } from '@/lib/auth';
 import { useCurrentUser } from '@/lib/session';
+import { useGlassUi } from '@/lib/ui-theme';
 import { hasUnsavedChanges } from '@/lib/unsaved-changes';
 import { SIDEBAR_ROLES } from '@/routes/config';
 import { ShellContext, type ShellContextValue } from './shell-context';
@@ -37,6 +38,7 @@ const MainLayout = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   // Chỉ Admin có sidebar; Chủ quản và BLĐ chỉ có thanh trên.
   const withSidebar = SIDEBAR_ROLES.includes(useCurrentUser().role);
+  const glass = useGlassUi();
   // Xác nhận phiên với server + cập nhật họ tên/vai trò mới nhất khi vào khu vực đã đăng nhập.
   useMe();
 
@@ -95,7 +97,7 @@ const MainLayout = () => {
     <ShellContext.Provider value={shell}>
       <AppShell
         sidebar={withSidebar ? <Sidebar collapsed={collapsed} /> : undefined}
-        mobileSidebar={withSidebar ? <Sidebar onClose={closeMenu} onNavigate={closeMenu} className="w-70 border-r border-border bg-sidebar shadow-toast" /> : undefined}
+        mobileSidebar={withSidebar ? <Sidebar onClose={closeMenu} onNavigate={closeMenu} className={glass ? 'shell-inverse shell-pattern w-70 border-r border-border bg-shell shadow-toast' : 'flat-backdrop w-70 border-r border-border shadow-toast'} /> : undefined}
         mobileSidebarOpen={menuOpen}
         onMobileSidebarClose={closeMenu}
         header={<Header withSidebar={withSidebar} />}

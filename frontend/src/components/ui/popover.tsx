@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover"
 import { cn } from "@/lib/utils"
+import { useGlassPopup } from "@/hooks/use-is-desktop"
 
 const Popover = PopoverPrimitive.Root
 const PopoverTrigger = PopoverPrimitive.Trigger
@@ -15,6 +16,7 @@ type PopoverContentProps = PopoverPrimitive.Popup.Props &
  * Hết chỗ bên dưới thì tự lật lên trên; chiều cao tối đa theo vùng còn trống (tối đa 360px).
  */
 function PopoverContent({ className, side = "bottom", align = "start", sideOffset = 8, ...props }: PopoverContentProps) {
+  const glass = useGlassPopup()
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Positioner side={side} align={align} sideOffset={sideOffset} collisionPadding={16} collisionAvoidance={{ side: "flip", align: "shift", fallbackAxisSide: "none" }} className="z-50">
@@ -22,6 +24,7 @@ function PopoverContent({ className, side = "bottom", align = "start", sideOffse
           data-slot="popover-content"
           className={cn(
             "flex max-h-[min(22.5rem,var(--available-height))] w-(--anchor-width) max-w-[calc(100vw-2rem)] flex-col rounded-xl border border-border bg-popover text-popover-foreground shadow-toast outline-none",
+            glass,
             className
           )}
           {...props}

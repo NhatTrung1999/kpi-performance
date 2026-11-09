@@ -103,7 +103,8 @@ describe('chức danh mới', () => {
   it('chỉ cho chọn bậc kế tiếp, đúng khối', () => {
     expect(nextPositions('NV', 'office')).toEqual(['TBP']);
     expect(nextPositions('PP', 'office')).toEqual(['TRP']);
-    expect(nextPositions('PCN', 'office')).toEqual([]);
+    expect(nextPositions('PCN', 'office')).toEqual(['CN']);
+    expect(nextPositions('PGĐ', 'office')).toEqual([]);
     // Khối SX chưa có danh sách (TODO) → chưa có chức danh để chọn.
     expect(nextPositions('NV', 'production')).toEqual([]);
   });
@@ -124,16 +125,14 @@ describe('BLĐ', () => {
   it('Từ chối bắt buộc có lý do; chọn lại loại khác thì lấy lại số đề xuất', () => {
     expect(boardIssue(C)).toBe('rejectReason');
     expect(boardIssue(applyEdit(C, { boardReason: 'Có 4C trong 12 tháng' }))).toBeNull();
-    expect(boardTypeChange(C, 'promotion')).toEqual({ boardType: 'promotion', boardAmount: 0, boardTitle: 'TBP' });
-    expect(boardTypeChange(C, 'both')).toMatchObject({ boardAmount: 1_000_000 });
+    // Thăng chức kèm tăng lương → lấy lại số đề xuất.
+    expect(boardTypeChange(C, 'promotion')).toEqual({ boardType: 'promotion', boardAmount: 1_000_000, boardTitle: 'TBP' });
   });
 
-  it('Tăng lương / Thăng chức + tăng lương bắt buộc Mức lương được tăng > 0', () => {
+  it('raise salary / promotion (thăng chức + tăng lương) bắt buộc Mức lương được tăng > 0', () => {
     expect(boardIssue(applyEdit(A, { boardType: 'raise', boardAmount: 0 }))).toBe('grantedRequired');
-    expect(boardIssue(applyEdit(A, { boardType: 'both', boardAmount: 0 }))).toBe('grantedRequired');
+    expect(boardIssue(applyEdit(A, { boardType: 'promotion', boardAmount: 0 }))).toBe('grantedRequired');
     expect(boardIssue(applyEdit(A, { boardType: 'raise', boardAmount: 1 }))).toBeNull();
-    // Chỉ thăng chức: không tăng lương nên 0 là hợp lệ.
-    expect(boardIssue(applyEdit(A, { boardType: 'promotion', boardAmount: 0 }))).toBeNull();
     // BLĐ chưa nhập: theo đề xuất CQ; "Theo bậc lương Cty" chưa có số → 0 → phải nhập.
     const scale = applyEdit(A, { boardType: 'raise', boardAmount: null, raiseMode: 'scale' });
     expect(grantedRaise(scale)).toBe(0);
@@ -157,7 +156,8 @@ describe('hạn mức theo nhóm', () => {
   it('đếm theo đề xuất CQ, tách tăng lương local / expat', () => {
     const [promo, local, expat] = headcountUsage(rows, group, 'manager');
     expect(promo).toMatchObject({ count: 2, base: 40, percent: 5, limit: 5, over: false });
-    expect(local).toMatchObject({ count: 3, base: 38, limit: 10, over: false });
+    // Chỉ đếm dòng "raise salary"; dòng promotion (đã kèm tăng lương) tính vào hạn mức thăng chức.
+    expect(local).toMatchObject({ count: 2, base: 38, limit: 10, over: false });
     expect(expat).toMatchObject({ count: 0, base: 2, limit: 5 });
   });
 
@@ -216,6 +216,13 @@ describe('quyền theo nhóm cột', () => {
     expect(canEdit('BLD', 'submitted', 'boardAmount')).toBe(true);
     expect(canEdit('BLD', 'submitted', 'type')).toBe(false);
     expect(canEdit('AD', 'submitted', 'hrOpinion')).toBe(false);
+    // Tạm: Admin đóng vai BLĐ (ADMIN_ACTS_AS_BOARD).
+    expect(canEdit('AD', 'submitted', 'boardType')).toBe(true);
+    // Tạm (DEV_OPEN_BOARD_FIELDS): CQ và Admin chọn được cột BLĐ ở mọi trạng thái trừ Đã duyệt.
+    expect(canEdit('AD', 'draft', 'boardType')).toBe(true);
+    expect(canEdit('CQ', 'draft', 'boardTitle')).toBe(true);
+    expect(canEdit('CQ', 'approved', 'boardType')).toBe(false);
+    expect(canEdit('CQ', 'draft', 'hrOpinion')).toBe(false);
   });
 
   it('service bỏ hẳn trường lương (và nhóm không được xem) khỏi dữ liệu trả về', () => {

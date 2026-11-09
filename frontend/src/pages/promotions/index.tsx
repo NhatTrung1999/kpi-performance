@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger, onListKeyDown } from '@/compon
 import { PageShell, TableCard, TableCardBody } from '@/components/ui/table-page';
 import { toast } from '@/components/ui/toast';
 import { Tooltip } from '@/components/ui/tooltip';
-import { isEditor, type ColumnGroup, type GroupStatus } from '@/config/promotion-proposal';
+import { actsAsBoard, isEditor, type ColumnGroup, type GroupStatus } from '@/config/promotion-proposal';
 import { formatPercent, formatSlashDate, formatSlashMonth, formatTime } from '@/lib/format';
 import { useCurrentUser } from '@/lib/session';
 import { useUnsavedChanges } from '@/lib/unsaved-changes';
@@ -20,12 +20,13 @@ import { cn } from '@/lib/utils';
 import { applyEdit, type PromotionEdit, type PromotionRow } from '@/services/promotionProposal';
 import { usePagePeriodStore } from '@/stores/page-period';
 import { fieldClass } from './cells';
-import { loadCollapsed, saveCollapsed } from './collapsed-groups';
 import { buildColumns } from './columns';
 import { GuideStrip } from './guide-strip';
 import { boardIssue, boardTypeOf, headcountUsage, managerIssue, totalUsage, type RowIssue } from './logic';
 import { OrgChartButton } from './org-charts';
 import { useApprovePromotion, usePromotionProposal, useReturnPromotion, useSavePromotionDraft, useSubmitPromotion } from './use-promotion-proposal';
+
+const NO_COLLAPSE: ReadonlySet<ColumnGroup> = new Set();
 
 const optionClass =
   'flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-lg px-2.5 py-1.5 text-xs outline-none hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-brand/50';
@@ -49,10 +50,6 @@ const Promotions = () => {
   const [unit, setUnit] = useState<string | null>(null);
   const [menu, setMenu] = useState<'group' | 'unit' | null>(null);
   const [query, setQuery] = useState('');
-  // Nhóm cột thu gọn: nhớ theo người dùng (localStorage); đổi tài khoản thì đọc lại của người đó.
-  const userKey = user.email || user.name;
-  const [collapsedState, setCollapsedState] = useState(() => ({ user: userKey, groups: loadCollapsed(userKey) }));
-  const collapsed = collapsedState.user === userKey ? collapsedState.groups : loadCollapsed(userKey);
   const [confirm, setConfirm] = useState<ConfirmMode | null>(null);
   const [returnReason, setReturnReason] = useState('');
   /** Bấm "Trả lại CQ" khi chưa có lý do → báo lỗi dưới ô (nút không bị khóa, như layout 7b). */
@@ -73,7 +70,7 @@ const Promotions = () => {
     const m = new Map<string, RowIssue>();
     if (!editor) return m;
     for (const r of rows) {
-      const issue = user.role === 'CQ' ? managerIssue(r) : user.role === 'BLD' ? boardIssue(r) : null;
+      const issue = user.role === 'CQ' ? managerIssue(r) : actsAsBoard(user.role) ? boardIssue(r) : null;
       if (issue) m.set(r.psk, issue);
     }
     return m;
@@ -86,16 +83,10 @@ const Promotions = () => {
   const clearSent = (id: string, sent: Record<string, PromotionEdit>) =>
     setDrafts((d) => ({ ...d, [id]: Object.fromEntries(Object.entries(d[id] ?? {}).filter(([k, v]) => sent[k] !== v)) }));
 
-  const toggle = (g: ColumnGroup) => {
-    const next = new Set(collapsed);
-    if (!next.delete(g)) next.add(g);
-    saveCollapsed(userKey, next);
-    setCollapsedState({ user: userKey, groups: next });
-  };
-
   const q = query.trim().toLowerCase();
   const visible = rows.filter((r) => (!unit || r.unit === unit) && (!q || r.name.toLowerCase().includes(q) || r.cardNo.toLowerCase().includes(q)));
-  const { columns, groups } = buildColumns({ t, role: user.role, status, issues, edit, collapsed, toggle });
+  // Bảng không có hàng nhóm cột (như trang Đề xuất KPI) nên không thu gọn nhóm.
+  const { columns } = buildColumns({ t, role: user.role, status, issues, edit, collapsed: NO_COLLAPSE, toggle: () => {} });
   const meters = group ? headcountUsage(rows, group, user.role === 'CQ' ? 'manager' : 'board') : [];
   const orgReady = !!group?.orgCharts.before && !!group?.orgCharts.after;
   const busy = save.isPending || Object.values(actions).some((a) => a.isPending);
@@ -135,7 +126,7 @@ const Promotions = () => {
   const total = data && !isManager ? totalUsage(data.groups) : null;
   // BLĐ: chi tiết từng loại lỗi trong tooltip của nhãn "Còn N dòng cần xử lý" (thanh công cụ phải gọn 2 dòng ở 1366px).
   const issueDetail = (() => {
-    if (user.role !== 'BLD') return null;
+    if (!actsAsBoard(user.role)) return null;
     const of = (k: RowIssue) => [...issues.values()].filter((i) => i === k).length;
     const rejects = of('rejectReason');
     const granted = of('grantedRequired');
@@ -323,7 +314,7 @@ const Promotions = () => {
                     </span>
                   </Tooltip>
                 ))}
-              {user.role === 'BLD' && (
+              {actsAsBoard(user.role) && status === 'submitted' && (
                 <>
                   <Button variant="outline" size="lg" className="px-3.5" onClick={() => setConfirm('return')} disabled={busy}>
                     {t('return')}
@@ -363,11 +354,12 @@ const Promotions = () => {
               <DataGrid
                 aria-label={t('grid')}
                 columns={columns}
-                groups={groups}
                 rows={visible}
                 rowKey={(r) => r.psk}
                 striped
                 wrapHeaders
+                centerHeaders
+                centerCells
                 rowAccent={(r) => (boardTypeOf(r) === 'reject' && r.board ? 'bg-danger-text' : r.type !== 'none' ? 'bg-brand' : undefined)}
                 rowClassName={(r) => (r.board && boardTypeOf(r) === 'reject' ? 'bg-grid-row-danger text-danger-text' : undefined)}
                 empty={
