@@ -37,12 +37,12 @@ const icons: ToasterProps["icons"] = {
     </IconBadge>
   ),
   info: (
-    <IconBadge className="bg-indigo-50 text-indigo-600 shadow-[0_0_18px_rgba(99,102,241,.3)] dark:bg-indigo-400/15 dark:text-indigo-300">
+    <IconBadge className="bg-blue-50 text-blue-600 shadow-[0_0_18px_rgba(37,99,235,.3)] dark:bg-blue-400/15 dark:text-blue-300">
       <Info strokeWidth={2} />
     </IconBadge>
   ),
   loading: (
-    <IconBadge className="bg-indigo-50 text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300">
+    <IconBadge className="bg-blue-50 text-blue-600 dark:bg-blue-400/15 dark:text-blue-300">
       <Loader2 strokeWidth={2} className="animate-spin" />
     </IconBadge>
   ),
@@ -70,7 +70,6 @@ export function Toaster({ label = "Notifications", closeLabel = "Dismiss notific
           toast: cn(
             "group pointer-events-auto relative flex w-[var(--width)] items-start gap-3 rounded-control border p-4 pr-14 font-login",
             "border-border bg-card text-foreground shadow-toast",
-            "dark:bg-card/75 dark:backdrop-blur-xl dark:backdrop-saturate-150",
             glass
           ),
           icon: "!m-0 !h-8 !w-8 shrink-0",

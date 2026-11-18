@@ -97,7 +97,7 @@ const MainLayout = () => {
     <ShellContext.Provider value={shell}>
       <AppShell
         sidebar={withSidebar ? <Sidebar collapsed={collapsed} /> : undefined}
-        mobileSidebar={withSidebar ? <Sidebar onClose={closeMenu} onNavigate={closeMenu} className={glass ? 'shell-inverse shell-pattern w-70 border-r border-border bg-shell shadow-toast' : 'flat-backdrop w-70 border-r border-border shadow-toast'} /> : undefined}
+        mobileSidebar={withSidebar ? <Sidebar onClose={closeMenu} onNavigate={closeMenu} className={glass ? 'shell-inverse shell-pattern w-70 border-r border-border bg-shell shadow-toast' : 'w-70 shadow-toast'} /> : undefined}
         mobileSidebarOpen={menuOpen}
         onMobileSidebarClose={closeMenu}
         header={<Header withSidebar={withSidebar} />}

@@ -52,7 +52,7 @@ function Row({ item, index, delay }: { item: UpdatesListItem; index: number; del
         <b className="truncate font-semibold text-foreground">{item.title}</b>
         {item.detail && <span className="hidden truncate sm:inline">· {item.detail}</span>}
       </span>
-      {item.date && <span className="shrink-0 text-xs text-placeholder">{item.date}</span>}
+      {item.date && <span className="shrink-0 text-xs text-muted-foreground">{item.date}</span>}
       {item.href && (
         <ArrowRight aria-hidden="true" className="size-3.5 shrink-0 -translate-x-1 text-brand-text opacity-0 transition duration-200 group-hover/row:translate-x-0 group-hover/row:opacity-100" />
       )}

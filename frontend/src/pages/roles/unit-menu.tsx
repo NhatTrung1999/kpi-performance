@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger, onListKeyDown } from '@/compon
 import { formatNumber } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { unitLabel, unitZh, type Unit } from './data';
-import { flattenTree } from './tree';
+import { flattenTree, treeRowFx } from './tree';
 import { TreeRowView } from './unit-tree';
 
 export type UnitMenuHandle = { open: () => void };
@@ -76,7 +76,7 @@ export const UnitMenu = ({ ref, units, status, onRetry, selected, onPick, covere
     <Popover open={open} onOpenChange={changeOpen}>
       <PopoverTrigger
         render={<Button variant="outline" />}
-        className="h-9 w-80 max-w-full justify-start gap-2 text-[13px] font-medium"
+        className="h-9 w-full justify-start gap-2 text-[13px] font-medium sm:w-80"
       >
         <Building2 className="size-[15px] flex-none text-muted-foreground" />
         <span className="min-w-0 flex-1 truncate text-left">
@@ -111,7 +111,7 @@ export const UnitMenu = ({ ref, units, status, onRetry, selected, onPick, covere
                   else if (e.key === 'ArrowRight' && r.hasKids && !r.open) toggle();
                   else if (e.key === 'ArrowLeft' && r.hasKids && r.open) toggle();
                 }}
-                className={cn('flex cursor-pointer items-center gap-0.5 rounded-lg py-1.5 pr-2 pl-1 outline-none hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-brand/50', sel && 'bg-accent hover:bg-accent')}
+                className={cn('flex cursor-pointer items-center gap-0.5 rounded-lg py-1.5 pr-2 pl-1 outline-none hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-brand/50', treeRowFx(r.level), sel && 'bg-accent hover:bg-accent')}
               >
                 <TreeRowView row={r} query={mq} onToggle={toggle} />
                 {!r.hasKids && !covered.has(r.unit.id) && (

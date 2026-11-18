@@ -24,6 +24,10 @@ function PopoverContent({ className, side = "bottom", align = "start", sideOffse
           data-slot="popover-content"
           className={cn(
             "flex max-h-[min(22.5rem,var(--available-height))] w-(--anchor-width) max-w-[calc(100vw-2rem)] flex-col rounded-xl border border-border bg-popover text-popover-foreground shadow-toast outline-none",
+            // Mở: mờ → rõ, phóng nhẹ từ phía ô neo và trượt 6px ra khỏi ô neo (lật lên trên thì trượt ngược); đóng nhanh hơn mở.
+            "origin-(--transform-origin) transition-[opacity,scale,translate] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+            "data-starting-style:scale-[.96] data-starting-style:opacity-0 data-ending-style:scale-[.97] data-ending-style:opacity-0 data-ending-style:duration-150 data-ending-style:ease-in",
+            "data-[side=bottom]:data-starting-style:-translate-y-1.5 data-[side=top]:data-starting-style:translate-y-1.5 data-[side=bottom]:data-ending-style:-translate-y-1 data-[side=top]:data-ending-style:translate-y-1",
             glass,
             className
           )}

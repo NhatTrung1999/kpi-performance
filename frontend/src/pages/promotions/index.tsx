@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, ChevronDown, Lock, Search, TrendingUp, TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Pill } from '@/components/ui/metric-card';
 import { PageBanner, type PageBannerBadge } from '@/components/ui/page-banner';
 import { Popover, PopoverContent, PopoverTrigger, onListKeyDown } from '@/components/ui/popover';
-import { PageShell, TableCard, TableCardBody } from '@/components/ui/table-page';
+import { PageShell, TableCard, TableCardBody, TableSkeleton } from '@/components/ui/table-page';
 import { toast } from '@/components/ui/toast';
 import { Tooltip } from '@/components/ui/tooltip';
 import { actsAsBoard, isEditor, type ColumnGroup, type GroupStatus } from '@/config/promotion-proposal';
@@ -76,17 +76,62 @@ const Promotions = () => {
     return m;
   }, [rows, editor, user.role]);
 
-  const edit = (row: PromotionRow, patch: PromotionEdit) =>
-    group && setDrafts((d) => ({ ...d, [group.id]: { ...d[group.id], [row.psk]: { ...d[group.id]?.[row.psk], ...patch } } }));
+  // Ổn định (useCallback theo id nhóm) để cột bảng không bị dựng lại mỗi lần trang vẽ lại (vd. mở/đóng menu chọn nhóm).
+  const currentGroupId = group?.id ?? null;
+  const edit = useCallback(
+    (row: PromotionRow, patch: PromotionEdit) => {
+      const id = currentGroupId;
+      if (id) setDrafts((d) => ({ ...d, [id]: { ...d[id], [row.psk]: { ...d[id]?.[row.psk], ...patch } } }));
+    },
+    [currentGroupId]
+  );
 
   /** Bỏ khỏi bản nháp các dòng vừa gửi đi — giữ lại những gì người dùng sửa tiếp trong lúc chờ. */
   const clearSent = (id: string, sent: Record<string, PromotionEdit>) =>
     setDrafts((d) => ({ ...d, [id]: Object.fromEntries(Object.entries(d[id] ?? {}).filter(([k, v]) => sent[k] !== v)) }));
 
   const q = query.trim().toLowerCase();
-  const visible = rows.filter((r) => (!unit || r.unit === unit) && (!q || r.name.toLowerCase().includes(q) || r.cardNo.toLowerCase().includes(q)));
+  const visible = useMemo(
+    () => rows.filter((r) => (!unit || r.unit === unit) && (!q || r.name.toLowerCase().includes(q) || r.cardNo.toLowerCase().includes(q))),
+    [rows, unit, q]
+  );
   // Bảng không có hàng nhóm cột (như trang Đề xuất KPI) nên không thu gọn nhóm.
-  const { columns } = buildColumns({ t, role: user.role, status, issues, edit, collapsed: NO_COLLAPSE, toggle: () => {} });
+  const { columns } = useMemo(
+    () => buildColumns({ t, role: user.role, status, issues, edit, collapsed: NO_COLLAPSE, toggle: () => {} }),
+    [t, user.role, status, issues, edit]
+  );
+  // Bảng 40 cột vẽ lại mất ~100ms: chỉ dựng lại khi dữ liệu/cột đổi, không phải khi mở menu, gõ ô khác, hiện hộp thoại…
+  const hasGroup = !!group;
+  // Lần đầu vào trang: dựng bảng ở chế độ nền (null → hiện khung chờ) để thanh trên, băng tiêu đề và hiệu ứng vào trang
+  // vẽ trước, không bị khung hình 150–200ms của bảng 40 cột chặn lại.
+  const shownRows = useDeferredValue<PromotionRow[] | null>(visible, null);
+  const grid = useMemo(
+    () => shownRows && (
+      <DataGrid
+        aria-label={t('grid')}
+        columns={columns}
+        rows={shownRows}
+        rowKey={(r) => r.psk}
+        striped
+        wrapHeaders
+        centerHeaders
+        centerCells
+        rowAccent={(r) => (boardTypeOf(r) === 'reject' && r.board ? 'bg-danger-text' : r.type !== 'none' ? 'bg-brand' : undefined)}
+        rowClassName={(r) => (r.board && boardTypeOf(r) === 'reject' ? 'bg-grid-row-danger text-danger-text' : undefined)}
+        empty={
+          !hasGroup ? (
+            <span className="flex flex-col gap-1">
+              <strong className="font-semibold text-foreground">{t('noScopeTitle')}</strong>
+              {t('noScopeHint')}
+            </span>
+          ) : (
+            t('noMatch')
+          )
+        }
+      />
+    ),
+    [t, columns, shownRows, hasGroup]
+  );
   const meters = group ? headcountUsage(rows, group, user.role === 'CQ' ? 'manager' : 'board') : [];
   const orgReady = !!group?.orgCharts.before && !!group?.orgCharts.after;
   const busy = save.isPending || Object.values(actions).some((a) => a.isPending);
@@ -113,8 +158,11 @@ const Promotions = () => {
   };
 
   const proposed = rows.filter((r) => r.type !== 'none').length;
+  // Đang tải: 2 huy hiệu chờ (như khi có dữ liệu) để băng tiêu đề không cao thêm một dòng lúc dữ liệu về (điện thoại).
   const badges: PageBannerBadge[] = !group
-    ? [{ label: t('status.draft'), value: '', loading: !data }]
+    ? !data
+      ? [{ label: t('status.draft'), value: '', loading: true }, { label: t('banner.proposed'), value: '', loading: true }]
+      : [{ label: t('status.draft'), value: '' }]
     : [
         { label: t(`status.${status}`), value: status === 'draft' && isManager ? t('banner.deadline', { date: formatSlashDate(data!.period.deadline) }) : group.name, dot: status !== 'approved' },
         { label: t('banner.proposed'), value: t('banner.proposedValue', { count: proposed, total: group.headcount }) },
@@ -153,8 +201,9 @@ const Promotions = () => {
     <PageShell className="gap-3 lg:px-5 lg:pt-3 lg:pb-4">
       <PageBanner
         icon={<TrendingUp />}
-        title={data ? t('banner.title', { month }) : ' '}
-        subtitle={data && t('banner.subtitle', { date: formatSlashDate(data.period.effectiveDate) })}
+        // Đang tải: giữ đúng câu tiêu đề/phụ đề (ngày tạm "··/····") để băng tiêu đề cao như lúc có dữ liệu.
+        title={t('banner.title', { month: data ? month : '··/····' })}
+        subtitle={t('banner.subtitle', { date: data ? formatSlashDate(data.period.effectiveDate) : '····/··/··' })}
         badges={badges}
         loadingLabel={t('common:loading')}
         compact
@@ -163,14 +212,16 @@ const Promotions = () => {
       <GuideStrip />
 
       <div className="flex flex-none flex-wrap items-center gap-2">
+        {/* Đang tải: giữ chỗ cho ô chọn nhóm / hạn mức / sơ đồ tổ chức để thanh công cụ không bật cao lên khi dữ liệu về. */}
+        {isPending && !isManager && <span aria-hidden="true" className="h-9 w-80 flex-none animate-pulse rounded-lg bg-muted max-sm:h-[50px] max-sm:w-full" />}
         {showGroupPicker && (
-          <div className="flex items-center gap-2.5">
-            <span className="flex flex-col gap-px">
+          <div className="flex items-center gap-2.5 max-sm:w-full">
+            <span className="flex flex-none flex-col gap-px max-sm:max-w-28">
               <span className="text-xs font-medium">{t('groupPicker.label')}</span>
               <span className="text-[11px] text-muted-foreground">{t('groupPicker.sub')}</span>
             </span>
             <Popover open={menu === 'group'} onOpenChange={(o) => setMenu(o ? 'group' : null)}>
-              <PopoverTrigger aria-label={t('groupPicker.label')} className={cn(triggerClass, 'max-w-72 min-w-48 font-semibold')}>
+              <PopoverTrigger aria-label={t('groupPicker.label')} className={cn(triggerClass, 'max-w-72 min-w-48 font-semibold max-sm:min-w-0 max-sm:max-w-none max-sm:flex-1')}>
                 <span className="min-w-0 truncate">{group?.name}</span>
                 {group && <Pill tone={STATUS_TONE[status]} className="ml-auto">{t(`status.${status}`)}</Pill>}
                 <ChevronDown aria-hidden="true" className={cn('size-3.5 flex-none opacity-60', !group && 'ml-auto')} />
@@ -247,6 +298,9 @@ const Promotions = () => {
         </div>
         {/* Hạn mức theo nhóm, cập nhật mỗi lần chọn; vượt thì cảnh báo màu cam, không chặn gửi (HEADCOUNT_RULES.mode). */}
         {/* Tooltip: "Headcount budget" nguyên văn file; vượt hạn mức thêm dòng cảnh báo. */}
+        {/* Điện thoại: 3 hạn mức nằm một hàng cuộn ngang (tràn sát mép màn hình); từ sm xếp chung hàng công cụ như cũ. */}
+        <div className="flex w-[calc(100%+2rem)] -mx-4 gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:contents">
+        {isPending && [0, 1, 2].map((i) => <span key={i} aria-hidden="true" className="h-9 flex-none animate-pulse rounded-lg bg-muted w-40" />)}
         {meters.map((m) => {
           const limit = formatPercent(m.limit);
           const value = t('meters.value', { count: m.count, base: m.base, percent: formatPercent(m.percent, 1) });
@@ -283,7 +337,9 @@ const Promotions = () => {
             </Tooltip>
           );
         })}
+        </div>
 
+        {isPending && <span aria-hidden="true" className="h-9 flex-none animate-pulse rounded-lg bg-muted w-44" />}
         {group && <OrgChartButton group={group} editable={isManager && editor} />}
 
         <div className="ml-auto flex flex-wrap items-center gap-2">
@@ -346,33 +402,10 @@ const Promotions = () => {
         // Bảng cao vừa đủ số dòng, tối đa bằng phần còn lại của màn hình; chỉ bảng cuộn (trang không cuộn).
         <TableCard fit>
           <TableCardBody className="flex flex-col">
-            {isPending ? (
-              <p role="status" className="p-6 text-center text-sm text-muted-foreground">
-                {t('common:loading')}
-              </p>
+            {isPending || !grid ? (
+              <TableSkeleton label={t('common:loading')} />
             ) : (
-              <DataGrid
-                aria-label={t('grid')}
-                columns={columns}
-                rows={visible}
-                rowKey={(r) => r.psk}
-                striped
-                wrapHeaders
-                centerHeaders
-                centerCells
-                rowAccent={(r) => (boardTypeOf(r) === 'reject' && r.board ? 'bg-danger-text' : r.type !== 'none' ? 'bg-brand' : undefined)}
-                rowClassName={(r) => (r.board && boardTypeOf(r) === 'reject' ? 'bg-grid-row-danger text-danger-text' : undefined)}
-                empty={
-                  !group ? (
-                    <span className="flex flex-col gap-1">
-                      <strong className="font-semibold text-foreground">{t('noScopeTitle')}</strong>
-                      {t('noScopeHint')}
-                    </span>
-                  ) : (
-                    t('noMatch')
-                  )
-                }
-              />
+              grid
             )}
           </TableCardBody>
           {/* CQ chỉ thấy cột 1–19: chú thích phần còn lại do bộ phận khác xử lý. */}

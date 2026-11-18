@@ -25,11 +25,86 @@ type AppShellProps = {
   className?: string
 }
 
+/** Sóng ở mép dưới dải gradient đầu trang. */
+const BAND_WAVES = [
+  { d: "M0 40 C 200 6 380 70 600 40 S 1000 8 1200 36 V70 H0z", fill: "rgb(255 255 255 / 0.08)" },
+  { d: "M0 56 C 240 30 420 80 640 52 S 1000 30 1200 56 V70 H0z", fill: "rgb(255 255 255 / 0.1)" },
+]
+
+/**
+ * Dải gradient có hoa văn sau thanh trên + băng tiêu đề trang (`[data-slot="page-banner"]`). Chiều cao `--band-h` đo lại khi
+ * nội dung đổi / cuộn / đổi cỡ: tới dưới băng tiêu đề 18px, khi cuộn co theo nhưng không thấp hơn thanh trên. Trang không có
+ * băng tiêu đề thì cao hơn thanh trên một chút.
+ */
+function useShellBand(columnRef: React.RefObject<HTMLDivElement | null>, scrollRef: React.RefObject<HTMLDivElement | null>, enabled: boolean) {
+  React.useLayoutEffect(() => {
+    const col = columnRef.current
+    const scroller = scrollRef.current
+    if (!enabled || !col || !scroller) return
+    let frame = 0
+    const update = () => {
+      frame = 0
+      // Đo từ mép trên của chính dải (từ lg dải lùi 12px so với cột), không phải mép trên cột.
+      const band = col.querySelector<HTMLElement>('[data-slot="shell-band"]')
+      const top = (band ?? col).getBoundingClientRect().top
+      const header = col.querySelector<HTMLElement>("header")
+      const min = (header?.offsetHeight ?? 56) + 14
+      const banner = scroller.querySelector<HTMLElement>('[data-slot="page-banner"]')
+      // Băng tiêu đề trượt vào lúc mở trang (animate-banner-enter): trừ phần dịch chuyển đang có để đo đúng vị trí cuối.
+      const transform = banner ? getComputedStyle(banner).transform : "none"
+      const shift = transform === "none" ? 0 : new DOMMatrixReadOnly(transform).m42
+      const h = banner ? Math.max(min, banner.getBoundingClientRect().bottom - shift - top + 10) : min + 36
+      col.style.setProperty("--band-h", `${Math.round(h)}px`)
+    }
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update)
+    }
+    update()
+    const ro = new ResizeObserver(schedule)
+    ro.observe(col)
+    ro.observe(scroller)
+    const mo = new MutationObserver(schedule)
+    mo.observe(scroller, { childList: true, subtree: true })
+    scroller.addEventListener("scroll", schedule, { passive: true })
+    // Đo lại khi hiệu ứng vào trang kết thúc (không đổi kích thước/DOM nên ResizeObserver/MutationObserver không báo).
+    scroller.addEventListener("animationend", schedule)
+    window.addEventListener("resize", schedule)
+    return () => {
+      cancelAnimationFrame(frame)
+      ro.disconnect()
+      mo.disconnect()
+      scroller.removeEventListener("scroll", schedule)
+      scroller.removeEventListener("animationend", schedule)
+      window.removeEventListener("resize", schedule)
+    }
+  }, [columnRef, scrollRef, enabled])
+}
+
+export function ShellBand() {
+  return (
+    <div aria-hidden="true" data-slot="shell-band" className="shell-band">
+      <div className="shell-band-dots" />
+      <div className="shell-band-ring" />
+      <div className="shell-band-dash" />
+      <div className="shell-band-blob -top-16 left-[38%] bg-cyan-300" />
+      <div className="shell-band-blob -bottom-24 -left-10 bg-sky-400" />
+      <svg className="shell-band-wave" viewBox="0 0 1200 70" preserveAspectRatio="none">
+        {BAND_WAVES.map((w) => (
+          <path key={w.d} d={w.d} fill={w.fill} />
+        ))}
+      </svg>
+    </div>
+  )
+}
+
 function AppShell({ sidebar, mobileSidebar, mobileSidebarOpen = false, onMobileSidebarClose, header, children, className }: AppShellProps) {
   const [scrolled, setScrolled] = React.useState(false)
   const drawerRef = React.useRef<HTMLDivElement>(null)
+  const columnRef = React.useRef<HTMLDivElement>(null)
+  const scrollRef = React.useRef<HTMLDivElement>(null)
   // Giao diện kính (mặc định) hay phẳng sáng — người dùng chọn ở thanh trên (lib/ui-theme.ts).
   const glass = useGlassUi()
+  useShellBand(columnRef, scrollRef, !glass)
 
   React.useEffect(() => {
     if (!mobileSidebarOpen) return
@@ -67,8 +142,9 @@ function AppShell({ sidebar, mobileSidebar, mobileSidebarOpen = false, onMobileS
         </>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div className={cn("contents", glass && "shell-inverse")}>{header}</div>
+      <div ref={columnRef} className="relative flex min-w-0 flex-1 flex-col">
+        {!glass && <ShellBand />}
+        <div className={cn("contents", glass ? "shell-inverse" : "on-band")}>{header}</div>
         <div
           data-slot="app-shell-panel"
           className={cn(
@@ -91,6 +167,7 @@ function AppShell({ sidebar, mobileSidebar, mobileSidebarOpen = false, onMobileS
             )}
           />
           <div
+            ref={scrollRef}
             onScroll={(e) => {
               const v = e.currentTarget.scrollTop > 2
               if (v !== scrolled) setScrolled(v)
@@ -132,6 +209,11 @@ type AppSidebarProps = {
 const TAB_CORNERS = cn(
   "before:pointer-events-none before:absolute before:right-0 before:bottom-full before:size-4 before:bg-[radial-gradient(circle_at_0_0,transparent_15.5px,var(--color-panel)_16px)]",
   "after:pointer-events-none after:absolute after:top-full after:right-0 after:size-4 after:bg-[radial-gradient(circle_at_0_100%,transparent_15.5px,var(--color-panel)_16px)]"
+)
+/** Góc lõm của tab giao diện phẳng: cùng màu nền trang (`page`). */
+const FLAT_TAB_CORNERS = cn(
+  "before:pointer-events-none before:absolute before:right-0 before:bottom-full before:size-4 before:bg-[radial-gradient(circle_at_0_0,transparent_15.5px,var(--color-page)_16px)]",
+  "after:pointer-events-none after:absolute after:top-full after:right-0 after:size-4 after:bg-[radial-gradient(circle_at_0_100%,transparent_15.5px,var(--color-page)_16px)]"
 )
 
 /**
@@ -197,9 +279,9 @@ function useActiveTab(navRef: React.RefObject<HTMLElement | null>) {
 
 function AppSidebar({ collapsed = false, logo, name, toggle, onClose, closeLabel = "Close menu", navLabel = "Main navigation", children, className }: AppSidebarProps) {
   const navRef = React.useRef<HTMLElement>(null)
-  const measured = useActiveTab(navRef)
-  // Giao diện phẳng: không có tab kính nối tấm — mục đang chọn là thẻ nổi nền `card` (SidebarNavItem).
-  const tab = useGlassUi() ? measured : null
+  const tab = useActiveTab(navRef)
+  // Kính: tab kính nối tấm nội dung. Phẳng: sidebar nền gradient chữ trắng (`.on-band`), tab cùng nền trang nối vùng nội dung.
+  const glass = useGlassUi()
   return (
     <aside
       data-slot="app-sidebar"
@@ -207,6 +289,7 @@ function AppSidebar({ collapsed = false, logo, name, toggle, onClose, closeLabel
       className={cn(
         "group/sidebar relative z-20 flex h-full flex-none flex-col overflow-hidden transition-[width] duration-200 ease-out",
         collapsed ? "w-18" : "w-62",
+        !glass && "on-band",
         className
       )}
     >
@@ -231,17 +314,27 @@ function AppSidebar({ collapsed = false, logo, name, toggle, onClose, closeLabel
           <span
             aria-hidden="true"
             className={cn(
-              "pointer-events-none absolute top-0 right-0 left-3 hidden lg:block",
-              tab.animate && "transition-[transform,height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+              "pointer-events-none absolute right-0 left-3 hidden lg:block",
+              tab.animate && "transition-[top,height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
             )}
-            style={{ height: tab.height, transform: `translateY(${tab.top}px)` }}
+            // Dùng `top` thay vì transform: transform làm `background-attachment: fixed` của nền tab (flat-backdrop) mất hiệu lực
+            // → vệt sáng góc và lưới chấm vẽ theo khung tab, lệch với vùng nội dung (hiện thành đường mờ ở chỗ nối).
+            style={{ height: tab.height, top: tab.top }}
           >
-            {/* Thân tab + đoạn nối 16px cuối (mang 2 góc lõm) chỉ là nền kính; viền là một nét SVG (tabOutline). */}
-            <span className="liquid-tab absolute inset-y-0 right-4 left-0 rounded-l-[10px] bg-panel" />
-            <span className={cn("liquid-tab-joint absolute inset-y-0 right-0 w-4 bg-panel", TAB_CORNERS)} />
-            <svg className="absolute -top-4 left-0 overflow-visible" width={tab.width} height={tab.height + 32} fill="none">
-              <path d={tabOutline(tab.width, tab.height)} stroke="var(--glass-rim)" strokeWidth={1} />
-            </svg>
+            {glass ? (
+              <>
+                {/* Thân tab + đoạn nối 16px cuối (mang 2 góc lõm) chỉ là nền kính; viền là một nét SVG (tabOutline). */}
+                <span className="liquid-tab absolute inset-y-0 right-4 left-0 rounded-l-[10px] bg-panel" />
+                <span className={cn("liquid-tab-joint absolute inset-y-0 right-0 w-4 bg-panel", TAB_CORNERS)} />
+                <svg className="absolute -top-4 left-0 overflow-visible" width={tab.width} height={tab.height + 32} fill="none">
+                  <path d={tabOutline(tab.width, tab.height)} stroke="var(--glass-rim)" strokeWidth={1} />
+                </svg>
+              </>
+            ) : (
+              // Phẳng: tab cùng nền trang (lưới chấm cố định theo khung nhìn nên khớp chấm với vùng nội dung), bo trái 14px,
+              // kéo sát mép phải sidebar; 2 góc lõm 16px trên/dưới cùng màu nền trang → nối liền vùng nội dung.
+              <span className={cn("flat-backdrop absolute inset-y-0 right-0 left-0 rounded-l-control", FLAT_TAB_CORNERS)} />
+            )}
           </span>
         )}
         {children}
@@ -295,13 +388,34 @@ function SidebarNavItem({ icon, label, active = false, collapsed = false, badge,
     "aria-label": collapsed ? label : undefined,
     onClick,
     className: cn(
-      "relative z-1 flex h-10 flex-none items-center gap-3 rounded-[10px] px-[15px] text-sm whitespace-nowrap outline-none transition-colors duration-150 focus-visible:ring-3 focus-visible:ring-ring/50 [&>svg]:size-[18px] [&>svg]:flex-none",
-      active ? cn("bg-card font-semibold text-accent-foreground shadow-nav", glass && ACTIVE_TAB) : "text-text-secondary"
+      "relative z-1 flex flex-none items-center gap-3 rounded-[12px] text-sm whitespace-nowrap outline-none transition-colors duration-150 focus-visible:ring-3 focus-visible:ring-ring/50 [&_svg]:size-[18px] [&_svg]:flex-none",
+      glass ? "h-10 px-[15px]" : "h-11 px-2.5",
+      active
+        ? cn("font-semibold text-accent-foreground", glass ? "bg-card shadow-nav" : "bg-accent", ACTIVE_TAB)
+        // Phẳng (sidebar gradient): rê chuột chỉ phủ lớp trắng rất mỏng kéo sát mép phải sidebar (liền như tab đang chọn) + chữ trắng;
+        // ô icon sáng lên, chữ nhích nhẹ sang phải.
+        : cn("text-text-secondary", !glass && "group/nav hover:bg-white/[.08] hover:text-foreground lg:-mr-3 lg:rounded-r-none")
     ),
     children: (
       <>
-        {icon}
-        {!collapsed && <span className="flex-1 truncate">{label}</span>}
+        {glass ? (
+          icon
+        ) : (
+          // Ô biểu tượng 28px: mục đang chọn nền gradient chữ trắng.
+          <span
+            className={cn(
+              "flex size-7 flex-none items-center justify-center rounded-lg transition-colors",
+              active
+                ? "bg-brand-gradient text-white shadow-brand"
+                : "text-muted-foreground duration-200 group-hover/nav:bg-white/15 group-hover/nav:text-foreground"
+            )}
+          >
+            {icon}
+          </span>
+        )}
+        {!collapsed && (
+          <span className={cn("flex-1 truncate", !glass && !active && "transition-transform duration-200 ease-out group-hover/nav:translate-x-0.5 motion-reduce:transition-none")}>{label}</span>
+        )}
         {badge !== undefined &&
           (collapsed ? (
             <span aria-hidden="true" className="absolute top-2 right-3 size-2 rounded-full border-2 border-shell bg-danger" />

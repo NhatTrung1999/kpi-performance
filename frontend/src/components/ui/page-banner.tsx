@@ -27,6 +27,8 @@ type PageBannerProps = {
   loadingLabel?: string
   /** Gọn (trang bảng vừa khít màn hình): bỏ chiều cao tối thiểu, phụ đề nằm cùng dòng tiêu đề. */
   compact?: boolean
+  /** Tự có nền gradient + sóng (khi không nằm trên dải đầu trang của AppShell). */
+  standalone?: boolean
   className?: string
 }
 
@@ -40,19 +42,26 @@ const WAVES = [
   { d: wave(13, 8), opacity: 0.07, duration: "48s", reverse: false },
 ]
 
-/** Banner tiêu đề trang: nền gradient thương hiệu, gọn một dòng, kèm các huy hiệu thống kê. */
-function PageBanner({ icon, title, subtitle, badges, loadingLabel = "Loading", compact = false, className }: PageBannerProps) {
+/**
+ * Băng tiêu đề trang, gọn một dòng, kèm các huy hiệu thống kê. Chữ trắng, nền trong suốt: nằm trên dải gradient đầu trang
+ * của AppShell (dải tự kéo dài tới dưới băng này qua `data-slot="page-banner"`). `standalone` = tự có nền gradient + sóng
+ * (dùng ngoài AppShell, vd. bản xem trước của thư viện).
+ */
+function PageBanner({ icon, title, subtitle, badges, loadingLabel = "Loading", compact = false, standalone = false, className }: PageBannerProps) {
   return (
     <section
+      data-slot="page-banner"
       className={cn(
-        "relative flex flex-none animate-banner-enter flex-wrap items-center justify-between gap-x-6 overflow-hidden rounded-2xl bg-brand-gradient px-5 py-3 text-white shadow-brand",
-        compact ? "gap-y-2" : "min-h-17 gap-y-3",
+        "relative flex flex-none animate-banner-enter flex-wrap items-center justify-between gap-x-6 overflow-hidden text-white",
+        // Trên dải đầu trang: chừa khoảng dưới để dải kết thúc trước khối kế tiếp (thanh công cụ có chữ thường).
+        standalone ? "rounded-2xl bg-brand-gradient px-5 py-3 shadow-brand" : "mb-3 px-1 py-1",
+        compact ? "gap-y-2" : "min-h-14 gap-y-3",
         className
       )}
     >
       {/* Sóng: mỗi đường là một SVG rộng 200% lặp đúng 2 chu kỳ sóng (Q/T chu kỳ 500) → trượt -50% là liền mạch.
           Ba đường trôi với tốc độ khác nhau để không đều tăm tắp. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 overflow-hidden">
+      <div aria-hidden="true" className={cn("pointer-events-none absolute inset-x-0 bottom-0 h-1/2 overflow-hidden", !standalone && "hidden")}>
         {WAVES.map((w) => (
           <svg
             key={w.d}
@@ -70,7 +79,7 @@ function PageBanner({ icon, title, subtitle, badges, loadingLabel = "Loading", c
       {/* Vệt sáng lướt qua một lần khi trang mở. */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 animate-banner-shine bg-[linear-gradient(105deg,transparent_35%,rgb(255_255_255/0.22)_50%,transparent_65%)]"
+        className={cn("pointer-events-none absolute inset-0 animate-banner-shine bg-[linear-gradient(105deg,transparent_35%,rgb(255_255_255/0.22)_50%,transparent_65%)]", !standalone && "hidden")}
       />
       <div className="relative flex min-w-0 items-center gap-3">
         <div className={cn("flex flex-none items-center justify-center rounded-[10px] border border-white/20 bg-white/20", compact ? "size-8 [&_svg]:size-4" : "size-9 [&_svg]:size-[18px]")}>
@@ -81,8 +90,9 @@ function PageBanner({ icon, title, subtitle, badges, loadingLabel = "Loading", c
           {subtitle && <p className="text-xs leading-4 text-white/80">{subtitle}</p>}
         </div>
       </div>
+      {/* Điện thoại: huy hiệu nằm một hàng (vuốt ngang nếu dài) → chiều cao băng không đổi theo độ dài chữ / lúc tải xong. */}
       {badges && badges.length > 0 && (
-        <div className="relative flex flex-wrap items-center gap-2">
+        <div className="relative flex flex-wrap items-center gap-2 max-sm:w-full max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:[scrollbar-width:none]">
           {badges.map((b, i) => {
             const body = (
               <>
@@ -117,7 +127,7 @@ function PageBanner({ icon, title, subtitle, badges, loadingLabel = "Loading", c
                   base,
                   "cursor-pointer transition-colors duration-150 ease-out outline-none focus-visible:ring-2 focus-visible:ring-white/70",
                   // Nền trắng cố định → chữ xanh đậm cố định (text-brand-text đổi sang xanh nhạt trong vùng tông tối, mất chữ).
-                  b.active ? "border-white bg-white font-semibold text-indigo-700" : "border-white/30 bg-white/15 hover:border-white/50 hover:bg-white/20"
+                  b.active ? "border-white bg-white font-semibold text-blue-700" : "border-white/30 bg-white/15 hover:border-white/50 hover:bg-white/20"
                 )}
               >
                 {body}

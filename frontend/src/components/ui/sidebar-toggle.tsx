@@ -1,4 +1,4 @@
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import { ChevronsLeft, ChevronsRight } from "lucide-react"
 import { Tooltip } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
@@ -16,8 +16,8 @@ const DEFAULT_LABELS = { collapse: "Collapse sidebar", expand: "Expand sidebar" 
 
 /**
  * Nút đóng/mở sidebar cạnh logo: nút kính tròn (`liquid-glass`, cùng kiểu nút ngôn ngữ trên thanh trên — sidebar nằm trong
- * `.shell-inverse` nên từ lg ăn kiểu kính), icon theo trạng thái: đang mở → "thu vào" (PanelLeftClose), đang thu → "mở ra"
- * (PanelLeftOpen). Icon hơi mờ, sáng lên khi rê chuột lên sidebar hoặc focus bàn phím.
+ * `.shell-inverse` nên từ lg ăn kiểu kính), icon theo trạng thái: đang mở → "thu vào" (ChevronsLeft «), đang thu → "mở ra"
+ * (ChevronsRight »). Icon hơi mờ, sáng lên khi rê chuột lên sidebar hoặc focus bàn phím.
  */
 function SidebarToggle({ collapsed, onToggle, labels = DEFAULT_LABELS, shortcut = "Ctrl B", className }: SidebarToggleProps) {
   const label = collapsed ? labels.expand : labels.collapse
@@ -36,9 +36,9 @@ function SidebarToggle({ collapsed, onToggle, labels = DEFAULT_LABELS, shortcut 
         )}
       >
         {collapsed ? (
-          <PanelLeftOpen aria-hidden="true" className="size-4" strokeWidth={1.8} />
+          <ChevronsRight aria-hidden="true" className="size-[18px]" strokeWidth={2} />
         ) : (
-          <PanelLeftClose aria-hidden="true" className="size-4" strokeWidth={1.8} />
+          <ChevronsLeft aria-hidden="true" className="size-[18px]" strokeWidth={2} />
         )}
       </button>
     </Tooltip>

@@ -21,7 +21,7 @@ import {
   ROLE_FILTER_KEYS, ROLE_OPTION_KEYS,
   findUnit, leafMapOf, leavesOf, norm, peopleInUnit, unitLabel, unitZh, type Person, type Role, type RoleFilter,
 } from './data';
-import { flattenTree } from './tree';
+import { flattenTree, treeRowFx } from './tree';
 import { TreeRowView } from './unit-tree';
 import { UnitMenu, type UnitMenuHandle } from './unit-menu';
 import { useEmployees } from './use-employees';
@@ -31,10 +31,12 @@ import { leafToScope, scopeToLeaf, useManagers, useSaveManagers, type ManagerCha
 /** Vai trò đã giao = màu thương hiệu; chưa phân quyền = cam nhạt (token cảnh báo). */
 const ROLE_TONE: Record<Role, 'brand' | 'warning'> = { CQ: 'brand', NONE: 'warning' };
 
-/** Cột bảng theo % (layout 9): luôn lấp đủ chiều ngang, không cuộn ngang. */
+/** Cột bảng theo % (layout 9): lấp đủ chiều ngang; mỗi cột có bề rộng tối thiểu (COL_MIN, ~820px tổng) để màn hẹp
+ *  (điện thoại, tablet dọc) cuộn ngang trong khung bảng thay vì bóp chữ thành "Bộ p…". */
 const COL_WIDTH = { name: 26, dept: 18, position: 15, joinDate: 11, role: 14, scope: 16 } as const;
+const COL_MIN = { name: 170, dept: 140, position: 120, joinDate: 96, role: 128, scope: 170 } as const;
 type ColKey = keyof typeof COL_WIDTH;
-const width = (k: ColKey) => `minmax(0,${COL_WIDTH[k]}fr)`;
+const width = (k: ColKey) => `minmax(${COL_MIN[k]}px,${COL_WIDTH[k]}fr)`;
 
 /** Dòng giả cho skeleton khi đang tải. */
 const SKELETON_ROWS: Person[] = Array.from({ length: 8 }, (_, i) => ({
@@ -363,7 +365,8 @@ const Roles = () => {
             title={t('allManagersHint')}
             className={cn(
               'inline-flex h-9 flex-none items-center gap-2 rounded-lg border px-3 text-[13px] font-medium whitespace-nowrap outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand/50',
-              overview ? 'border-primary bg-primary font-semibold text-primary-foreground shadow-brand' : 'border-border bg-card text-text-secondary shadow-field hover:border-border-strong hover:text-foreground'
+              // Đang bật: cùng nền gradient thương hiệu với nút chính (Button default) và tab sidebar.
+              overview ? 'border-transparent bg-brand-gradient font-semibold text-white shadow-brand' : 'border-border bg-card text-text-secondary shadow-field hover:border-border-strong hover:text-foreground'
             )}
           >
             <UserCheck aria-hidden="true" className="size-[15px] flex-none" />
@@ -383,7 +386,8 @@ const Roles = () => {
             onOrphanOnlyChange={setOrphanOnly}
           />
 
-          <div className="w-65 max-w-full flex-none">
+          {/* Ô tìm co giãn (48–65) để hàng công cụ không nhảy 1↔2 dòng khi số đếm ở nút lọc đổi độ rộng lúc tải xong. */}
+          <div className="w-full sm:w-auto sm:max-w-65 sm:min-w-48 sm:flex-1">
             <Input
               value={q}
               onChange={(e) => { setQ(e.target.value); setLimit(STEP); }}
@@ -412,11 +416,12 @@ const Roles = () => {
                   onClick={() => pickFilter(key)}
                   className={cn(
                     'inline-flex h-7.5 items-center gap-1.5 rounded-full border px-3 text-[12.5px] whitespace-nowrap outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand/50',
-                    on ? 'border-foreground bg-foreground font-semibold text-background' : 'border-transparent bg-muted font-medium text-text-secondary hover:bg-border hover:text-foreground'
+                    // Cùng tông xanh thương hiệu với nút "Tất cả chủ quản" (bản nhạt: lọc phụ, không tranh với nút chính).
+                    on ? 'border-brand/40 bg-accent font-semibold text-accent-foreground' : 'border-border bg-card font-medium text-text-secondary hover:border-border-strong hover:text-foreground'
                   )}
                 >
                   {t(`tabs.${key}`)}
-                  <span className={cn('text-[11.5px] tabular-nums', on ? 'opacity-70' : 'text-muted-foreground')}>{formatNumber(quickCount(key))}</span>
+                  <span className={cn('text-[11.5px] tabular-nums', on ? 'opacity-80' : 'text-muted-foreground')}>{formatNumber(quickCount(key))}</span>
                 </button>
               );
             })}
@@ -425,15 +430,15 @@ const Roles = () => {
 
         <TableCard>
           <TableCardBar className="flex-wrap justify-between gap-3 border-b border-border px-4 py-3">
-            <h2 className="flex min-w-0 items-baseline gap-2 text-[15px] font-semibold">
-              <span>{t('listTitle')}</span>
+            <h2 className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[15px] font-semibold">
+              <span className="whitespace-nowrap">{t('listTitle')}</span>
               {(overview || fu) && (
                 <>
                   <span className="text-muted-foreground">·</span>
                   <span className="truncate">{overview ? t('allManagersTitle') : fuName}</span>
                 </>
               )}
-              <span className="text-xs font-normal text-muted-foreground">{t('listZh')}</span>
+              <span className="text-xs font-normal whitespace-nowrap text-muted-foreground">{t('listZh')}</span>
             </h2>
             <div className="flex items-center gap-2">
               {rows.length !== people.length && <span className="text-xs text-muted-foreground tabular-nums">{t('shown', { n: formatNumber(rows.length) })}</span>}
@@ -458,8 +463,8 @@ const Roles = () => {
         {changes.length > 0 && drawer === null && (
           <div
             role="status"
-            // Viên thuốc kính nổi (từ lg: `.liquid-popup` — cùng lớp kính với menu xổ).
-            className="liquid-popup absolute bottom-7 left-1/2 z-30 flex -translate-x-1/2 items-center gap-4 rounded-full border border-border-strong bg-card py-1.5 pr-1.5 pl-5 shadow-toast max-lg:fixed"
+            // Thanh nổi dạng viên thuốc: nền thẻ đặc + bóng (giao diện phẳng, không kính).
+            className="absolute bottom-7 left-1/2 z-30 flex -translate-x-1/2 items-center gap-4 rounded-full border border-border-strong bg-card py-1.5 pr-1.5 pl-5 shadow-toast max-lg:fixed"
           >
             <span className="size-2 flex-none animate-pulse-soft rounded-full bg-brand shadow-[0_0_10px_var(--brand)]" />
             <span className="text-[13.5px] font-semibold whitespace-nowrap tabular-nums">{t('unsavedChanges', { count: changes.length })}</span>
@@ -477,10 +482,11 @@ const Roles = () => {
           <Dialog.Backdrop className="fixed inset-0 z-50 bg-[rgba(10,20,25,.34)] transition-opacity duration-300 data-ending-style:duration-200 data-starting-style:opacity-0 data-ending-style:opacity-0 motion-reduce:transition-none" />
           <Dialog.Popup
             className={cn(
-              'fixed inset-y-0 right-0 z-51 flex w-117 max-w-full flex-col border-l border-border bg-card text-foreground shadow-[-16px_0_40px_rgba(0,0,0,.18)]',
+              // Tấm nổi: cách mép trên/phải/dưới màn hình 12px, bo 20px, viền quanh (không dính sát cạnh màn hình).
+              'fixed inset-y-3 right-3 z-51 flex w-117 max-w-[calc(100%-1.5rem)] flex-col overflow-hidden rounded-[20px] border border-border bg-card text-foreground shadow-toast',
               // Mở: trượt vào từ phải + hiện dần; đóng: trượt ra nhanh hơn. Tắt khi bật "giảm chuyển động".
               'transition-[translate,opacity] duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] data-starting-style:translate-x-[calc(100%+2rem)] data-starting-style:opacity-0 data-ending-style:translate-x-[calc(100%+2rem)] data-ending-style:opacity-0 data-ending-style:duration-200 data-ending-style:ease-in motion-reduce:transition-none',
-              glass && cn(glass, 'liquid-drawer inset-y-3 right-3 max-w-[calc(100%-1.5rem)] overflow-hidden rounded-[20px] border')
+              glass && cn(glass, 'liquid-drawer')
             )}
           >
             <div className="flex flex-none items-start gap-3 border-b border-border px-5 pt-5 pb-4">
@@ -510,7 +516,7 @@ const Roles = () => {
                     aria-level={r.level + 1}
                     aria-selected={all}
                     onClick={toggleCheck}
-                    className="flex cursor-pointer items-center gap-1.5 rounded-lg py-1.5 pr-1 pl-1 hover:bg-muted"
+                    className={cn('flex cursor-pointer items-center gap-1.5 rounded-lg py-1.5 pr-1 pl-1 hover:bg-muted', treeRowFx(r.level))}
                   >
                     <TreeRowView
                       row={r}

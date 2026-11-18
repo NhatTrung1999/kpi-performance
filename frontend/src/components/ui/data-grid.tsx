@@ -137,7 +137,7 @@ const HEAD_BG: Record<DataGridTone, string> = {
   read: "bg-grid-head-read",
   input: "bg-grid-head-input",
   locked: "bg-grid-locked",
-  plain: "bg-card",
+  plain: "bg-grid-head-read", // tiêu đề cột mặc định hơi xanh xám để tách khỏi thân bảng trắng
   warn: "bg-grid-head-warn",
   info: "bg-grid-head-info",
   salary: "bg-grid-head-salary",
@@ -251,17 +251,16 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
 
   const hasFooter = footerLabel !== undefined
   const gridRef = React.useRef<HTMLDivElement>(null)
-  // Còn dòng nằm dưới dòng tổng (chưa cuộn tới đáy) → bóng mờ phía trên dòng tổng.
-  const [covered, setCovered] = React.useState(false)
-  // Đã cuộn ngang → bóng mờ ở mép phải phần cố định.
-  const [scrolledX, setScrolledX] = React.useState(false)
+  // Trạng thái cuộn ghi thẳng lên phần tử bảng (data-covered: còn dòng nằm dưới dòng tổng → bóng trên dòng tổng;
+  // data-scrolled-x: đã cuộn ngang → bóng ở mép phải phần cố định) và CSS đọc qua `group-data-*`. Không dùng state:
+  // đổi state làm cả bảng (có khi 40 cột) vẽ lại đúng lúc bắt đầu cuộn → rớt khung hình.
   React.useEffect(() => {
     const grid = gridRef.current
     const scroller = grid?.parentElement
     if (!grid || !scroller) return
     const update = () => {
-      if (hasFooter) setCovered(scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 1)
-      setScrolledX(scroller.scrollLeft > 0)
+      grid.toggleAttribute("data-covered", hasFooter && scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 1)
+      grid.toggleAttribute("data-scrolled-x", scroller.scrollLeft > 0)
     }
     update()
     scroller.addEventListener("scroll", update, { passive: true })
@@ -278,10 +277,10 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
   const bodyRows = rows.length || (empty ? 1 : 0)
   const fill = fillEmpty && !hasFooter && rows.length === 0 && !!empty
   const gridTemplateRows = hasFooter ? `repeat(${headRows + bodyRows}, auto) 1fr auto` : fill ? `repeat(${headRows}, auto) 1fr` : undefined
-  const pinEdge = scrolledX && "shadow-grid-pin"
+  const pinEdge = "group-data-scrolled-x/grid:shadow-grid-pin"
   const footerCell = cn(
     "sticky bottom-0 flex h-11 min-w-0 items-center border-t border-t-border-strong bg-card px-1.5 font-semibold whitespace-nowrap tabular-nums transition-shadow duration-150",
-    covered && "shadow-grid-footer"
+    "group-data-covered/grid:shadow-grid-footer"
   )
 
   const pin = (i: number) => (i < pinnedCount ? { left: pinnedLeft[i] } : undefined)
@@ -302,7 +301,7 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
       data-slot="data-grid"
       // Rộng bằng khung; khung hẹp hơn tổng độ rộng tối thiểu thì cuộn ngang (cột `1fr` chỉ giãn trong phần dư).
       // Không có dòng tổng: dồn các hàng lên trên, không để hàng nhóm/tiêu đề giãn ra khi bảng ít dòng.
-      className={cn("grid w-full flex-1 leading-[1.35]", roomy ? "text-[13px]" : "text-xs", !hasFooter && !fill && "content-start", className)}
+      className={cn("group/grid grid w-full flex-1 leading-[1.35]", roomy ? "text-[13px]" : "text-xs", !hasFooter && !fill && "content-start", className)}
       style={{ gridTemplateColumns: columns.map((c) => track(c.width)).join(" "), gridTemplateRows, minWidth: columns.reduce((s, c) => s + minWidthOf(c.width), 0) }}
     >
       {groupCells.length > 0 && (
@@ -430,7 +429,7 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
               )}
             >
               <Label tooltip={c.tooltip} className={cn("flex max-w-full flex-col gap-px", centerHeaders ? "items-center" : c.align === "end" && "items-end")}>
-                <span className={cn("max-w-full font-medium text-foreground", wrapHeaders ? "text-balance" : "truncate")}>{c.header}</span>
+                <span className={cn("max-w-full font-semibold text-foreground", wrapHeaders ? "text-balance" : "truncate")}>{c.header}</span>
                 <span className={cn("max-w-full text-[11px] text-muted-foreground", wrapHeaders ? "text-balance" : "truncate")}>{c.sub ?? " "}</span>
                 {wrapHeaders && c.note && <span className="mt-0.5 max-w-full text-[10.5px] leading-tight font-normal text-pretty text-muted-foreground">{c.note}</span>}
               </Label>
@@ -468,7 +467,7 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
                 className={cn(
                   "flex min-w-0 items-center",
                   roomy ? "min-h-14 px-4" : cn("min-h-11 px-1.5", i === 0 && "pl-3"),
-                  !striped && "border-b border-border",
+                  striped ? "border-b border-border/70" : "border-b border-border", // có sọc vẫn giữ đường kẻ mảnh để các dòng tách bạch
                   c.field && "py-1.5",
                   i < pinnedCount ? "sticky z-1 transition-shadow duration-150" : i === 0 && "relative",
                   base,
@@ -504,7 +503,7 @@ function DataGrid<T>({ columns: allColumns, groups: allGroups, rows, rowKey, row
           <div aria-hidden="true" className="col-span-full" />
           <div role="row" data-slot="data-grid-footer" className="contents">
             {pinnedCount > 0 && (
-              <div role="cell" style={{ gridColumn: `span ${pinnedCount}`, left: 0 }} className={cn(footerCell, "z-5 gap-1.5 border-r border-r-border-strong pl-3", scrolledX && !covered && "shadow-grid-pin")}>
+              <div role="cell" style={{ gridColumn: `span ${pinnedCount}`, left: 0 }} className={cn(footerCell, "z-5 gap-1.5 border-r border-r-border-strong pl-3", "group-data-scrolled-x/grid:not-group-data-covered/grid:shadow-grid-pin")}>
                 {footerLabel}
               </div>
             )}

@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import { countOf, leavesOf, norm, unitLabel, unitZh, type Unit } from './data';
 
 /** count = undefined khi chưa biết số người (API đơn vị chưa trả số nhân viên). */
@@ -27,3 +28,10 @@ export const flattenTree = (units: Unit[], query: string, openIds: string[], kee
   walk(units, 0, false);
   return out;
 };
+
+/**
+ * Hiệu ứng dòng cây (menu Đơn vị, ngăn Phạm vi quản lý): đổi nền mượt khi rê chuột; dòng con (cấp > 0) trượt xuống + hiện dần
+ * khi vừa được mở (dòng gắn key theo đơn vị nên chỉ chạy lúc dòng mới xuất hiện). Tắt khi bật "giảm chuyển động" (luật chung).
+ */
+export const treeRowFx = (level: number) =>
+  cn('transition-colors duration-150 ease-out', level > 0 && 'animate-slide-down [animation-duration:220ms]');

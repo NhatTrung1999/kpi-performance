@@ -118,5 +118,24 @@ function TableCardBody({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-export { PageShell, TableCard, TableCardBar, TableCardBody }
+/**
+ * Khung chờ của bảng khi đang tải: hàng tiêu đề + `rows` dòng nhấp nháy, cao gần bằng bảng thật → khi dữ liệu về bảng
+ * không bật từ 1 dòng chữ lên cả khối (tránh xô lệch bố cục). `label` = chữ cho trình đọc màn hình (đã dịch).
+ */
+function TableSkeleton({ rows = 6, label = "Loading", className }: { rows?: number; label?: string; className?: string }) {
+  return (
+    <div role="status" aria-label={label} className={cn("flex flex-col", className)}>
+      <div className="h-14 flex-none border-b border-border bg-grid-head-read" />
+      {Array.from({ length: rows }, (_, i) => (
+        <div key={i} className="flex h-12 flex-none items-center gap-4 border-b border-border/70 px-4">
+          <span className="h-3 w-24 animate-pulse rounded bg-muted" style={{ animationDelay: `${i * 80}ms` }} />
+          <span className="h-3 flex-1 animate-pulse rounded bg-muted" style={{ animationDelay: `${i * 80 + 40}ms` }} />
+          <span className="h-3 w-16 animate-pulse rounded bg-muted" style={{ animationDelay: `${i * 80 + 80}ms` }} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export { PageShell, TableCard, TableCardBar, TableCardBody, TableSkeleton }
 export type { TableCardProps }

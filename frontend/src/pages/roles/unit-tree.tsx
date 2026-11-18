@@ -41,7 +41,7 @@ export const TreeRowView = ({ row, query, onToggle, lead }: Props) => {
           onToggle();
         }}
         className={cn(
-          'flex size-5.5 flex-none items-center justify-center rounded-md text-muted-foreground transition-transform duration-150 hover:bg-border',
+          'flex size-5.5 flex-none items-center justify-center rounded-md text-muted-foreground transition-[transform,background-color,color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-border hover:text-foreground',
           row.open && 'rotate-90',
           !row.hasKids && 'invisible'
         )}

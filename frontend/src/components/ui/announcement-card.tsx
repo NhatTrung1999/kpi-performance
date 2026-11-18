@@ -29,7 +29,7 @@ function AnnouncementCard({ icon, badge, title, description, aside, delay = 0, c
         </div>
         {description && <p className="text-label text-muted-foreground">{description}</p>}
       </div>
-      {aside && <span className="shrink-0 text-xs text-placeholder">{aside}</span>}
+      {aside && <span className="shrink-0 text-xs text-muted-foreground">{aside}</span>}
     </InfoCard>
   )
 }

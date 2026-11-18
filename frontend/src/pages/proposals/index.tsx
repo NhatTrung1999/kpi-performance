@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Pill } from '@/components/ui/metric-card';
 import { PageBanner, type PageBannerBadge } from '@/components/ui/page-banner';
 import { Popover, PopoverContent, PopoverTrigger, onListKeyDown } from '@/components/ui/popover';
-import { PageShell, TableCard, TableCardBody } from '@/components/ui/table-page';
+import { PageShell, TableCard, TableCardBody, TableSkeleton } from '@/components/ui/table-page';
 import { toast } from '@/components/ui/toast';
 import { Tooltip } from '@/components/ui/tooltip';
 import { ABC_RULES, canEdit, isEditor, PROPOSAL_RESULTS, type EditableField, type ProposalResult } from '@/config/kpi-proposal';
@@ -419,9 +419,7 @@ const Proposals = () => {
           {/* flex-col: DataGrid (flex-1) cao ít nhất bằng khung để dòng tổng nằm ở đáy. */}
           <TableCardBody className="flex flex-col">
             {isPending ? (
-              <p role="status" className="p-6 text-center text-sm text-muted-foreground">
-                {t('common:loading')}
-              </p>
+              <TableSkeleton label={t('common:loading')} />
             ) : (
               <DataGrid
                 aria-label={t('grid')}
